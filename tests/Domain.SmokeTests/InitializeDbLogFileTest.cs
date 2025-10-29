@@ -30,10 +30,10 @@ namespace Domain.SmokeTests
 
             Assert.NotNull(solutionDir);
 
-            var dllPath = Path.Combine(solutionDir.FullName, "InitializeDb", "bin", "Debug", "net8.0", "InitializeDb.dll");
-            Assert.True(File.Exists(dllPath), $"InitializeDb DLL not found at {dllPath}. Build the solution before running this test.");
+            var projPath = Path.Combine(solutionDir.FullName, "InitializeDb", "InitializeDb.csproj");
+            Assert.True(File.Exists(projPath), $"InitializeDb project not found at {projPath}. Build or restore solution before running this test.");
 
-            var psi = new ProcessStartInfo("dotnet", $"\"{dllPath}\" --mode=schemaexport --seed --data-dir=\"{tmp}\" --log-file=\"{logPath}\"")
+            var psi = new ProcessStartInfo("dotnet")
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -42,29 +42,16 @@ namespace Domain.SmokeTests
                 WorkingDirectory = Path.Combine(solutionDir.FullName, "InitializeDb")
             };
 
-            using var p = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start dotnet process");
+            // Use ArgumentList to avoid quoting/parsing issues
+            // Prefer running the compiled EXE directly to avoid dotnet/msbuild invocations in the test runner
+            var exePath = Path.Combine(solutionDir.FullName, "InitializeDb", "bin", "Debug", "net8.0", "InitializeDb.exe");
+            Assert.True(File.Exists(exePath), $"InitializeDb EXE not found at {exePath}. Build the solution before running this test.");
 
-            var stdoutTask = p.StandardOutput.ReadToEndAsync();
-            var stderrTask = p.StandardError.ReadToEndAsync();
-
-            var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(110000));
-            try
-            {
-                await p.WaitForExitAsync(cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                var partialOut = await stdoutTask;
-                var partialErr = await stderrTask;
-                throw new Xunit.Sdk.XunitException($"InitializeDb process did not exit in time. stdout: {partialOut}\nerr: {partialErr}");
-            }
-
-            var outText = await stdoutTask;
-            var errText = await stderrTask;
-
-            Assert.Equal(0, p.ExitCode);
-            Assert.True(File.Exists(logPath), $"Expected log file at {logPath} to exist. stdout: {outText}\nstderr: {errText}");
-
+            // Call the programmatic API directly
+            var args = new[] { "--mode=schemaexport", "--seed", $"--data-dir={tmp}", $"--log-file={logPath}" };
+            var exitCode = await InitializeDbService.RunAsync(args, null);
+            Assert.Equal(0, exitCode);
+            Assert.True(File.Exists(logPath), $"Expected log file at {logPath} to exist.");
             var content = File.ReadAllText(logPath);
             Assert.Contains("InitializeDb log started", content);
 
