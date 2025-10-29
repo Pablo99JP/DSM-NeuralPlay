@@ -44,5 +44,39 @@ namespace Domain.SmokeTests
             var result = propuestaCEN.AprobarSiVotosUnanimes(prop);
             Assert.True(result);
         }
+
+        [Fact]
+        public void Authentication_Login_Fails_With_Wrong_Password()
+        {
+            var usuarioRepo = new InMemoryUsuarioRepository();
+            var usuarioCEN = new UsuarioCEN(usuarioRepo);
+            var authCEN = new AuthenticationCEN(usuarioRepo);
+
+            var password = "secretABC";
+            var hashed = PasswordHasher.Hash(password);
+
+            var user = usuarioCEN.NewUsuario("unituser2", "unit2@example.com", hashed);
+            Assert.NotNull(user);
+
+            var logged = authCEN.Login("unituser2", "wrongpass");
+            Assert.Null(logged);
+        }
+
+        [Fact]
+        public void PropuestaTorneo_AprobarSiVotosUnanimes_ReturnsFalse_When_NoVotes()
+        {
+            var propuestaRepo = new InMemoryRepository<PropuestaTorneo>();
+            var propuestaCEN = new PropuestaTorneoCEN(propuestaRepo);
+
+            var eq = new Equipo { Nombre = "EqUnit", FechaCreacion = DateTime.UtcNow };
+            var torneo = new Torneo { Nombre = "TUnit2", FechaInicio = DateTime.UtcNow, Estado = "Open" };
+            var u = new Usuario { Nick = "u1", CorreoElectronico = "u1@example.com", ContrasenaHash = PasswordHasher.Hash("p") };
+
+            var prop = propuestaCEN.NewPropuestaTorneo(eq, torneo, u);
+            // no votos añadidos
+
+            var result = propuestaCEN.AprobarSiVotosUnanimes(prop);
+            Assert.False(result);
+        }
     }
 }
