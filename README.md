@@ -32,6 +32,8 @@ Flags útiles:
 - `--db-name=<name>`: usar un nombre diferente para el MDF (por defecto `ProjectDatabase`).
 - `--force-drop`: permite eliminar un MDF existente antes de crear uno nuevo (acción destructiva).
 - `--confirm`: requerido junto con `--force-drop` para evitar borrados accidentales.
+ - `--data-dir=<path>`: especifica el directorio donde se escribirán los archivos generados (MDF, project.db). útil para pruebas/CI.
+ - `--verbose` or `-v`: habilita salida más detallada (debug) en consola.
 
 Ejemplo (fuerza recrear la MDF y confirma la acción):
 

@@ -12,5 +12,7 @@
   <ItemGroup>
     <!-- Used for LocalDB management (CREATE/DROP database) -->
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 </Project>

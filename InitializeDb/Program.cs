@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.CP;
@@ -17,6 +19,7 @@ bool confirm = false;
 string dbName = "ProjectDatabase";
 bool doSeed = false;
 string? dataDirArg = null;
+bool verbose = false;
 foreach (var a in args)
 {
 	if (a.StartsWith("--mode=", StringComparison.OrdinalIgnoreCase))
@@ -45,11 +48,23 @@ foreach (var a in args)
 		dataDirArg = a.Substring("--data-dir=".Length);
 		if (string.IsNullOrWhiteSpace(dataDirArg)) dataDirArg = null;
 	}
+	else if (a.Equals("--verbose", StringComparison.OrdinalIgnoreCase) || a.Equals("-v", StringComparison.OrdinalIgnoreCase))
+	{
+		verbose = true;
+	}
 }
 
 if (mode == "schemaexport")
 {
-	Console.WriteLine("InitializeDb - running NHibernate SchemaExport mode...");
+	// Create a logger so verbose runs print debug information
+	using var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+	{
+		builder.AddConsole();
+		builder.SetMinimumLevel(verbose ? Microsoft.Extensions.Logging.LogLevel.Debug : Microsoft.Extensions.Logging.LogLevel.Information);
+	});
+	var logger = loggerFactory.CreateLogger("InitializeDb");
+
+	logger.LogInformation("InitializeDb - running NHibernate SchemaExport mode...");
 	// Prefer repository-local InitializeDb/Data (relative to the project folder). When running from the build output
 	// AppContext.BaseDirectory typically points to bin/.../net8.0, so move up to the project folder and create Data there.
 	// Resolve data directory: prefer explicit --data-dir, otherwise repo-local InitializeDb/Data
@@ -72,12 +87,12 @@ if (mode == "schemaexport")
     string? lastDialect = null;
 	try
 	{
-		Console.WriteLine($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
+	logger.LogInformation($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
 
 		// Safety: if MDF already exists and user didn't pass --force-drop, skip LocalDB attempt
-		if (File.Exists(mdfPath) && !forceDrop)
+				if (File.Exists(mdfPath) && !forceDrop)
 		{
-			Console.WriteLine($"LocalDB MDF already exists at {mdfPath} and --force-drop not provided. Skipping LocalDB attempt and falling back to SQLite.");
+			logger.LogWarning("LocalDB MDF already exists at {mdfPath} and --force-drop not provided. Skipping LocalDB attempt and falling back to SQLite.", mdfPath);
 			throw new InvalidOperationException("LocalDB MDF exists and force-drop not set.");
 		}
 
@@ -140,7 +155,7 @@ END
 					var createCmd = masterConn.CreateCommand();
 					createCmd.CommandText = $@"CREATE DATABASE [{dbName}] ON (NAME=N'{dbName}', FILENAME=N'{mdfPath}') LOG ON (NAME=N'{dbName}_log', FILENAME=N'{logPath}');";
 					createCmd.ExecuteNonQuery();
-					Console.WriteLine("LocalDB database created.");
+					logger.LogInformation("LocalDB database created.");
 				}
 				catch (Exception createEx)
 				{
@@ -154,7 +169,7 @@ END
 			NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect");
 			lastConnectionString = dbConn;
 			lastDialect = "NHibernate.Dialect.MsSql2012Dialect";
-			Console.WriteLine("SchemaExport to LocalDB completed.");
+			logger.LogInformation("SchemaExport to LocalDB completed.");
 		}
 		catch (SqlException sqlEx)
 		{
@@ -165,7 +180,7 @@ END
 	catch (Exception ex)
 	{
 		Console.WriteLine($"LocalDB SchemaExport failed: {ex.Message}");
-		Console.WriteLine("Falling back to file-based SQLite SchemaExport...");
+	logger.LogWarning("Falling back to file-based SQLite SchemaExport...");
 		var sqlitePath = Path.Combine(dataDir, "project.db");
 		var sqliteConn = $"Data Source={sqlitePath};Version=3;";
 		try
@@ -173,7 +188,7 @@ END
 			NHibernateHelper.ExportSchema(sqliteConn, "NHibernate.Dialect.SQLiteDialect");
 			lastConnectionString = sqliteConn;
 			lastDialect = "NHibernate.Dialect.SQLiteDialect";
-			Console.WriteLine("SchemaExport to SQLite file completed.");
+			logger.LogInformation("SchemaExport to SQLite file completed. Path={path}", sqlitePath);
 		}
 		catch (Exception ex2)
 		{
@@ -183,76 +198,97 @@ END
 		}
 	}
 
-	Console.WriteLine("InitializeDb schema export finished.");
+	logger.LogInformation("InitializeDb schema export finished.");
 
 	// If requested, run idempotent seed using NHibernate repositories (will persist into the exported DB if supported)
 	if (doSeed)
 	{
-		Console.WriteLine("Seeding database via NHibernate repositories (idempotent)...");
+		logger.LogInformation("Seeding database via NHibernate repositories (idempotent)...");
 		try
 		{
-			// Build a session factory configured to the same connection/dialect used for SchemaExport
-			if (string.IsNullOrWhiteSpace(lastConnectionString) || string.IsNullOrWhiteSpace(lastDialect))
-			{
-				Console.WriteLine("Warning: connection/dialect for seeding not available. Skipping seed.");
-			}
-			else
-			{
-				var seedCfg = NHibernateHelper.BuildConfiguration();
-				seedCfg.SetProperty("connection.connection_string", lastConnectionString);
-				seedCfg.SetProperty("dialect", lastDialect);
-				using var seedSf = seedCfg.BuildSessionFactory();
-				using var session = seedSf.OpenSession();
-				using var uow = new NHibernateUnitOfWork(session);
-
-				// instantiate NHibernate repositories
-				var usuarioRepo = new NHibernateUsuarioRepository(session);
-				var comunidadRepo = new NHibernateComunidadRepository(session);
-				var equipoRepo = new NHibernateEquipoRepository(session);
-				var miembroComunidadRepo = new NHibernateMiembroComunidadRepository(session);
-
-				var usuarioCEN = new ApplicationCore.Domain.CEN.UsuarioCEN(usuarioRepo);
-				var authCEN = new ApplicationCore.Domain.CEN.AuthenticationCEN(usuarioRepo);
-				var comunidadCEN = new ApplicationCore.Domain.CEN.ComunidadCEN(comunidadRepo);
-				var equipoCEN = new ApplicationCore.Domain.CEN.EquipoCEN(equipoRepo);
-
-				// Idempotent user creation
-				if (usuarioRepo.ReadByNick("alice") == null)
+				// Build a session factory configured to the same connection/dialect used for SchemaExport
+				if (string.IsNullOrWhiteSpace(lastConnectionString) || string.IsNullOrWhiteSpace(lastDialect))
 				{
-					var u1 = usuarioCEN.NewUsuario("alice", "alice@example.com", ApplicationCore.Domain.CEN.PasswordHasher.Hash("password1"));
-					Console.WriteLine($"Created user alice (id={u1.IdUsuario})");
+					Console.WriteLine("Warning: connection/dialect for seeding not available. Skipping seed.");
 				}
-				if (usuarioRepo.ReadByNick("bob") == null)
+				else
 				{
-					var u2 = usuarioCEN.NewUsuario("bob", "bob@example.com", ApplicationCore.Domain.CEN.PasswordHasher.Hash("password2"));
-					Console.WriteLine($"Created user bob (id={u2.IdUsuario})");
-				}
+					// Configure DI so seed logic can resolve repositories, UoW and CENs
+					var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
 
-				// Idempotent comunidad/equipo
-				if (!comunidadRepo.ReadFilter("Gamers").Any())
-				{
-					var com = comunidadCEN.NewComunidad("Gamers", "Comunidad de prueba");
-					Console.WriteLine($"Created comunidad {com.IdComunidad}");
-				}
-				if (!equipoRepo.ReadFilter("TeamA").Any())
-				{
-					var eq = equipoCEN.NewEquipo("TeamA", "Equipo de ejemplo");
-					Console.WriteLine($"Created equipo {eq.IdEquipo}");
-				}
+					var seedCfg = NHibernateHelper.BuildConfiguration();
+					seedCfg.SetProperty("connection.connection_string", lastConnectionString);
+					seedCfg.SetProperty("dialect", lastDialect);
+					var seedSf = seedCfg.BuildSessionFactory();
 
-				// Add a miembro comunidad if not present (using first user/comunidad)
-				var existingCom = comunidadRepo.ReadFilter("Gamers").FirstOrDefault();
-				var existingUser = usuarioRepo.ReadByNick("alice");
-				if (existingCom != null && existingUser != null && !miembroComunidadRepo.ReadFilter(existingUser.Nick ?? "").Any())
-				{
-					var mc = new ApplicationCore.Domain.EN.MiembroComunidad { Usuario = existingUser, Comunidad = existingCom, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO };
-					miembroComunidadRepo.New(mc);
-					Console.WriteLine($"Created MiembroComunidad for user {existingUser.Nick}");
-				}
+					// Register NHibernate SessionFactory as singleton and ISession as scoped
+					services.AddSingleton(seedSf);
+					services.AddScoped(provider => seedSf.OpenSession());
 
-				uow.SaveChanges();
-				Console.WriteLine("Seeding completed.");
-			}
+					// Register NHibernate-based repositories used by the seed
+					services.AddScoped<ApplicationCore.Domain.Repositories.IUsuarioRepository, NHibernateUsuarioRepository>();
+					services.AddScoped<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Comunidad>, NHibernateComunidadRepository>();
+					services.AddScoped<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Equipo>, NHibernateEquipoRepository>();
+					services.AddScoped<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.MiembroComunidad>, NHibernateMiembroComunidadRepository>();
+
+					// Register UnitOfWork and CENs
+					services.AddScoped<ApplicationCore.Domain.Repositories.IUnitOfWork, NHibernateUnitOfWork>();
+					services.AddScoped<ApplicationCore.Domain.CEN.UsuarioCEN>();
+					services.AddScoped<ApplicationCore.Domain.CEN.ComunidadCEN>();
+					services.AddScoped<ApplicationCore.Domain.CEN.EquipoCEN>();
+
+					var provider = services.BuildServiceProvider();
+					using var scope = provider.CreateScope();
+
+					var usuarioCEN = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.CEN.UsuarioCEN>();
+					var comunidadCEN = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.CEN.ComunidadCEN>();
+					var equipoCEN = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.CEN.EquipoCEN>();
+					var uow = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+
+					var usuarioRepo = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.Repositories.IUsuarioRepository>();
+					var comunidadRepo = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Comunidad>>();
+					var equipoRepo = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Equipo>>();
+					var miembroComunidadRepo = scope.ServiceProvider.GetRequiredService<ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.MiembroComunidad>>();
+
+					// Idempotent user creation
+					if (usuarioRepo.ReadByNick("alice") == null)
+					{
+						var u1 = usuarioCEN.NewUsuario("alice", "alice@example.com", ApplicationCore.Domain.CEN.PasswordHasher.Hash("password1"));
+						logger.LogInformation("Created user alice (id={id})", u1.IdUsuario);
+					}
+					if (usuarioRepo.ReadByNick("bob") == null)
+					{
+						var u2 = usuarioCEN.NewUsuario("bob", "bob@example.com", ApplicationCore.Domain.CEN.PasswordHasher.Hash("password2"));
+						logger.LogInformation("Created user bob (id={id})", u2.IdUsuario);
+					}
+
+					// Idempotent comunidad/equipo
+					if (!comunidadRepo.ReadFilter("Gamers").Any())
+					{
+						var com = comunidadCEN.NewComunidad("Gamers", "Comunidad de prueba");
+						logger.LogInformation("Created comunidad {id}", com.IdComunidad);
+					}
+					if (!equipoRepo.ReadFilter("TeamA").Any())
+					{
+						var eq = equipoCEN.NewEquipo("TeamA", "Equipo de ejemplo");
+						logger.LogInformation("Created equipo {id}", eq.IdEquipo);
+					}
+
+					// Add a miembro comunidad if not present (using first user/comunidad)
+					var existingCom = comunidadRepo.ReadFilter("Gamers").FirstOrDefault();
+					var existingUser = usuarioRepo.ReadByNick("alice");
+					if (existingCom != null && existingUser != null && !miembroComunidadRepo.ReadFilter(existingUser.Nick ?? "").Any())
+					{
+						var mc = new ApplicationCore.Domain.EN.MiembroComunidad { Usuario = existingUser, Comunidad = existingCom, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO };
+						miembroComunidadRepo.New(mc);
+						Console.WriteLine($"Created MiembroComunidad for user {existingUser.Nick}");
+					}
+
+					uow.SaveChanges();
+					Console.WriteLine("Seeding completed.");
+
+					try { seedSf.Dispose(); } catch { }
+				}
 		}
 		catch (Exception seedEx)
 		{

@@ -6,7 +6,6 @@ using NHibernate;
 using Xunit;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
-using Infrastructure.NHibernate;
 
 namespace Domain.SmokeTests
 {

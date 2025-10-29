@@ -35,5 +35,12 @@ jobs:
           fi
         shell: bash
 
+      - name: Upload InitializeDb artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: initializedb-artifacts-${{ matrix.os }}
+          path: InitializeDb/Data_CI
+
       - name: Run tests
         run: dotnet test --no-build -c Release

@@ -10,7 +10,7 @@ namespace Domain.SmokeTests
     public class InitializeDbExternalCliTests
     {
         [Fact(Timeout = 120000)]
-        public void InitializeDb_Cli_Runs_And_Seeds_Sqlite_File()
+        public async System.Threading.Tasks.Task InitializeDb_Cli_Runs_And_Seeds_Sqlite_File()
         {
             // Find solution root by walking up until DSM-NeuralPlay.sln is found
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -46,13 +46,26 @@ namespace Domain.SmokeTests
             };
 
             using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start process");
-            var stdout = proc.StandardOutput.ReadToEndAsync();
-            var stderr = proc.StandardError.ReadToEndAsync();
-            var exited = proc.WaitForExit(110000);
-            var outText = stdout.Result;
-            var errText = stderr.Result;
 
-            Assert.True(exited, $"InitializeDb process did not exit in time. stdout: {outText}\nerr: {errText}");
+            var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+            var stderrTask = proc.StandardError.ReadToEndAsync();
+
+            // Wait with timeout
+            var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(110000));
+                try
+                {
+                    await proc.WaitForExitAsync(cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    var partialOut = await stdoutTask;
+                    var partialErr = await stderrTask;
+                    throw new Xunit.Sdk.XunitException($"InitializeDb process did not exit in time. stdout: {partialOut}\nerr: {partialErr}");
+                }
+
+            var outText = await stdoutTask;
+            var errText = await stderrTask;
+
             Assert.Equal(0, proc.ExitCode);
 
             // Data folder under the isolated directory we passed
