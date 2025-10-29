@@ -59,7 +59,9 @@ namespace Domain.SmokeTests
             var first = matches[0];
             // Read with shared access in case Serilog still has the file open
             string content;
-            for (int i = 0; i < 5; i++)
+            // Retry reading until we get non-empty content (file may be written asynchronously)
+            bool found = false;
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
@@ -68,15 +70,20 @@ namespace Domain.SmokeTests
                     {
                         content = sr.ReadToEnd();
                     }
-                    Assert.Contains("InitializeDb", content);
-                    break;
+                    if (!string.IsNullOrWhiteSpace(content))
+                    {
+                        Assert.Contains("InitializeDb", content);
+                        found = true;
+                        break;
+                    }
                 }
                 catch (IOException)
                 {
-                    System.Threading.Thread.Sleep(100);
-                    if (i == 4) throw;
+                    // allow retry
                 }
+                System.Threading.Thread.Sleep(200);
             }
+            if (!found) Assert.False(true, "Log file did not contain expected content after retries.");
 
             // cleanup
             try { Directory.Delete(tmp, recursive: true); } catch { }
