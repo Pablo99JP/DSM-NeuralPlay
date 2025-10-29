@@ -36,6 +36,46 @@ jobs:
           path: sca-reports
           retention-days: 7
 
+      - name: Post SCA summary as PR comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const vulnPath = 'sca-reports/vulnerable.json';
+            const outPath = 'sca-reports/outdated.json';
+            let vulnCount = 0;
+            let highCritical = 0;
+            try {
+              const v = JSON.parse(fs.readFileSync(vulnPath, 'utf8'));
+              for (const p of (v.projects||[])) {
+                for (const f of (p.frameworks||[])) {
+                  for (const t of (f.transitivePackages||[])) {
+                    if (t.vulnerabilities && t.vulnerabilities.length>0) {
+                      vulnCount += 1;
+                      for (const vv of t.vulnerabilities) {
+                        if (vv.severity === 'High' || vv.severity === 'Critical') highCritical += 1;
+                      }
+                    }
+                  }
+                }
+              }
+            } catch(e) { /* ignore parsing errors */ }
+
+            let outdatedCount = 0;
+            try {
+              const o = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+              for (const p of (o.projects||[])) {
+                for (const f of (p.frameworks||[])) {
+                  if (f.transitivePackages) outdatedCount += f.transitivePackages.length;
+                }
+                if (p.topLevelPackages) outdatedCount += p.topLevelPackages.length;
+              }
+            } catch(e) { }
+
+            const commentBody = `SCA summary:\n- Vulnerable packages detected: ${vulnCount} (High/Critical: ${highCritical})\n- Outdated packages (transitive/top-level): ${outdatedCount}\n\nPlease review the attached artifacts (sca-reports) for details.`;
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body: commentBody });
+
       - name: Fail CI on High/Critical vulnerabilities (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh

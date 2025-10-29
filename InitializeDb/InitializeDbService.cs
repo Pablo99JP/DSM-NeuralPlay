@@ -72,6 +72,29 @@ public static class InitializeDbService
             if (mode == "schemaexport")
             {
                 // Configure Serilog via centralized configurator (Infrastructure.Logging)
+                async Task RetryAsync(Func<Task> work, int attempts = 3, int delayMs = 200)
+                {
+                    int tries = 0;
+                    while (true)
+                    {
+                        try
+                        {
+                            await work();
+                            return;
+                        }
+                        catch (Exception)
+                        {
+                            tries++;
+                            if (tries >= attempts)
+                            {
+                                throw;
+                            }
+                            // small backoff
+                            try { await Task.Delay(delayMs); } catch { }
+                        }
+                    }
+                }
+
                 try
                 {
                     Infrastructure.Logging.SerilogConfigurator.Configure(logFile, verbose);
@@ -171,9 +194,9 @@ END
                             try
                             {
                                 Console.WriteLine($"Deleting existing MDF {mdfPath} as --force-drop and --confirm were provided...");
-                                File.Delete(mdfPath);
+                                await RetryAsync(() => { File.Delete(mdfPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
                                 var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
-                                if (File.Exists(logPath)) File.Delete(logPath);
+                                if (File.Exists(logPath)) await RetryAsync(() => { File.Delete(logPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
                                 Console.WriteLine("Existing MDF removed.");
                             }
                             catch (Exception delEx)
@@ -205,7 +228,7 @@ END
 
                         var dbConn = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=True;Connect Timeout=30;";
                         FileLog($"[{DateTime.UtcNow:o}] Exporting schema to LocalDB using connection: {dbConn}");
-                        NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect");
+                                await RetryAsync(() => { NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect"); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
                         lastConnectionString = dbConn;
                         lastDialect = "NHibernate.Dialect.MsSql2012Dialect";
                         logger.LogInformation("SchemaExport to LocalDB completed.");
@@ -224,22 +247,22 @@ END
                     FileLog($"[{DateTime.UtcNow:o}] LocalDB SchemaExport failed: {ex.Message}. Falling back to SQLite.");
                     var sqlitePath = Path.Combine(dataDir, "project.db");
                     var sqliteConn = $"Data Source={sqlitePath};Version=3;";
-                    try
-                    {
-                        FileLog($"[{DateTime.UtcNow:o}] Exporting schema to SQLite file at {sqlitePath}");
-                        NHibernateHelper.ExportSchema(sqliteConn, "NHibernate.Dialect.SQLiteDialect");
-                        lastConnectionString = sqliteConn;
-                        lastDialect = "NHibernate.Dialect.SQLiteDialect";
-                        logger.LogInformation("SchemaExport to SQLite file completed. Path={path}", sqlitePath);
-                        FileLog($"[{DateTime.UtcNow:o}] SchemaExport to SQLite completed successfully. Path={sqlitePath}");
-                    }
-                    catch (Exception ex2)
-                    {
-                        Console.WriteLine($"SQLite SchemaExport also failed: {ex2.Message}");
-                        FileLog($"[{DateTime.UtcNow:o}] SQLite SchemaExport failed: {ex2.Message}");
-                        Console.WriteLine("InitializeDb schema export failed. Review NHibernate configuration and environment (LocalDB availability, file permissions).");
-                        return 2;
-                    }
+                        try
+                        {
+                            FileLog($"[{DateTime.UtcNow:o}] Exporting schema to SQLite file at {sqlitePath}");
+                            await RetryAsync(() => { NHibernateHelper.ExportSchema(sqliteConn, "NHibernate.Dialect.SQLiteDialect"); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
+                            lastConnectionString = sqliteConn;
+                            lastDialect = "NHibernate.Dialect.SQLiteDialect";
+                            logger.LogInformation("SchemaExport to SQLite file completed. Path={path}", sqlitePath);
+                            FileLog($"[{DateTime.UtcNow:o}] SchemaExport to SQLite completed successfully. Path={sqlitePath}");
+                        }
+                        catch (Exception ex2)
+                        {
+                            Console.WriteLine($"SQLite SchemaExport also failed: {ex2.Message}");
+                            FileLog($"[{DateTime.UtcNow:o}] SQLite SchemaExport failed: {ex2.Message}");
+                            Console.WriteLine("InitializeDb schema export failed. Review NHibernate configuration and environment (LocalDB availability, file permissions).");
+                            return 2;
+                        }
                 }
 
                 logger.LogInformation("InitializeDb schema export finished.");

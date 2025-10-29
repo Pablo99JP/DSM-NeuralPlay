@@ -12,6 +12,15 @@ Un resumen de los cambios introducidos en la rama `feature/centralize-logging-t1
   - `tests/Domain.SmokeTests/SerilogConfiguratorTests.cs`
 - fix: Removed an explicit StreamWriter workaround previously used to force a fixed filename; tests updated to use the programmatic `InitializeDbService.RunAsync(args, TextWriter)` hook where appropriate.
 
+## 2025-10-29 — SCA, CI improvements, retries and tests
+- ci: Post an automatic SCA summary comment on PRs with vulnerable/outdated counts (workflow `.github/workflows/ci-matrix.yml`).
+- chore: Added Dependabot config (`.github/dependabot.yml`) to open weekly dependency PRs.
+- fix: Harden `InitializeDbService` file/SchemaExport operations with retries to reduce flakiness under concurrent runs and transient file locks.
+- test: Added concurrency and CEN tests:
+  - `tests/Domain.SmokeTests/InitializeDbConcurrencyTests.cs` (parallel in-memory runs)
+  - `tests/Domain.SmokeTests/InitializeDbSchemaExportConcurrentTests.cs` (concurrent schemaexport+seed against temp dir)
+  - `tests/Domain.SmokeTests/CENMiembroComunidadTests.cs` (basic CEN validations)
+
 ## Rationale
 - Improves observability and test reliability by centralizing logging configuration and enabling structured log assertions.
 - Allows CI to control verbosity and file path through env vars without changing program args.
