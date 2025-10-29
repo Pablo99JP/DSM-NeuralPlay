@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.Juego, ApplicationCore" table="Juego">
+    <id name="IdJuego" column="IdJuego" type="long">
+      <generator class="native" />
+    </id>
+    <property name="NombreJuego" column="NombreJuego" />
+    <property name="Genero" column="Genero" />
+
+    <!-- PerfilJuegos collection omitted until PerfilJuego mapping is added -->
+  </class>
+</hibernate-mapping>
