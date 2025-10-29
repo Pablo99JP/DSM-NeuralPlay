@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-configuration xmlns="urn:nhibernate-configuration-2.2">
+  <session-factory>
+    <!-- Use SQLite in-memory by default for local dev / CI friendly setup. Change to SQL Server in production. -->
+    <property name="connection.driver_class">NHibernate.Driver.SQLite20Driver</property>
+    <property name="dialect">NHibernate.Dialect.SQLiteDialect</property>
+    <property name="connection.connection_string">Data Source=:memory:;Version=3;New=True;</property>
+    <property name="show_sql">false</property>
+    <property name="format_sql">false</property>
+    <property name="hbm2ddl.auto">update</property>
+  </session-factory>
+</hibernate-configuration>
