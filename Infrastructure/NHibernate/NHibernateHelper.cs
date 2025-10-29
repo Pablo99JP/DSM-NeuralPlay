@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using NHibernate;
 using NHibernate.Cfg;
+using NHibernate.Tool.hbm2ddl;
 
 namespace Infrastructure.NHibernate
 {
@@ -12,7 +13,9 @@ namespace Infrastructure.NHibernate
 
         public static ISessionFactory SessionFactory => _sessionFactory.Value;
 
-        private static ISessionFactory BuildSessionFactory()
+        // Build a reusable NHibernate Configuration. This can be used to build a SessionFactory
+        // or to perform SchemaExport operations programmatically.
+        public static Configuration BuildConfiguration()
         {
             var cfg = new Configuration();
             // Look for NHibernate.cfg.xml in a few likely locations: app base, assembly location
@@ -84,9 +87,28 @@ namespace Infrastructure.NHibernate
                 }
             }
 
+            return cfg;
+        }
+
+        private static ISessionFactory BuildSessionFactory()
+        {
+            var cfg = BuildConfiguration();
             return cfg.BuildSessionFactory();
         }
 
         public static ISession OpenSession() => SessionFactory.OpenSession();
+
+        // Export schema to the provided connection string. Optionally override dialect.
+        public static void ExportSchema(string connectionString, string? dialect = null)
+        {
+            var cfg = BuildConfiguration();
+            if (!string.IsNullOrEmpty(dialect)) cfg.SetProperty("dialect", dialect);
+            cfg.SetProperty("connection.connection_string", connectionString);
+
+            // Use NHibernate's SchemaExport to create the schema
+            var export = new SchemaExport(cfg);
+            // Create the schema (do not write SQL to console, execute against DB)
+            export.Create(false, true);
+        }
     }
 }
