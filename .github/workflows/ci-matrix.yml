@@ -168,6 +168,27 @@ jobs:
           if (Test-Path $zip) { Remove-Item $zip -Force }
           Compress-Archive -Path InitializeDb/Data_CI/* -DestinationPath $zip -Force
 
+      - name: Create draft GitHub Release and attach InitializeDb ZIP (only on push to main, Windows)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.os == 'windows-latest'
+        uses: actions/create-release@v1
+        with:
+          tag_name: initializedb-${{ github.sha }}
+          release_name: InitializeDb artifacts - ${{ github.sha }}
+          body: |
+            Draft release created by CI to attach InitializeDb artifacts (zip). This is automated and draft so maintainers can review before publishing.
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload InitializeDb ZIP to Release (only on push to main, Windows)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.os == 'windows-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: InitializeDb/Data_CI/initializedb-windows-latest.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Zip InitializeDb artifacts (Non-Windows)
         if: matrix.os != 'windows-latest'
         shell: bash
