@@ -89,6 +89,10 @@ jobs:
           $dataDir = "InitializeDb/Data_CI"
           New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
           $logFile = Join-Path $dataDir "init.log"
+          # Export log file path to environment for SerilogConfigurator
+          "LOG_FILE=$logFile" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_VERBOSE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_LEVEL=Information" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           if ($env:LOCALDB_AVAILABLE -eq 'true') {
             dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --force-drop --confirm --data-dir=$dataDir --log-file=$logFile
           } else {
@@ -100,6 +104,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p InitializeDb/Data_CI
+          LOG_FILE=InitializeDb/Data_CI/init.log
+          export LOG_FILE
+          LOG_VERBOSE=true
+          export LOG_VERBOSE
+          LOG_LEVEL=Information
+          export LOG_LEVEL
           dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=InitializeDb/Data_CI --log-file=InitializeDb/Data_CI/init.log
 
       - name: Upload InitializeDb artifacts

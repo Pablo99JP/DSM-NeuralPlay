@@ -71,30 +71,17 @@ public static class InitializeDbService
 
             if (mode == "schemaexport")
             {
-                // Configure Serilog (console + optional file). We still honor an external TextWriter
-                // for tests by writing key lines to it in addition to Serilog sinks.
-                var serilogConfig = new LoggerConfiguration()
-                    .MinimumLevel.Is(verbose ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
-                    .WriteTo.Console();
-
-                if (!string.IsNullOrWhiteSpace(logFile) && externalLogWriter == null)
+                // Configure Serilog via centralized configurator (Infrastructure.Logging)
+                try
                 {
-                    try
-                    {
-                        var lfDir = Path.GetDirectoryName(logFile) ?? AppContext.BaseDirectory;
-                        if (!string.IsNullOrWhiteSpace(lfDir)) Directory.CreateDirectory(lfDir);
-                        // Use a single exact file name (don't append date) so callers/tests that expect a fixed
-                        // filename (e.g. init.log) can find it. Use shared=true to allow multiple processes to read it.
-                        serilogConfig = serilogConfig.WriteTo.File(logFile, rollingInterval: RollingInterval.Infinite, shared: true);
-                    }
-                    catch (Exception ex)
-                    {
-                        // If file sink cannot be created, fall back to console but continue.
-                        Console.WriteLine($"Could not initialize Serilog file sink {logFile}: {ex.Message}");
-                    }
+                    Infrastructure.Logging.SerilogConfigurator.Configure(logFile, verbose);
                 }
-
-                Log.Logger = serilogConfig.CreateLogger();
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to configure Serilog via SerilogConfigurator: {ex.Message}");
+                    // Fallback to a minimal console logger
+                    Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+                }
                 using var loggerFactory = new SerilogLoggerFactory(Log.Logger, dispose: false);
                 var logger = loggerFactory.CreateLogger("InitializeDb");
 
@@ -125,28 +112,8 @@ public static class InitializeDbService
                 }
                 Directory.CreateDirectory(dataDir);
 
-                // Serilog initialized. In addition, create a small explicit log file writer for
-                // callers/tests that expect the literal filename to exist and contain at least
-                // an initial message (this avoids sink filename-mangling differences).
-                StreamWriter? explicitLogWriter = null;
                 Console.WriteLine($"InitializeDb Run: mode={mode} logFile={logFile} externalLogWriterIsNull={externalLogWriter==null} verbose={verbose}");
-                if (externalLogWriter == null && !string.IsNullOrWhiteSpace(logFile))
-                {
-                    try
-                    {
-                        var logDir = Path.GetDirectoryName(logFile) ?? AppContext.BaseDirectory;
-                        if (!string.IsNullOrWhiteSpace(logDir)) Directory.CreateDirectory(logDir);
-                        var fs = new FileStream(logFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-                        explicitLogWriter = new StreamWriter(fs) { AutoFlush = true };
-                        explicitLogWriter.WriteLine($"[{DateTime.UtcNow:o}] InitializeDb log started");
-                        Console.WriteLine($"Explicit log writer opened at {logFile} (shared)");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Could not open explicit log file writer {logFile}: {ex.Message}");
-                    }
-                }
-                else if (externalLogWriter != null)
+                if (externalLogWriter != null)
                 {
                     FileLog($"[{DateTime.UtcNow:o}] InitializeDb log started (external writer)");
                 }
@@ -378,19 +345,6 @@ END
                     // Flush and close Serilog so file sinks are written to disk
                     Log.Information("[{time}] InitializeDb completed", DateTime.UtcNow.ToString("o"));
                     Log.CloseAndFlush();
-
-                    // If we opened an explicit log writer, write a completed line and dispose it so
-                    // the exact file exists for callers/tests.
-                    if (explicitLogWriter != null)
-                    {
-                        try
-                        {
-                            explicitLogWriter.WriteLine($"[{DateTime.UtcNow:o}] InitializeDb completed");
-                            explicitLogWriter.Dispose();
-                            explicitLogWriter = null;
-                        }
-                        catch { }
-                    }
                 }
                 catch { }
 

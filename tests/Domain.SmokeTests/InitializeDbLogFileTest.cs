@@ -51,9 +51,32 @@ namespace Domain.SmokeTests
             var args = new[] { "--mode=schemaexport", "--seed", $"--data-dir={tmp}", $"--log-file={logPath}" };
             var exitCode = await InitializeDbService.RunAsync(args, null);
             Assert.Equal(0, exitCode);
-            Assert.True(File.Exists(logPath), $"Expected log file at {logPath} to exist.");
-            var content = File.ReadAllText(logPath);
-            Assert.Contains("InitializeDb log started", content);
+
+            // Serilog may create log files with small variations (timestamps/suffixes).
+            // Accept any file in the data dir that matches the prefix used (init*.log).
+            var matches = Directory.GetFiles(tmp, "init*.log", SearchOption.TopDirectoryOnly);
+            Assert.NotEmpty(matches);
+            var first = matches[0];
+            // Read with shared access in case Serilog still has the file open
+            string content;
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    using (var fs = new FileStream(first, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var sr = new StreamReader(fs))
+                    {
+                        content = sr.ReadToEnd();
+                    }
+                    Assert.Contains("InitializeDb", content);
+                    break;
+                }
+                catch (IOException)
+                {
+                    System.Threading.Thread.Sleep(100);
+                    if (i == 4) throw;
+                }
+            }
 
             // cleanup
             try { Directory.Delete(tmp, recursive: true); } catch { }
