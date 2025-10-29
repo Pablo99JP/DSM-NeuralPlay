@@ -6,6 +6,7 @@ namespace ApplicationCore.Domain.Repositories
     {
         T? ReadById(long id);
         IEnumerable<T> ReadAll();
+        IEnumerable<T> ReadFilter(string filter);
         void New(T entity);
         void Modify(T entity);
         void Destroy(long id);

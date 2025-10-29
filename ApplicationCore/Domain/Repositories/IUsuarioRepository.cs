@@ -7,6 +7,5 @@ namespace ApplicationCore.Domain.Repositories
     {
         // Extensiones específicas de Usuario
         Usuario? ReadByNick(string nick);
-        IEnumerable<Usuario> ReadFilter(string filter);
     }
 }
