@@ -36,7 +36,9 @@ namespace Infrastructure.Logging
 
                     // Use a single exact file name (don't append date) so callers/tests that expect a fixed
                     // filename can find it. Use shared=true to allow multiple processes to read it.
-                    cfg = cfg.WriteTo.File(logFile, rollingInterval: RollingInterval.Infinite, shared: true);
+                    // Disable internal buffering so unit tests that immediately close the logger can
+                    // reliably read the file contents without losing data.
+                    cfg = cfg.WriteTo.File(logFile, rollingInterval: RollingInterval.Infinite, shared: true, buffered: false);
                 }
                 catch (Exception)
                 {

@@ -160,5 +160,27 @@ jobs:
           path: InitializeDb/Data_CI
           retention-days: 7
 
+      - name: Zip InitializeDb artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $zip = "InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path InitializeDb/Data_CI/* -DestinationPath $zip -Force
+
+      - name: Zip InitializeDb artifacts (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          zip -r InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip InitializeDb/Data_CI || true
+
+      - name: Upload InitializeDb ZIP artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: initializedb-artifact-zip-${{ matrix.os }}
+          path: InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip
+          retention-days: 7
+
       - name: Run tests
         run: dotnet test --no-build -c Release
