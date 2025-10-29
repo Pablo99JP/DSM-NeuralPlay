@@ -22,6 +22,50 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Run SCA (vulnerable & outdated)
+        run: |
+          mkdir -p sca-reports || New-Item -ItemType Directory -Path sca-reports -Force | Out-Null
+          dotnet list package --vulnerable --include-transitive --format json > sca-reports/vulnerable.json
+          dotnet list package --outdated --include-transitive --format json > sca-reports/outdated.json
+
+      - name: Upload SCA reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sca-reports-${{ matrix.os }}
+          path: sca-reports
+          retention-days: 7
+
+      - name: Fail CI on High/Critical vulnerabilities (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $j = Get-Content sca-reports\vulnerable.json | ConvertFrom-Json
+          $found = $false
+          foreach ($p in $j.projects) {
+            if ($p.frameworks) {
+              foreach ($f in $p.frameworks) {
+                if ($f.transitivePackages) {
+                  foreach ($t in $f.transitivePackages) {
+                    if ($t.vulnerabilities) {
+                      foreach ($v in $t.vulnerabilities) {
+                        if ($v.severity -in @('High','Critical')) { Write-Output "VULN: $($t.id) $($v.severity) $($v.advisoryurl)"; $found = $true }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if ($found) { Write-Error 'High/Critical vulnerability detected'; exit 1 }
+
+      - name: Fail CI on High/Critical vulnerabilities (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          jq -e '.projects[]?.frameworks[]?.transitivePackages[]?.vulnerabilities[]? | select(.severity=="High" or .severity=="Critical")' sca-reports/vulnerable.json || true
+          if [ $? -eq 0 ]; then echo "High/Critical vulnerability detected"; exit 1; fi
+
       - name: Build
         run: dotnet build --no-restore -c Release
 
