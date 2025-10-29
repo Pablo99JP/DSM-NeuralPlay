@@ -1,0 +1,124 @@
+name: CI Matrix
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        dotnet: ["8.0.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Run SCA (vulnerable & outdated)
+        run: |
+          mkdir -p sca-reports || New-Item -ItemType Directory -Path sca-reports -Force | Out-Null
+          dotnet list package --vulnerable --include-transitive --format json > sca-reports/vulnerable.json
+          dotnet list package --outdated --include-transitive --format json > sca-reports/outdated.json
+
+      - name: Upload SCA reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sca-reports-${{ matrix.os }}
+          path: sca-reports
+          retention-days: 7
+
+      - name: Fail CI on High/Critical vulnerabilities (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $j = Get-Content sca-reports\vulnerable.json | ConvertFrom-Json
+          $found = $false
+          foreach ($p in $j.projects) {
+            if ($p.frameworks) {
+              foreach ($f in $p.frameworks) {
+                if ($f.transitivePackages) {
+                  foreach ($t in $f.transitivePackages) {
+                    if ($t.vulnerabilities) {
+                      foreach ($v in $t.vulnerabilities) {
+                        if ($v.severity -in @('High','Critical')) { Write-Output "VULN: $($t.id) $($v.severity) $($v.advisoryurl)"; $found = $true }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if ($found) { Write-Error 'High/Critical vulnerability detected'; exit 1 }
+
+      - name: Fail CI on High/Critical vulnerabilities (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          jq -e '.projects[]?.frameworks[]?.transitivePackages[]?.vulnerabilities[]? | select(.severity=="High" or .severity=="Critical")' sca-reports/vulnerable.json || true
+          if [ $? -eq 0 ]; then echo "High/Critical vulnerability detected"; exit 1; fi
+
+      - name: Build
+        run: dotnet build --no-restore -c Release
+
+      - name: Detect LocalDB on Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          try {
+            & sqllocaldb info MSSQLLocalDB | Out-Null
+            Write-Output "Detected LocalDB instance"
+            "LOCALDB_AVAILABLE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } catch {
+            Write-Output "LocalDB not available on runner"
+            "LOCALDB_AVAILABLE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $dataDir = "InitializeDb/Data_CI"
+          New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
+          $logFile = Join-Path $dataDir "init.log"
+          # Export log file path to environment for SerilogConfigurator
+          "LOG_FILE=$logFile" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_VERBOSE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_LEVEL=Information" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          if ($env:LOCALDB_AVAILABLE -eq 'true') {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --force-drop --confirm --data-dir=$dataDir --log-file=$logFile
+          } else {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=$dataDir --log-file=$logFile
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p InitializeDb/Data_CI
+          LOG_FILE=InitializeDb/Data_CI/init.log
+          export LOG_FILE
+          LOG_VERBOSE=true
+          export LOG_VERBOSE
+          LOG_LEVEL=Information
+          export LOG_LEVEL
+          dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=InitializeDb/Data_CI --log-file=InitializeDb/Data_CI/init.log
+
+      - name: Upload InitializeDb artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: initializedb-artifacts-${{ matrix.os }}
+          path: InitializeDb/Data_CI
+          retention-days: 7
+
+      - name: Run tests
+        run: dotnet test --no-build -c Release
