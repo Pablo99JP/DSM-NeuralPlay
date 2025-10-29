@@ -7,16 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NHibernate" Version="5.3.0" />
+  <PackageReference Include="NHibernate" Version="5.6.0" />
+    <!-- Provide the SQLite ADO.NET provider for NHibernate's SQLite driver during tests -->
+  <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="NHibernate.cfg.xml">
+    <!-- NHibernate configuration and mapping files are inside the NHibernate folder -->
+    <None Update="NHibernate\NHibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="NHibernate\Mappings\*.hbm.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Also embed mapping files so NHibernate can load them when the config/mappings are not copied to the test output -->
+    <EmbeddedResource Include="NHibernate\Mappings\*.hbm.xml" />
+    <EmbeddedResource Include="NHibernate\NHibernate.cfg.xml" />
   </ItemGroup>
 
   <ItemGroup>
