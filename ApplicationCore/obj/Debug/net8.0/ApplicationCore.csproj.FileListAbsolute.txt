@@ -1,0 +1,12 @@
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\bin\Debug\net8.0\ApplicationCore.deps.json
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\bin\Debug\net8.0\ApplicationCore.dll
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\bin\Debug\net8.0\ApplicationCore.pdb
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.AssemblyInfoInputs.cache
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.AssemblyInfo.cs
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.csproj.CoreCompileInputs.cache
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.sourcelink.json
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.dll
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\refint\ApplicationCore.dll
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ApplicationCore.pdb
+c:\Users\Pablo\Desktop\universidad\DSM\DSM-NeuralPlay\ApplicationCore\obj\Debug\net8.0\ref\ApplicationCore.dll

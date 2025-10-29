@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "source": "dominio.puml",
+    "generatedAt": "2025-10-29T00:00:00Z",
+    "formatVersion": "1.0"
+  },
+  "enums": [
+    {
+      "name": "RolComunidad",
+      "values": ["LIDER","COLABORADOR","MIEMBRO"]
+    },
+    {
+      "name": "RolEquipo",
+      "values": ["ADMIN","MIEMBRO"]
+    },
+    {
+      "name": "EstadoMembresia",
+      "values": ["PENDIENTE","ACTIVA","EXPULSADA","ABANDONADA"]
+    },
+    {
+      "name": "EstadoSolicitud",
+      "values": ["PENDIENTE","ACEPTADA","RECHAZADA","CANCELADA"]
+    },
+    {
+      "name": "TipoInvitacion",
+      "values": ["COMUNIDAD","EQUIPO"]
+    },
+    {
+      "name": "TipoReaccion",
+      "values": ["ME_GUSTA","OTRO"]
+    },
+    {
+      "name": "EstadoParticipacion",
+      "values": ["PENDIENTE","ACEPTADA","RECHAZADA","RETIRADA"]
+    },
+    {
+      "name": "TipoNotificacion",
+      "values": ["REACCION","COMENTARIO","PUBLICACION","PROPUESTA_TORNEO","UNION_TORNEO","SISTEMA","MENSAJE","ALERTA"]
+    },
+    {
+      "name": "EstadoCuenta",
+      "values": ["ACTIVA"]
+    },
+    {
+      "name": "Visibilidad",
+      "values": ["PUBLICO","PRIVADO","AMIGOS"]
+    },
+    {
+      "name": "GeneroJuego",
+      "values": ["ACCION","AVENTURA","ESTRATEGIA","RPG","DEPORTE","OTRO"]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Usuario",
+      "id": { "name": "idUsuario", "type": "long" },
+      "properties": [
+        {"name":"nick","type":"string"},
+        {"name":"correoElectronico","type":"string"},
+        {"name":"contrasenaHash","type":"string"},
+        {"name":"telefono","type":"string","nullable":true},
+        {"name":"fechaRegistro","type":"datetime"},
+        {"name":"estadoCuenta","type":"EstadoCuenta"}
+      ]
+    },
+    {
+      "name": "Comunidad",
+      "id": { "name": "idComunidad", "type": "long" },
+      "properties": [
+        {"name":"nombre","type":"string"},
+        {"name":"descripcion","type":"string","nullable":true},
+        {"name":"fechaCreacion","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Equipo",
+      "id": { "name": "idEquipo", "type": "long" },
+      "properties": [
+        {"name":"nombre","type":"string"},
+        {"name":"descripcion","type":"string","nullable":true},
+        {"name":"fechaCreacion","type":"datetime"}
+      ]
+    },
+    {
+      "name": "MiembroComunidad",
+      "id": { "name": "idMiembroComunidad", "type": "long" },
+      "properties": [
+        {"name":"rol","type":"RolComunidad"},
+        {"name":"estado","type":"EstadoMembresia"},
+        {"name":"fechaAlta","type":"datetime"},
+        {"name":"fechaBaja","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "MiembroEquipo",
+      "id": { "name": "idMiembroEquipo", "type": "long" },
+      "properties": [
+        {"name":"rol","type":"RolEquipo"},
+        {"name":"estado","type":"EstadoMembresia"},
+        {"name":"fechaAlta","type":"datetime"},
+        {"name":"fechaBaja","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "Invitacion",
+      "id": { "name": "idInvitacion", "type": "long" },
+      "properties": [
+        {"name":"tipo","type":"TipoInvitacion"},
+        {"name":"estado","type":"EstadoSolicitud"},
+        {"name":"fechaEnvio","type":"datetime"},
+        {"name":"fechaRespuesta","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "SolicitudIngreso",
+      "id": { "name": "idSolicitud", "type": "long" },
+      "properties": [
+        {"name":"tipo","type":"TipoInvitacion"},
+        {"name":"estado","type":"EstadoSolicitud"},
+        {"name":"fechaSolicitud","type":"datetime"},
+        {"name":"fechaResolucion","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "ChatEquipo",
+      "id": { "name": "idChatEquipo", "type": "long" },
+      "properties": []
+    },
+    {
+      "name": "MensajeChat",
+      "id": { "name": "idMensajeChat", "type": "long" },
+      "properties": [
+        {"name":"contenido","type":"string"},
+        {"name":"fechaEnvio","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Publicacion",
+      "id": { "name": "idPublicacion", "type": "long" },
+      "properties": [
+        {"name":"contenido","type":"string"},
+        {"name":"fechaCreacion","type":"datetime"},
+        {"name":"fechaEdicion","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "Comentario",
+      "id": { "name": "idComentario", "type": "long" },
+      "properties": [
+        {"name":"contenido","type":"string"},
+        {"name":"fechaCreacion","type":"datetime"},
+        {"name":"fechaEdicion","type":"datetime","nullable":true}
+      ]
+    },
+    {
+      "name": "Reaccion",
+      "id": { "name": "idReaccion", "type": "long" },
+      "properties": [
+        {"name":"tipo","type":"TipoReaccion"},
+        {"name":"fechaCreacion","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Notificacion",
+      "id": { "name": "idNotificacion", "type": "long" },
+      "properties": [
+        {"name":"tipo","type":"TipoNotificacion"},
+        {"name":"mensaje","type":"string"},
+        {"name":"leida","type":"boolean"},
+        {"name":"fechaCreacion","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Torneo",
+      "id": { "name": "idTorneo", "type": "long" },
+      "properties": [
+        {"name":"nombre","type":"string"},
+        {"name":"fechaInicio","type":"datetime"},
+        {"name":"reglas","type":"string","nullable":true},
+        {"name":"estado","type":"string"}
+      ]
+    },
+    {
+      "name": "PropuestaTorneo",
+      "id": { "name": "idPropuesta", "type": "long" },
+      "properties": [
+        {"name":"fechaPropuesta","type":"datetime"},
+        {"name":"estado","type":"EstadoSolicitud"}
+      ]
+    },
+    {
+      "name": "VotoTorneo",
+      "id": { "name": "idVoto", "type": "long" },
+      "properties": [
+        {"name":"valor","type":"boolean"},
+        {"name":"fechaVoto","type":"datetime"}
+      ]
+    },
+    {
+      "name": "ParticipacionTorneo",
+      "id": { "name": "idParticipacion", "type": "long" },
+      "properties": [
+        {"name":"estado","type":"EstadoParticipacion"},
+        {"name":"fechaAlta","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Perfil",
+      "id": { "name": "idPerfil", "type": "long" },
+      "properties": [
+        {"name":"fotoPerfilUrl","type":"string","nullable":true},
+        {"name":"descripcion","type":"string","nullable":true},
+        {"name":"visibilidadPerfil","type":"Visibilidad"},
+        {"name":"visibilidadActividad","type":"Visibilidad"},
+        {"name":"juegoFavoritoId","type":"long","nullable":true}
+      ]
+    },
+    {
+      "name": "Juego",
+      "id": { "name": "idJuego", "type": "long" },
+      "properties": [
+        {"name":"nombreJuego","type":"string"},
+        {"name":"genero","type":"GeneroJuego"}
+      ]
+    },
+    {
+      "name": "PerfilJuego",
+      "id": { "name": "idPerfilJuego", "type": "long" },
+      "properties": [
+        {"name":"fechaAdicion","type":"datetime"}
+      ]
+    },
+    {
+      "name": "Sesion",
+      "id": { "name": "idSesion", "type": "long" },
+      "properties": [
+        {"name":"fechaInicio","type":"datetime"},
+        {"name":"fechaFin","type":"datetime","nullable":true},
+        {"name":"token","type":"string"}
+      ]
+    }
+  ],
+  "relations": [
+    {"from":"Usuario","to":"MiembroComunidad","type":"one-to-many","roleFrom":"1","roleTo":"0..*","label":"usuario"},
+    {"from":"Comunidad","to":"MiembroComunidad","type":"one-to-many","label":"comunidad"},
+    {"from":"Usuario","to":"MiembroEquipo","type":"one-to-many","label":"usuario"},
+    {"from":"Equipo","to":"MiembroEquipo","type":"one-to-many","label":"equipo"},
+    {"from":"Comunidad","to":"Equipo","type":"one-to-many","label":"contiene"},
+    {"from":"Comunidad","to":"Torneo","type":"one-to-many","label":"organiza"},
+    {"from":"Equipo","to":"ChatEquipo","type":"composition","cardinality":"1 to 0..1","label":"chat"},
+    {"from":"ChatEquipo","to":"MensajeChat","type":"one-to-many","label":"mensajes"},
+    {"from":"Usuario","to":"MensajeChat","type":"one-to-many","label":"autor"},
+    {"from":"Usuario","to":"Invitacion","type":"one-to-many","label":"emisor/destinatario"},
+    {"from":"Comunidad","to":"Invitacion","type":"one-to-one-or-zero","label":"comunidad"},
+    {"from":"Equipo","to":"Invitacion","type":"one-to-many","label":"equipo"},
+    {"from":"Usuario","to":"SolicitudIngreso","type":"one-to-many","label":"solicitante"},
+    {"from":"Comunidad","to":"SolicitudIngreso","type":"one-to-one-or-zero","label":"comunidad"},
+    {"from":"Equipo","to":"SolicitudIngreso","type":"one-to-many","label":"equipo"},
+    {"from":"Comunidad","to":"Publicacion","type":"one-to-many","label":"publicaciones"},
+    {"from":"Usuario","to":"Publicacion","type":"one-to-many","label":"autor"},
+    {"from":"Publicacion","to":"Comentario","type":"one-to-many","label":"comentarios"},
+    {"from":"Usuario","to":"Comentario","type":"one-to-many","label":"autor"},
+    {"from":"Publicacion","to":"Reaccion","type":"one-to-many","label":"reacciones"},
+    {"from":"Comentario","to":"Reaccion","type":"one-to-many","label":"reacciones"},
+    {"from":"Usuario","to":"Reaccion","type":"one-to-many","label":"autor"},
+    {"from":"Usuario","to":"Notificacion","type":"one-to-many","label":"destinatario"},
+    {"from":"Publicacion","to":"Notificacion","type":"one-to-many","label":"origenPublicacion"},
+    {"from":"Comentario","to":"Notificacion","type":"one-to-many","label":"origenComentario"},
+    {"from":"PropuestaTorneo","to":"Notificacion","type":"one-to-many","label":"origenPropuesta"},
+    {"from":"Reaccion","to":"Notificacion","type":"one-to-many","label":"origenReaccion"},
+    {"from":"Equipo","to":"PropuestaTorneo","type":"one-to-many","label":"propone"},
+    {"from":"Torneo","to":"PropuestaTorneo","type":"one-to-many","label":"pertenece"},
+    {"from":"Usuario","to":"PropuestaTorneo","type":"one-to-many","label":"propuestoPor"},
+    {"from":"PropuestaTorneo","to":"VotoTorneo","type":"one-to-many","label":"votos"},
+    {"from":"Usuario","to":"VotoTorneo","type":"one-to-many","label":"votante"},
+    {"from":"ParticipacionTorneo","to":"Equipo","type":"many-to-one","label":"Equipo"},
+    {"from":"ParticipacionTorneo","to":"Torneo","type":"many-to-one","label":"Torneo"},
+    {"from":"Usuario","to":"Perfil","type":"one-to-one","label":"tiene"},
+    {"from":"Usuario","to":"Sesion","type":"one-to-many","label":"tiene"},
+    {"from":"Perfil","to":"PerfilJuego","type":"one-to-many","label":"perfilJuegos"},
+    {"from":"Juego","to":"PerfilJuego","type":"one-to-many","label":"perfilJuegos"},
+    {"from":"Perfil","to":"Juego","type":"many-to-many?","label":"JuegoFavorito"}
+  ],
+  "constraints": [
+    {"entity":"Reaccion","rule":"una reaccion por usuario y tipo por objetivo (publicacion o comentario)"},
+    {"entity":"PropuestaTorneo","rule":"si todos los miembros del equipo votan 'si', el equipo se une al torneo"}
+  ]
+}
