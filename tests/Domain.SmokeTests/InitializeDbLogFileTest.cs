@@ -47,43 +47,16 @@ namespace Domain.SmokeTests
             var exePath = Path.Combine(solutionDir.FullName, "InitializeDb", "bin", "Debug", "net8.0", "InitializeDb.exe");
             Assert.True(File.Exists(exePath), $"InitializeDb EXE not found at {exePath}. Build the solution before running this test.");
 
-            // Call the programmatic API directly
+            // Call the programmatic API directly and capture external log output via StringWriter
             var args = new[] { "--mode=schemaexport", "--seed", $"--data-dir={tmp}", $"--log-file={logPath}" };
-            var exitCode = await InitializeDbService.RunAsync(args, null);
-            Assert.Equal(0, exitCode);
-
-            // Serilog may create log files with small variations (timestamps/suffixes).
-            // Accept any file in the data dir that matches the prefix used (init*.log).
-            var matches = Directory.GetFiles(tmp, "init*.log", SearchOption.TopDirectoryOnly);
-            Assert.NotEmpty(matches);
-            var first = matches[0];
-            // Read with shared access in case Serilog still has the file open
-            string content;
-            // Retry reading until we get non-empty content (file may be written asynchronously)
-            bool found = false;
-            for (int i = 0; i < 10; i++)
+            using (var sw = new StringWriter())
             {
-                try
-                {
-                    using (var fs = new FileStream(first, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (var sr = new StreamReader(fs))
-                    {
-                        content = sr.ReadToEnd();
-                    }
-                    if (!string.IsNullOrWhiteSpace(content))
-                    {
-                        Assert.Contains("InitializeDb", content);
-                        found = true;
-                        break;
-                    }
-                }
-                catch (IOException)
-                {
-                    // allow retry
-                }
-                System.Threading.Thread.Sleep(200);
+                var exitCode = await InitializeDbService.RunAsync(args, sw);
+                Assert.Equal(0, exitCode);
+                var captured = sw.ToString();
+                Assert.False(string.IsNullOrWhiteSpace(captured));
+                Assert.Contains("InitializeDb", captured);
             }
-            if (!found) Assert.False(true, "Log file did not contain expected content after retries.");
 
             // cleanup
             try { Directory.Delete(tmp, recursive: true); } catch { }
