@@ -16,6 +16,30 @@ dotnet build .\InitializeDb\InitializeDb.csproj
 # This program seeds domain objects and exercises CEN/CP logic.
 dotnet run --project .\InitializeDb\InitializeDb.csproj
 
+InitializeDb: modos y flags
+---------------------------
+El proyecto `InitializeDb` ahora soporta dos modos principales:
+
+- Modo por defecto (in-memory): `dotnet run --project .\InitializeDb\InitializeDb.csproj`
+	- Ejecuta la validación en memoria y utiliza los repositorios `InMemory` para ejercitar CEN/CP.
+
+- Schema export (crear esquema con NHibernate):
+	- `dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport`
+	- El inicializador intentará crear el esquema en LocalDB (`InitializeDb/Data/ProjectDatabase.mdf`). Si LocalDB no está disponible o la operación falla, cae en fallback a SQLite y crea `InitializeDb/Data/project.db`.
+
+Flags útiles:
+
+- `--db-name=<name>`: usar un nombre diferente para el MDF (por defecto `ProjectDatabase`).
+- `--force-drop`: permite eliminar un MDF existente antes de crear uno nuevo (acción destructiva).
+- `--confirm`: requerido junto con `--force-drop` para evitar borrados accidentales.
+
+Ejemplo (fuerza recrear la MDF y confirma la acción):
+
+```powershell
+dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport --db-name=ProjectDatabase --force-drop --confirm
+```
+
+
 # Run tests
 dotnet test .\tests\Domain.SmokeTests\Domain.SmokeTests.csproj
 
