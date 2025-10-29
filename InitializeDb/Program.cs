@@ -20,6 +20,7 @@ string dbName = "ProjectDatabase";
 bool doSeed = false;
 string? dataDirArg = null;
 bool verbose = false;
+string? logFile = null;
 foreach (var a in args)
 {
 	if (a.StartsWith("--mode=", StringComparison.OrdinalIgnoreCase))
@@ -52,6 +53,11 @@ foreach (var a in args)
 	{
 		verbose = true;
 	}
+	else if (a.StartsWith("--log-file=", StringComparison.OrdinalIgnoreCase))
+	{
+		logFile = a.Substring("--log-file=".Length);
+		if (string.IsNullOrWhiteSpace(logFile)) logFile = null;
+	}
 }
 
 if (mode == "schemaexport")
@@ -64,7 +70,37 @@ if (mode == "schemaexport")
 	});
 	var logger = loggerFactory.CreateLogger("InitializeDb");
 
+	// Optional file logging
+	System.IO.StreamWriter? logWriter = null;
+	void FileLog(string line)
+	{
+		try
+		{
+			if (logWriter != null)
+			{
+				logWriter.WriteLine(line);
+				logWriter.Flush();
+			}
+		}
+		catch { /* best-effort logging */ }
+	}
+	if (!string.IsNullOrWhiteSpace(logFile))
+	{
+		try
+		{
+			var dir = Path.GetDirectoryName(logFile) ?? Path.GetDirectoryName(Path.GetFullPath(logFile)) ?? AppContext.BaseDirectory;
+			if (!string.IsNullOrWhiteSpace(dir)) Directory.CreateDirectory(dir);
+			logWriter = new StreamWriter(logFile, append: false) { AutoFlush = true };
+			FileLog($"[{DateTime.UtcNow:o}] InitializeDb log started");
+		}
+		catch (Exception ex)
+		{
+			logger.LogWarning("Could not open log file {file} for writing: {msg}", logFile, ex.Message);
+		}
+	}
+
 	logger.LogInformation("InitializeDb - running NHibernate SchemaExport mode...");
+	FileLog($"[{DateTime.UtcNow:o}] InitializeDb started in schemaexport mode. dbName={dbName} verbose={verbose}");
 	// Prefer repository-local InitializeDb/Data (relative to the project folder). When running from the build output
 	// AppContext.BaseDirectory typically points to bin/.../net8.0, so move up to the project folder and create Data there.
 	// Resolve data directory: prefer explicit --data-dir, otherwise repo-local InitializeDb/Data
@@ -79,7 +115,6 @@ if (mode == "schemaexport")
 		dataDir = repoData;
 	}
 	Directory.CreateDirectory(dataDir);
-
 	// Try LocalDB first (recommended by solution.plan.md)
 	var mdfPath = Path.Combine(dataDir, dbName + ".mdf");
 	var localDbConn = $"Data Source=(localdb)\\MSSQLLocalDB;AttachDbFilename={mdfPath};Integrated Security=True;Connect Timeout=30;";
@@ -87,7 +122,8 @@ if (mode == "schemaexport")
     string? lastDialect = null;
 	try
 	{
-	logger.LogInformation($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
+		logger.LogInformation($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
+		FileLog($"[{DateTime.UtcNow:o}] Attempting SchemaExport to LocalDB ({mdfPath})");
 
 		// Safety: if MDF already exists and user didn't pass --force-drop, skip LocalDB attempt
 				if (File.Exists(mdfPath) && !forceDrop)
@@ -180,7 +216,8 @@ END
 	catch (Exception ex)
 	{
 		Console.WriteLine($"LocalDB SchemaExport failed: {ex.Message}");
-	logger.LogWarning("Falling back to file-based SQLite SchemaExport...");
+		logger.LogWarning("Falling back to file-based SQLite SchemaExport...");
+		FileLog($"[{DateTime.UtcNow:o}] LocalDB SchemaExport failed: {ex.Message}. Falling back to SQLite.");
 		var sqlitePath = Path.Combine(dataDir, "project.db");
 		var sqliteConn = $"Data Source={sqlitePath};Version=3;";
 		try
@@ -188,7 +225,8 @@ END
 			NHibernateHelper.ExportSchema(sqliteConn, "NHibernate.Dialect.SQLiteDialect");
 			lastConnectionString = sqliteConn;
 			lastDialect = "NHibernate.Dialect.SQLiteDialect";
-			logger.LogInformation("SchemaExport to SQLite file completed. Path={path}", sqlitePath);
+				logger.LogInformation("SchemaExport to SQLite file completed. Path={path}", sqlitePath);
+				FileLog($"[{DateTime.UtcNow:o}] SchemaExport to SQLite file completed. Path={sqlitePath}");
 		}
 		catch (Exception ex2)
 		{
@@ -199,11 +237,13 @@ END
 	}
 
 	logger.LogInformation("InitializeDb schema export finished.");
+	FileLog($"[{DateTime.UtcNow:o}] InitializeDb schema export finished. connection={lastConnectionString} dialect={lastDialect}");
 
 	// If requested, run idempotent seed using NHibernate repositories (will persist into the exported DB if supported)
 	if (doSeed)
 	{
 		logger.LogInformation("Seeding database via NHibernate repositories (idempotent)...");
+		FileLog($"[{DateTime.UtcNow:o}] Starting idempotent seed. connection={lastConnectionString}");
 		try
 		{
 				// Build a session factory configured to the same connection/dialect used for SchemaExport
@@ -286,6 +326,7 @@ END
 
 					uow.SaveChanges();
 					Console.WriteLine("Seeding completed.");
+					FileLog($"[{DateTime.UtcNow:o}] Seeding completed and changes saved.");
 
 					try { seedSf.Dispose(); } catch { }
 				}
@@ -294,9 +335,21 @@ END
 		{
 			Console.WriteLine($"Seeding failed: {seedEx.Message}");
 		}
+		}
+
+		// Close file log if opened (best-effort)
+		try
+		{
+			if (logWriter != null)
+			{
+				FileLog($"[{DateTime.UtcNow:o}] InitializeDb completed. Closing log file.");
+				logWriter.Dispose();
+				logWriter = null;
+			}
+		}
+		catch { }
 	}
-}
-else
+	else
 {
 	Console.WriteLine("InitializeDb - running in-memory validation...");
 
