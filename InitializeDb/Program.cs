@@ -6,6 +6,7 @@ using ApplicationCore.Domain.CP;
 using ApplicationCore.Domain.Repositories;
 using ApplicationCore.Infrastructure.Memory;
 using Infrastructure.NHibernate;
+using Microsoft.Data.SqlClient;
 
 // Modes: --mode=inmemory (default) | --mode=schemaexport
 // Flags: --force-drop (allow destructive recreate), --confirm (required with --force-drop), --db-name=<name>
@@ -64,26 +65,77 @@ if (mode == "schemaexport")
 			throw new InvalidOperationException("Force drop requested without confirm.");
 		}
 
-		// If forceDrop+confirm and MDF exists, attempt to delete existing MDF files before exporting
-		if (forceDrop && confirm && File.Exists(mdfPath))
+		// Try connect to LocalDB master to ensure LocalDB instance is available
+		using var masterConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True;Connect Timeout=5;");
+		try
 		{
-			try
-			{
-				Console.WriteLine($"Deleting existing MDF {mdfPath} as --force-drop and --confirm were provided...");
-				File.Delete(mdfPath);
-				var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
-				if (File.Exists(logPath)) File.Delete(logPath);
-				Console.WriteLine("Existing MDF removed.");
-			}
-			catch (Exception delEx)
-			{
-				Console.WriteLine($"Failed to delete existing MDF: {delEx.Message}. Falling back to SQLite.");
-				throw;
-			}
-		}
+			masterConn.Open();
 
-		NHibernateHelper.ExportSchema(localDbConn, "NHibernate.Dialect.MsSql2012Dialect");
-		Console.WriteLine("SchemaExport to LocalDB completed.");
+			// If forceDrop+confirm and MDF exists, attempt to drop database if attached and delete files
+			if (forceDrop && confirm && File.Exists(mdfPath))
+			{
+				try
+				{
+					// If a database with this name exists, drop it first
+					var dropCmd = masterConn.CreateCommand();
+					dropCmd.CommandText = $@"
+IF EXISTS(SELECT name FROM sys.databases WHERE name = N'{dbName}')
+BEGIN
+    ALTER DATABASE [{dbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [{dbName}];
+END
+";
+					dropCmd.ExecuteNonQuery();
+				}
+				catch (Exception dropEx)
+				{
+					Console.WriteLine($"Failed to drop existing database '{dbName}': {dropEx.Message}. Will attempt file delete.");
+				}
+
+				try
+				{
+					Console.WriteLine($"Deleting existing MDF {mdfPath} as --force-drop and --confirm were provided...");
+					File.Delete(mdfPath);
+					var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
+					if (File.Exists(logPath)) File.Delete(logPath);
+					Console.WriteLine("Existing MDF removed.");
+				}
+				catch (Exception delEx)
+				{
+					Console.WriteLine($"Failed to delete existing MDF: {delEx.Message}. Falling back to SQLite.");
+					throw;
+				}
+			}
+
+			// If MDF does not exist, create a new database file via CREATE DATABASE ... (specifying filename)
+			if (!File.Exists(mdfPath))
+			{
+				try
+				{
+					var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
+					Console.WriteLine($"Creating LocalDB MDF at {mdfPath}...");
+					var createCmd = masterConn.CreateCommand();
+					createCmd.CommandText = $@"CREATE DATABASE [{dbName}] ON (NAME=N'{dbName}', FILENAME=N'{mdfPath}') LOG ON (NAME=N'{dbName}_log', FILENAME=N'{logPath}');";
+					createCmd.ExecuteNonQuery();
+					Console.WriteLine("LocalDB database created.");
+				}
+				catch (Exception createEx)
+				{
+					Console.WriteLine($"Failed to create LocalDB MDF: {createEx.Message}");
+					throw;
+				}
+			}
+
+			// Use Initial Catalog to connect to the newly created/attached DB
+			var dbConn = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=True;Connect Timeout=30;";
+			NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect");
+			Console.WriteLine("SchemaExport to LocalDB completed.");
+		}
+		catch (SqlException sqlEx)
+		{
+			Console.WriteLine($"LocalDB operations failed: {sqlEx.Message}");
+			throw;
+		}
 	}
 	catch (Exception ex)
 	{
