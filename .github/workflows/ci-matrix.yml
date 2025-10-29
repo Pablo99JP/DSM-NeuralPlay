@@ -25,15 +25,38 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
-      - name: Run InitializeDb SchemaExport + seed
-        # On Windows attempt LocalDB flow (force drop); on Linux expect SQLite fallback
+      - name: Detect LocalDB on Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --force-drop --confirm --data-dir=InitializeDb/Data_CI
-          else
-            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=InitializeDb/Data_CI
-          fi
+          try {
+            & sqllocaldb info MSSQLLocalDB | Out-Null
+            Write-Output "Detected LocalDB instance"
+            "LOCALDB_AVAILABLE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } catch {
+            Write-Output "LocalDB not available on runner"
+            "LOCALDB_AVAILABLE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $dataDir = "InitializeDb/Data_CI"
+          New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
+          $logFile = Join-Path $dataDir "init.log"
+          if ($env:LOCALDB_AVAILABLE -eq 'true') {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --force-drop --confirm --data-dir=$dataDir --log-file=$logFile
+          } else {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=$dataDir --log-file=$logFile
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Non-Windows)
+        if: matrix.os != 'windows-latest'
         shell: bash
+        run: |
+          mkdir -p InitializeDb/Data_CI
+          dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=InitializeDb/Data_CI --log-file=InitializeDb/Data_CI/init.log
 
       - name: Upload InitializeDb artifacts
         uses: actions/upload-artifact@v4
@@ -41,6 +64,7 @@ jobs:
         with:
           name: initializedb-artifacts-${{ matrix.os }}
           path: InitializeDb/Data_CI
+          retention-days: 7
 
       - name: Run tests
         run: dotnet test --no-build -c Release
