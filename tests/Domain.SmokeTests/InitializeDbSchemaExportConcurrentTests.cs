@@ -12,9 +12,13 @@ public class InitializeDbSchemaExportConcurrentTests
         var tmp = Path.Combine(Path.GetTempPath(), "initdb_test_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tmp);
         var logFile = Path.Combine(tmp, "init.log");
-        var args = new[] { "--mode=schemaexport", "--seed", "--db-name=concurrent_test_db", $"--data-dir={tmp}", $"--log-file={logFile}" };
+        // Use distinct DB names per concurrent run to avoid LocalDB/filename conflicts on CI runners
+        var baseArgs = new[] { "--mode=schemaexport", "--seed", $"--data-dir={tmp}", $"--log-file={logFile}" };
 
-        var tasks = Enumerable.Range(0, 3).Select(_ => InitializeDbService.RunAsync(args, new StringWriter())).ToArray();
+        var tasks = Enumerable.Range(0, 3).Select(i => {
+            var args = baseArgs.Concat(new[] { $"--db-name=concurrent_test_db_{i}" }).ToArray();
+            return InitializeDbService.RunAsync(args, new StringWriter());
+        }).ToArray();
         var results = await Task.WhenAll(tasks);
         Assert.All(results, r => Assert.Equal(0, r));
 
