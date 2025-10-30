@@ -214,5 +214,5 @@ jobs:
           retention-days: 7
 
       - name: Run tests
-        # Use the solution explicitly and avoid rebuilding (we already ran `dotnet build -c Release` above)
-        run: dotnet test DSM-NeuralPlay.sln -c Release --no-build --verbosity normal
+        # Use the solution explicitly and build as needed (ensures tests run even if previous build step used different config)
+        run: dotnet test DSM-NeuralPlay.sln -c Release --verbosity normal
