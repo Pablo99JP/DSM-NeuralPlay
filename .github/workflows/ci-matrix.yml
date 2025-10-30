@@ -3,6 +3,11 @@ name: CI Matrix
 on:
   push:
   pull_request:
+ 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   build-and-test:
@@ -37,7 +42,8 @@ jobs:
           retention-days: 7
 
       - name: Post SCA summary as PR comment
-        if: always() && github.event_name == 'pull_request'
+        # Only post a comment for PRs originating from the same repository (avoid forks)
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v6
         with:
           script: |
@@ -208,4 +214,5 @@ jobs:
           retention-days: 7
 
       - name: Run tests
-        run: dotnet test -c Release --verbosity normal
+        # Use the solution explicitly and avoid rebuilding (we already ran `dotnet build -c Release` above)
+        run: dotnet test DSM-NeuralPlay.sln -c Release --no-build --verbosity normal
