@@ -208,4 +208,4 @@ jobs:
           retention-days: 7
 
       - name: Run tests
-        run: dotnet test --no-build -c Release
+        run: dotnet test -c Release --verbosity normal
