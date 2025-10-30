@@ -103,8 +103,12 @@ jobs:
         if: matrix.os != 'windows-latest'
         shell: bash
         run: |
-          jq -e '.projects[]?.frameworks[]?.transitivePackages[]?.vulnerabilities[]? | select(.severity=="High" or .severity=="Critical")' sca-reports/vulnerable.json || true
-          if [ $? -eq 0 ]; then echo "High/Critical vulnerability detected"; exit 1; fi
+          # Fail the job if jq finds any vulnerability with severity High or Critical.
+          # Use the jq exit code directly in the if so we don't mask it with "|| true".
+          if jq -e '.projects[]?.frameworks[]?.transitivePackages[]?.vulnerabilities[]? | select(.severity=="High" or .severity=="Critical")' sca-reports/vulnerable.json > /dev/null 2>&1; then
+            echo "High/Critical vulnerability detected"
+            exit 1
+          fi
 
       - name: Build
         run: dotnet build --no-restore -c Release
