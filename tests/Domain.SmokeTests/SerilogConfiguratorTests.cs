@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Domain.SmokeTests
 {
+    [Collection("NonParallel")]
     public class SerilogConfiguratorTests
     {
         [Fact]
