@@ -12,7 +12,7 @@
   <ItemGroup>
     <!-- Explicitly pin transitive packages flagged as outdated in SCA reports -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="xunit.analyzers" Version="1.24.0" PrivateAssets="all" />
+    <PackageReference Include="xunit.analyzers" Version="1.25.0" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <!-- Pin transitive packages flagged as vulnerable to safe versions -->
