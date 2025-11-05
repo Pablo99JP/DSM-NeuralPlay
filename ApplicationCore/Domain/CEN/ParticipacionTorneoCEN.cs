@@ -6,9 +6,9 @@ namespace ApplicationCore.Domain.CEN
 {
     public class ParticipacionTorneoCEN
     {
-        private readonly IRepository<ParticipacionTorneo> _repo;
+        private readonly IParticipacionTorneoRepository _repo;
 
-        public ParticipacionTorneoCEN(IRepository<ParticipacionTorneo> repo)
+        public ParticipacionTorneoCEN(IParticipacionTorneoRepository repo)
         {
             _repo = repo;
         }
@@ -25,5 +25,12 @@ namespace ApplicationCore.Domain.CEN
         public void ModifyParticipacionTorneo(ParticipacionTorneo p) => _repo.Modify(p);
         public void DestroyParticipacionTorneo(long id) => _repo.Destroy(id);
         public IEnumerable<ParticipacionTorneo> ReadFilter_ParticipacionTorneo(string filter) => _repo.ReadFilter(filter);
+
+        // ReadFilters custom (delegados a repositorio para ejecución eficiente en BD)
+        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Equipo> ReadFilter_EquiposByTorneo(long idTorneo)
+            => _repo.GetEquiposByTorneo(idTorneo);
+
+        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Torneo> ReadFilter_TorneosByEquipo(long idEquipo)
+            => _repo.GetTorneosByEquipo(idEquipo);
     }
 }

@@ -6,9 +6,9 @@ namespace ApplicationCore.Domain.CEN
 {
     public class MiembroEquipoCEN
     {
-        private readonly IRepository<MiembroEquipo> _repo;
+        private readonly IMiembroEquipoRepository _repo;
 
-        public MiembroEquipoCEN(IRepository<MiembroEquipo> repo)
+        public MiembroEquipoCEN(IMiembroEquipoRepository repo)
         {
             _repo = repo;
         }
@@ -25,5 +25,12 @@ namespace ApplicationCore.Domain.CEN
         public void ModifyMiembroEquipo(MiembroEquipo m) => _repo.Modify(m);
         public void DestroyMiembroEquipo(long id) => _repo.Destroy(id);
         public IEnumerable<MiembroEquipo> ReadFilter_MiembroEquipo(string filter) => _repo.ReadFilter(filter);
+
+        // ReadFilter custom: Selecciona todos los Usuarios que tengan una membresía de equipo cuyo equipo coincida con el id
+        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Usuario> ReadFilter_UsuariosByEquipoMembership(long idEquipo)
+        {
+            // Delegate to repository for efficiency
+            return _repo.GetUsuariosByEquipo(idEquipo);
+        }
     }
 }

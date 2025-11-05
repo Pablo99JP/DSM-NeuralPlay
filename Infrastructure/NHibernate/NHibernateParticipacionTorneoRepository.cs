@@ -7,7 +7,7 @@ using ApplicationCore.Domain.Repositories;
 
 namespace Infrastructure.NHibernate
 {
-    public class NHibernateParticipacionTorneoRepository : IRepository<ParticipacionTorneo>
+    public class NHibernateParticipacionTorneoRepository : IParticipacionTorneoRepository
     {
         private readonly ISession _session;
 
@@ -33,6 +33,24 @@ namespace Infrastructure.NHibernate
         {
             var e = ReadById(id);
             if (e != null) _session.Delete(e);
+        }
+
+        public IEnumerable<Equipo> GetEquiposByTorneo(long idTorneo)
+        {
+            return _session.Query<ParticipacionTorneo>()
+                .Where(p => p.Torneo != null && p.Torneo.IdTorneo == idTorneo && p.Equipo != null)
+                .Select(p => p.Equipo)
+                .Distinct()
+                .ToList();
+        }
+
+        public IEnumerable<Torneo> GetTorneosByEquipo(long idEquipo)
+        {
+            return _session.Query<ParticipacionTorneo>()
+                .Where(p => p.Equipo != null && p.Equipo.IdEquipo == idEquipo && p.Torneo != null)
+                .Select(p => p.Torneo)
+                .Distinct()
+                .ToList();
         }
     }
 }

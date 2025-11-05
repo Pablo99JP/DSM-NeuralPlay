@@ -7,7 +7,7 @@ using ApplicationCore.Domain.Repositories;
 
 namespace Infrastructure.NHibernate
 {
-    public class NHibernateMiembroEquipoRepository : IRepository<MiembroEquipo>
+    public class NHibernateMiembroEquipoRepository : IMiembroEquipoRepository
     {
         private readonly ISession _session;
 
@@ -33,6 +33,15 @@ namespace Infrastructure.NHibernate
         {
             var e = ReadById(id);
             if (e != null) _session.Delete(e);
+        }
+
+        public IEnumerable<Usuario> GetUsuariosByEquipo(long idEquipo)
+        {
+            return _session.Query<MiembroEquipo>()
+                .Where(m => m.Equipo != null && m.Equipo.IdEquipo == idEquipo && m.Usuario != null)
+                .Select(m => m.Usuario)
+                .Distinct()
+                .ToList();
         }
     }
 }

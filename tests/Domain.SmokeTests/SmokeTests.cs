@@ -18,10 +18,10 @@ namespace Domain.SmokeTests
             var comentarioRepo = new InMemoryRepository<Comentario>();
             var reaccionRepo = new InMemoryRepository<Reaccion>();
             var propuestaRepo = new InMemoryRepository<PropuestaTorneo>();
-            var miembroComunidadRepo = new InMemoryRepository<MiembroComunidad>();
-            var miembroEquipoRepo = new InMemoryRepository<MiembroEquipo>();
+            var miembroComunidadRepo = new ApplicationCore.Infrastructure.Memory.InMemoryMiembroComunidadRepository();
+            var miembroEquipoRepo = new ApplicationCore.Infrastructure.Memory.InMemoryMiembroEquipoRepository();
             var notRepo = new InMemoryRepository<Notificacion>();
-            var participacionRepo = new InMemoryRepository<ParticipacionTorneo>();
+            var participacionRepo = new ApplicationCore.Infrastructure.Memory.InMemoryParticipacionTorneoRepository();
             var uow = new InMemoryUnitOfWork();
 
             var usuarioCEN = new UsuarioCEN(usuarioRepo);
