@@ -1,6 +1,6 @@
 namespace ApplicationCore.Domain.Enums
 {
-    public enum RolComunidad { LIDER, COLABORADOR, MIEMBRO }
+    public enum RolComunidad { LIDER, COLABORADOR, MODERADOR, MIEMBRO }
     public enum RolEquipo { ADMIN, MIEMBRO }
     public enum EstadoMembresia { PENDIENTE, ACTIVA, EXPULSADA, ABANDONADA }
     public enum EstadoSolicitud { PENDIENTE, ACEPTADA, RECHAZADA, CANCELADA }

@@ -30,6 +30,8 @@ public static class InitializeDbService
             string? dataDirArg = null;
             bool verbose = false;
             string? logFile = null;
+            string? targetConnection = null;
+            string? targetDialect = null;
             foreach (var a in args)
             {
                 if (a.StartsWith("--mode=", StringComparison.OrdinalIgnoreCase))
@@ -57,6 +59,16 @@ public static class InitializeDbService
                 {
                     dataDirArg = a.Substring("--data-dir=".Length);
                     if (string.IsNullOrWhiteSpace(dataDirArg)) dataDirArg = null;
+                }
+                else if (a.StartsWith("--target-connection=", StringComparison.OrdinalIgnoreCase))
+                {
+                    targetConnection = a.Substring("--target-connection=".Length);
+                    if (string.IsNullOrWhiteSpace(targetConnection)) targetConnection = null;
+                }
+                else if (a.StartsWith("--dialect=", StringComparison.OrdinalIgnoreCase))
+                {
+                    targetDialect = a.Substring("--dialect=".Length);
+                    if (string.IsNullOrWhiteSpace(targetDialect)) targetDialect = null;
                 }
                 else if (a.Equals("--verbose", StringComparison.OrdinalIgnoreCase) || a.Equals("-v", StringComparison.OrdinalIgnoreCase))
                 {
@@ -149,95 +161,158 @@ public static class InitializeDbService
                 string? lastDialect = null;
                 try
                 {
-                    logger.LogInformation($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
-                    FileLog($"[{DateTime.UtcNow:o}] Attempting SchemaExport to LocalDB ({mdfPath})");
-
-                    if (File.Exists(mdfPath) && !forceDrop)
+                    if (!string.IsNullOrWhiteSpace(targetConnection))
                     {
-                        logger.LogWarning("LocalDB MDF already exists at {mdfPath} and --force-drop not provided. Skipping LocalDB attempt and falling back to SQLite.", mdfPath);
-                        FileLog($"[{DateTime.UtcNow:o}] MDF exists and --force-drop not set. Skipping LocalDB.");
-                        throw new InvalidOperationException("LocalDB MDF exists and force-drop not set.");
-                    }
+                        // Use the provided connection string and dialect directly instead of attempting LocalDB
+                        var dialectToUse = string.IsNullOrWhiteSpace(targetDialect) ? "NHibernate.Dialect.MsSql2012Dialect" : targetDialect;
+                        FileLog($"[{DateTime.UtcNow:o}] Exporting schema to target connection using connection: {targetConnection} dialect: {dialectToUse}");
+                        Console.WriteLine($"Exporting schema to target connection: {targetConnection} dialect: {dialectToUse}");
+                        // If targetting SQL Server, prefer to generate SQL script and run it via sqlcmd to avoid driver binding issues.
+                        var driver = dialectToUse.Contains("MsSql", StringComparison.OrdinalIgnoreCase) ? "NHibernate.Driver.SqlClientDriver" : null;
+                        var cfgForExport = NHibernateHelper.BuildConfiguration();
+                        if (!string.IsNullOrWhiteSpace(dialectToUse)) cfgForExport.SetProperty("dialect", dialectToUse);
+                        if (!string.IsNullOrWhiteSpace(driver)) cfgForExport.SetProperty("connection.driver_class", driver);
+                        cfgForExport.SetProperty("connection.connection_string", targetConnection);
 
-                    if (forceDrop && !confirm)
-                    {
-                        Console.WriteLine("--force-drop specified but --confirm not provided. Aborting destructive action. Falling back to SQLite.");
-                        FileLog($"[{DateTime.UtcNow:o}] --force-drop without --confirm; aborting LocalDB destructive action.");
-                        throw new InvalidOperationException("Force drop requested without confirm.");
-                    }
-
-                    using var masterConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True;Connect Timeout=5;");
-                    try
-                    {
-                        masterConn.Open();
-
-                        if (forceDrop && confirm && File.Exists(mdfPath))
+                        var schemaFile = Path.Combine(dataDir, dbName + "_schema.sql");
+                        try
                         {
-                            try
+                            // Write DDL SQL to a file
+                            var export = new NHibernate.Tool.hbm2ddl.SchemaExport(cfgForExport);
+                            export.SetOutputFile(schemaFile);
+                            export.Create(false, false);
+
+                            // Parse target connection to get server and database for sqlcmd
+                            var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(targetConnection);
+                            var server = builder.DataSource;
+                            var database = builder.InitialCatalog ?? dbName;
+
+                            // Execute the generated SQL script using sqlcmd (Windows)
+                            var psi = new System.Diagnostics.ProcessStartInfo("sqlcmd", $"-S \"{server}\" -d \"{database}\" -E -i \"{schemaFile}\"") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+                            using var proc = System.Diagnostics.Process.Start(psi);
+                            if (proc != null)
                             {
-                                var dropCmd = masterConn.CreateCommand();
-                                dropCmd.CommandText = $@"
+                                var outText = proc.StandardOutput.ReadToEnd();
+                                var errText = proc.StandardError.ReadToEnd();
+                                proc.WaitForExit(60000);
+                                if (proc.ExitCode != 0)
+                                {
+                                    Console.WriteLine($"sqlcmd failed: {errText}");
+                                    throw new InvalidOperationException($"sqlcmd failed: {errText}");
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("Failed to start sqlcmd process");
+                            }
+
+                            lastConnectionString = targetConnection;
+                            lastDialect = dialectToUse;
+                            logger.LogInformation("SchemaExport to target connection completed via sqlcmd.");
+                            FileLog($"[{DateTime.UtcNow:o}] SchemaExport to target connection completed successfully via script {schemaFile}.");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"SchemaExport to target connection failed: {ex.Message}");
+                            throw;
+                        }
+                        lastConnectionString = targetConnection;
+                        lastDialect = dialectToUse;
+                        logger.LogInformation("SchemaExport to target connection completed.");
+                        FileLog($"[{DateTime.UtcNow:o}] SchemaExport to target connection completed successfully.");
+                    }
+                    else
+                    {
+                        logger.LogInformation($"Attempting SchemaExport to LocalDB ({Path.GetFileName(mdfPath)})...");
+                        FileLog($"[{DateTime.UtcNow:o}] Attempting SchemaExport to LocalDB ({mdfPath})");
+
+                        if (File.Exists(mdfPath) && !forceDrop)
+                        {
+                            logger.LogWarning("LocalDB MDF already exists at {mdfPath} and --force-drop not provided. Skipping LocalDB attempt and falling back to SQLite.", mdfPath);
+                            FileLog($"[{DateTime.UtcNow:o}] MDF exists and --force-drop not set. Skipping LocalDB.");
+                            throw new InvalidOperationException("LocalDB MDF exists and force-drop not set.");
+                        }
+
+                        if (forceDrop && !confirm)
+                        {
+                            Console.WriteLine("--force-drop specified but --confirm not provided. Aborting destructive action. Falling back to SQLite.");
+                            FileLog($"[{DateTime.UtcNow:o}] --force-drop without --confirm; aborting LocalDB destructive action.");
+                            throw new InvalidOperationException("Force drop requested without confirm.");
+                        }
+
+                        using var masterConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True;Connect Timeout=5;");
+                        try
+                        {
+                            masterConn.Open();
+
+                            if (forceDrop && confirm && File.Exists(mdfPath))
+                            {
+                                try
+                                {
+                                    var dropCmd = masterConn.CreateCommand();
+                                    dropCmd.CommandText = $@"
 IF EXISTS(SELECT name FROM sys.databases WHERE name = N'{dbName}')
 BEGIN
     ALTER DATABASE [{dbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE [{dbName}];
 END
 ";
-                                dropCmd.ExecuteNonQuery();
-                            }
-                            catch (Exception dropEx)
-                            {
-                                Console.WriteLine($"Failed to drop existing database '{dbName}': {dropEx.Message}. Will attempt file delete.");
-                                FileLog($"[{DateTime.UtcNow:o}] Failed to drop existing DB: {dropEx.Message}");
+                                    dropCmd.ExecuteNonQuery();
+                                }
+                                catch (Exception dropEx)
+                                {
+                                    Console.WriteLine($"Failed to drop existing database '{dbName}': {dropEx.Message}. Will attempt file delete.");
+                                    FileLog($"[{DateTime.UtcNow:o}] Failed to drop existing DB: {dropEx.Message}");
+                                }
+
+                                try
+                                {
+                                    Console.WriteLine($"Deleting existing MDF {mdfPath} as --force-drop and --confirm were provided...");
+                                    await RetryAsync(() => { File.Delete(mdfPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
+                                    var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
+                                    if (File.Exists(logPath)) await RetryAsync(() => { File.Delete(logPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
+                                    Console.WriteLine("Existing MDF removed.");
+                                }
+                                catch (Exception delEx)
+                                {
+                                    Console.WriteLine($"Failed to delete existing MDF: {delEx.Message}. Falling back to SQLite.");
+                                    FileLog($"[{DateTime.UtcNow:o}] Failed to delete existing MDF: {delEx.Message}");
+                                    throw;
+                                }
                             }
 
-                            try
+                            if (!File.Exists(mdfPath))
                             {
-                                Console.WriteLine($"Deleting existing MDF {mdfPath} as --force-drop and --confirm were provided...");
-                                await RetryAsync(() => { File.Delete(mdfPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
-                                var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
-                                if (File.Exists(logPath)) await RetryAsync(() => { File.Delete(logPath); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
-                                Console.WriteLine("Existing MDF removed.");
+                                try
+                                {
+                                    var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
+                                    Console.WriteLine($"Creating LocalDB MDF at {mdfPath}...");
+                                    var createCmd = masterConn.CreateCommand();
+                                    createCmd.CommandText = $@"CREATE DATABASE [{dbName}] ON (NAME=N'{dbName}', FILENAME=N'{mdfPath}') LOG ON (NAME=N'{dbName}_log', FILENAME=N'{logPath}');";
+                                    createCmd.ExecuteNonQuery();
+                                    logger.LogInformation("LocalDB database created.");
+                                }
+                                catch (Exception createEx)
+                                {
+                                    Console.WriteLine($"Failed to create LocalDB MDF: {createEx.Message}");
+                                    FileLog($"[{DateTime.UtcNow:o}] Failed to create LocalDB MDF: {createEx.Message}");
+                                    throw;
+                                }
                             }
-                            catch (Exception delEx)
-                            {
-                                Console.WriteLine($"Failed to delete existing MDF: {delEx.Message}. Falling back to SQLite.");
-                                FileLog($"[{DateTime.UtcNow:o}] Failed to delete existing MDF: {delEx.Message}");
-                                throw;
-                            }
+
+                            var dbConn = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=True;Connect Timeout=30;";
+                            FileLog($"[{DateTime.UtcNow:o}] Exporting schema to LocalDB using connection: {dbConn}");
+                                    await RetryAsync(() => { NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect"); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
+                            lastConnectionString = dbConn;
+                            lastDialect = "NHibernate.Dialect.MsSql2012Dialect";
+                            logger.LogInformation("SchemaExport to LocalDB completed.");
+                            FileLog($"[{DateTime.UtcNow:o}] SchemaExport to LocalDB completed successfully.");
                         }
-
-                        if (!File.Exists(mdfPath))
+                        catch (SqlException sqlEx)
                         {
-                            try
-                            {
-                                var logPath = Path.Combine(dataDir, dbName + "_log.ldf");
-                                Console.WriteLine($"Creating LocalDB MDF at {mdfPath}...");
-                                var createCmd = masterConn.CreateCommand();
-                                createCmd.CommandText = $@"CREATE DATABASE [{dbName}] ON (NAME=N'{dbName}', FILENAME=N'{mdfPath}') LOG ON (NAME=N'{dbName}_log', FILENAME=N'{logPath}');";
-                                createCmd.ExecuteNonQuery();
-                                logger.LogInformation("LocalDB database created.");
-                            }
-                            catch (Exception createEx)
-                            {
-                                Console.WriteLine($"Failed to create LocalDB MDF: {createEx.Message}");
-                                FileLog($"[{DateTime.UtcNow:o}] Failed to create LocalDB MDF: {createEx.Message}");
-                                throw;
-                            }
+                            Console.WriteLine($"LocalDB operations failed: {sqlEx.Message}");
+                            throw;
                         }
-
-                        var dbConn = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=True;Connect Timeout=30;";
-                        FileLog($"[{DateTime.UtcNow:o}] Exporting schema to LocalDB using connection: {dbConn}");
-                                await RetryAsync(() => { NHibernateHelper.ExportSchema(dbConn, "NHibernate.Dialect.MsSql2012Dialect"); return Task.CompletedTask; }, attempts: 3, delayMs: 200);
-                        lastConnectionString = dbConn;
-                        lastDialect = "NHibernate.Dialect.MsSql2012Dialect";
-                        logger.LogInformation("SchemaExport to LocalDB completed.");
-                        FileLog($"[{DateTime.UtcNow:o}] SchemaExport to LocalDB completed successfully.");
-                    }
-                    catch (SqlException sqlEx)
-                    {
-                        Console.WriteLine($"LocalDB operations failed: {sqlEx.Message}");
-                        throw;
                     }
                 }
                 catch (Exception ex)
@@ -284,6 +359,10 @@ END
                             var seedCfg = NHibernateHelper.BuildConfiguration();
                             seedCfg.SetProperty("connection.connection_string", lastConnectionString);
                             seedCfg.SetProperty("dialect", lastDialect);
+                            if (!string.IsNullOrWhiteSpace(lastDialect) && lastDialect.Contains("MsSql", StringComparison.OrdinalIgnoreCase))
+                            {
+                                seedCfg.SetProperty("connection.driver_class", "NHibernate.Driver.SqlClientDriver");
+                            }
                             var seedSf = seedCfg.BuildSessionFactory();
 
                             services.AddSingleton(seedSf);

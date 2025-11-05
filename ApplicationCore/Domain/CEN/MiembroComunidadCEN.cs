@@ -45,6 +45,21 @@ namespace ApplicationCore.Domain.CEN
             _repo.Modify(miembro);
         }
 
+        // Promocionar a Moderador
+        public void PromocionarAModerador(MiembroComunidad miembro)
+        {
+            miembro.Rol = ApplicationCore.Domain.Enums.RolComunidad.MODERADOR;
+            miembro.FechaAccion = System.DateTime.UtcNow;
+            _repo.Modify(miembro);
+        }
+
+        // Actualizar la fecha de acción (última actividad / intervención administrativa)
+        public void ActualizarFechaAccion(MiembroComunidad miembro)
+        {
+            miembro.FechaAccion = System.DateTime.UtcNow;
+            _repo.Modify(miembro);
+        }
+
         // ReadFilter custom: Selecciona todos los Usuarios que tengan una membresía de comunidad cuya comunidad coincida con el id
         public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Usuario> ReadFilter_UsuariosByComunidadMembership(long idComunidad)
         {
