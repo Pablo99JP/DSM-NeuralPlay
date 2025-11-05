@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.SmokeTests", "tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,11 +73,24 @@ Global
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x64.Build.0 = Release|Any CPU
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x86.Build.0 = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|x64.Build.0 = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{54646A77-3845-4961-8FD5-E73AF66C51DE} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{5F3A6E24-A9FF-44DC-BB3D-011DD4424FA7} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

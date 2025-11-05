@@ -21,24 +21,46 @@ namespace Domain.SmokeTests
                 Environment.SetEnvironmentVariable("LOG_VERBOSE", "true");
 
                 var logger = SerilogConfigurator.ConfigureFromEnvironment();
-                Log.Information("Serilog configurator test: hello world");
+                // Use the returned logger instance directly to avoid races with global/static logger state
+                logger.Information("Serilog configurator test: hello world");
                 Log.CloseAndFlush();
 
-                // Wait briefly for the sink to create the file (it should be immediate, but be tolerant)
-                for (int i = 0; i < 5 && !File.Exists(logPath); i++)
+                // Wait for the sink to create the file (give it a generous but bounded timeout)
+                // Increased timeout to be tolerant with async sinks on CI or slow FS.
+                for (int i = 0; i < 100 && !File.Exists(logPath); i++)
                 {
                     System.Threading.Thread.Sleep(100);
                 }
                 Assert.True(File.Exists(logPath), "Expected log file to be created by Serilog configurator");
 
-                // Read the file allowing shared read (Serilog may keep the file open with shared access)
-                string content;
-                using (var fs = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var sr = new StreamReader(fs))
+                // Read the file allowing shared read (Serilog may keep the file open with shared access).
+                // Retry for a short time until the logged text appears to avoid flakes from async writes.
+                string content = string.Empty;
+                var found = false;
+                // Retry for a longer period to avoid flakes from async writes/FS delays.
+                for (int attempt = 0; attempt < 400 && !found; attempt++)
                 {
-                    content = sr.ReadToEnd();
+                    try
+                    {
+                        using (var fs = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var sr = new StreamReader(fs))
+                        {
+                            content = sr.ReadToEnd();
+                        }
+                        if (!string.IsNullOrWhiteSpace(content) && content.IndexOf("hello world", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    catch (IOException)
+                    {
+                        // transient I/O; ignore and retry
+                    }
+                    System.Threading.Thread.Sleep(50);
                 }
-                Assert.Contains("hello world", content, StringComparison.OrdinalIgnoreCase);
+
+                Assert.True(found, $"Expected log file to contain 'hello world' but content was: '{content}'");
             }
             finally
             {

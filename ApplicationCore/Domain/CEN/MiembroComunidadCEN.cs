@@ -5,9 +5,9 @@ namespace ApplicationCore.Domain.CEN
 {
     public class MiembroComunidadCEN
     {
-        private readonly IRepository<MiembroComunidad> _repo;
+        private readonly IMiembroComunidadRepository _repo;
 
-        public MiembroComunidadCEN(IRepository<MiembroComunidad> repo)
+        public MiembroComunidadCEN(IMiembroComunidadRepository repo)
         {
             _repo = repo;
         }
@@ -43,6 +43,12 @@ namespace ApplicationCore.Domain.CEN
         {
             miembro.Rol = nuevoRol;
             _repo.Modify(miembro);
+        }
+
+        // ReadFilter custom: Selecciona todos los Usuarios que tengan una membresía de comunidad cuya comunidad coincida con el id
+        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Usuario> ReadFilter_UsuariosByComunidadMembership(long idComunidad)
+        {
+            return _repo.GetUsuariosByComunidad(idComunidad);
         }
     }
 }

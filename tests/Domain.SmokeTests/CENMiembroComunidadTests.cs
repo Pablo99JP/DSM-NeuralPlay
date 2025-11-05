@@ -9,8 +9,8 @@ public class CENMiembroComunidadTests
     [Fact]
     public void NewMiembro_SetsFields_And_Salir_Expulsar_Work()
     {
-        var repo = new InMemoryRepository<MiembroComunidad>();
-        var cen = new MiembroComunidadCEN(repo);
+    var repo = new ApplicationCore.Infrastructure.Memory.InMemoryMiembroComunidadRepository();
+    var cen = new MiembroComunidadCEN(repo);
 
     var user = new Usuario { IdUsuario = 1, Nick = "alice", CorreoElectronico = "a@x.com" };
         var com = new Comunidad { IdComunidad = 10, Nombre = "Gamers" };

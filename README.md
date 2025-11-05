@@ -1,84 +1,134 @@
-DSM-NeuralPlay
-================
+## DSM-NeuralPlay
 
-Overview
---------
-This repository contains a Clean Architecture / DDD scaffold for the "NeuralPlay" domain. The domain model is available in `domain.model.json` (generated from `dominio.puml`). The core is implemented in `ApplicationCore` (EN, CEN, CP, repository interfaces). There are both in-memory adapters for local validation and NHibernate-based persistence (XML mappings) plus a small `InitializeDb` console that can export schema and optionally seed via the domain layer.
+Este repositorio contiene una implementación con ideas de Clean Architecture / DDD para el dominio "NeuralPlay".
+El objetivo principal de este README es explicar en castellano las piezas del proyecto (clases, repositorios, operaciones CRUD, CRUD custom, CP/CEN, UnitOfWork, etc.) y dar instrucciones prácticas para ejecutar el servicio y las pruebas desde PowerShell en Windows.
 
-Quick commands (Windows PowerShell)
-----------------------------------
-# Restore/Build core projects
-dotnet build .\ApplicationCore\ApplicationCore.csproj
+### Estructura general
 
-dotnet build .\InitializeDb\InitializeDb.csproj
+- `ApplicationCore/` — Núcleo del dominio: entidades (EN), CEN (componentes por entidad), CP (casos de proceso), interfaces de repositorio y lógica de negocio.
+- `Infrastructure/` — Implementaciones de persistencia y utilidades.
+	- `Infrastructure/NHibernate/` — repositorios NHibernate, mappings, `NHibernateHelper`.
+	- `Infrastructure/Logging/` — configurador de Serilog (`SerilogConfigurator`).
+- `InitializeDb/` — ejecutable auxiliar para exportar esquema y seed (modo `inmemory` o `schemaexport`).
+- `tests/` — pruebas (smoke y unit).
 
-# Run the initialization harness (in-memory mode by default)
-# This program exercises CEN/CP logic without touching disk or a real DB:
-dotnet run --project .\InitializeDb\InitializeDb.csproj
+### Piezas clave y responsabilidad
 
-InitializeDb: modos y flags
----------------------------
-`InitializeDb` soporta los siguientes modos y flags relevantes:
+- Entidades (EN): `ApplicationCore/Domain/EN` — clases POCO que definen el modelo (p. ej. `Usuario`, `Comunidad`, `Equipo`, `Torneo`, `MiembroEquipo`, `MiembroComunidad`, `ParticipacionTorneo`).
+- CEN (Componentes de Entidad): `ApplicationCore/Domain/CEN` — encapsulan lógica de negocio por entidad (validaciones, creación de objetos, invariantes). Ejemplo: `UsuarioCEN` crea usuarios con valores por defecto.
+- CP (Casos de Proceso): `ApplicationCore/Domain/CP` — orquestan múltiples operaciones sobre varios repositorios y usan `IUnitOfWork` para asegurar atomicidad (ejemplo: `CrearComunidadCP`).
+- Repositorios (interfaces): `ApplicationCore/Domain/Repositories` — contratos de persistencia; la interfaz base es `IRepository<T>`.
+- Implementaciones en memoria: `ApplicationCore/Infrastructure/Memory` — útil para pruebas rápidas y validación sin BD.
+- Implementaciones NHibernate: `Infrastructure/NHibernate` — persistencia real, mapeos y `NHibernateUnitOfWork`.
 
-- Modo por defecto (`inmemory`):
-	- Ejecuta la validación en memoria usando los repositorios `InMemory` y los CEN/CP del dominio.
+### Operaciones CRUD (contrato y semántica)
 
-- Schema export (crear esquema con NHibernate):
-	- `dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport`
-	- El inicializador intentará crear/adjuntar un archivo LocalDB MDF en `--data-dir` (por defecto `InitializeDb/Data/ProjectDatabase.mdf`). Si LocalDB no está disponible o la operación falla, hará fallback a SQLite creando `project.db` en la misma carpeta.
+La interfaz base `IRepository<T>` define estas operaciones:
 
-Flags útiles (CLI):
+- `T? ReadById(long id)` — leer por id.
+- `IEnumerable<T> ReadAll()` — listar todo.
+- `IEnumerable<T> ReadFilter(string filter)` — búsqueda por texto (implementación en memoria hace reflexión sobre `string` properties; NHibernate puede mapear a consultas más eficientes).
+- `void New(T entity)` — crear/insertar (en memoria asigna id si existe propiedad `Id*`).
+- `void Modify(T entity)` — actualizar por id.
+- `void Destroy(long id)` — eliminar.
+
+### CRUD custom y reglas de negocio ya implementadas
+
+- Usuario: `UsuarioCEN.NewUsuario(...)` establece `EstadoCuenta` a `ACTIVA` por defecto.
+- MiembroEquipo / MiembroComunidad: al crear no se asigna `FechaBaja` (queda null); la baja es un flujo aparte.
+- SolicitudIngreso: `SolicitudIngresoCEN.NewSolicitudIngreso(...)` evita crear la solicitud si el usuario ya está en un equipo de la comunidad objetivo (lanza `InvalidOperationException`).
+
+### ReadFilter y consultas optimizadas (Option A)
+
+Además del `ReadFilter` genérico existen repositorios especializados con métodos optimizados:
+
+- `IParticipacionTorneoRepository`:
+	- `GetEquiposByTorneo(long idTorneo)`
+	- `GetTorneosByEquipo(long idEquipo)`
+- `IMiembroEquipoRepository`:
+	- `GetUsuariosByEquipo(long idEquipo)`
+- `IMiembroComunidadRepository`:
+	- `GetUsuariosByComunidad(long idComunidad)`
+
+Estos métodos permiten que NHibernate ejecute consultas eficientes y que las implementaciones en memoria reproduzcan la semántica para tests.
+
+### Transacciones / UnitOfWork
+
+- `IUnitOfWork` agrupa cambios y expone `SaveChanges()`.
+- Implementaciones:
+	- `NHibernateUnitOfWork` — controla la sesión y transacciones reales.
+	- `InMemoryUnitOfWork` — no-op para tests.
+
+### Autenticación / Login
+
+- `AuthenticationCEN.Login(nick, password)` está implementado; busca usuario por nick (`IUsuarioRepository.ReadByNick`) y verifica contraseña usando `PasswordHasher` (PBKDF2 en código actual). Revisar parámetros antes de usar en producción.
+
+### InitializeDb: modos, flags y ejemplos
+
+`InitializeDb` puede usarse en modo `inmemory` (validación local) o `schemaexport` (exportar esquema y opcionalmente seed). Flags principales:
 
 - `--mode=<inmemory|schemaexport>` (default: `inmemory`)
-- `--seed` — Ejecuta un seed idempotente usando CEN/CP (opcional, solo si quieres poblar datos).
-- `--db-name=<name>` — nombre de la base (por defecto `ProjectDatabase`).
-- `--force-drop` — permite eliminar MDF existente antes de crear uno nuevo (destructivo).
-- `--confirm` — requerido junto con `--force-drop` para confirmar la acción destructiva.
-- `--data-dir=<path>` — directorio donde se crearán los artifacts (MDF, project.db, logs). Útil en CI.
-- `--log-file=<path>` — ruta del archivo de log para Serilog.
-- `--verbose` o `-v` — nivel de log más detallado.
+- `--seed` — ejecutar seed idempotente.
+- `--db-name=<name>` — nombre de la BD (por defecto `ProjectDatabase`).
+- `--force-drop` y `--confirm` — para eliminar MDF existente de forma controlada.
+- `--data-dir=<path>` — directorio donde escribir artifacts (logs, mdf, project.db).
+- `--log-file=<path>` — ruta de log para Serilog.
+- `--verbose` o `-v` — para salida más detallada.
 
-Ejemplo (crear esquema y seed en modo schemaexport; confirmando drop):
-
-```powershell
-dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport --db-name=ProjectDatabase --force-drop --confirm --seed --data-dir=InitializeDb/Data --log-file=InitializeDb/Data/init.log
-```
-
-# Serilog / Logging
-The project uses a centralized Serilog configurator (`Infrastructure/Logging/SerilogConfigurator`). You can control logging via environment variables or command line flags:
-
-- `LOG_FILE` — path to a log file (Serilog file sink will be used if present).
-- `LOG_LEVEL` — explicit Serilog level name (e.g. `Debug`, `Information`).
-- `LOG_VERBOSE=true` — shorthand to enable `Debug` level.
-
-The CLI `--log-file` is passed to the configurator; tests call the programmatic API `InitializeDbService.RunAsync(...)` and can provide an external `TextWriter` to capture output.
-
-# Tests
-Run the test suite:
+Ejemplos en PowerShell:
 
 ```powershell
-dotnet test .\tests\Domain.SmokeTests\Domain.SmokeTests.csproj
+# Validación en memoria (no toca disco)
+dotnet run --project .\InitializeDb\InitializeDb.csproj
+
+# Exportar esquema y seed con confirmación
+dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport --db-name=ProjectDatabase --force-drop --confirm --seed --data-dir=InitializeDb/Data --log-file=InitializeDb/Data/init.log --verbose
 ```
 
-Where to look
--------------
-- Domain entities and business logic: `ApplicationCore/Domain/EN` and `ApplicationCore/Domain/CEN`.
-- Repository interfaces: `ApplicationCore/Domain/Repositories`.
-- In-memory adapters (tests/dev): `ApplicationCore/Infrastructure/Memory`.
-- NHibernate implementation and mappings: `Infrastructure/NHibernate` (look for `*.hbm.xml` files and `NHibernateHelper`).
-- InitializeDb executable and programmatic API: `InitializeDb/InitializeDbService.cs` and `InitializeDb/Program.cs`.
-- Tests (smoke/unit): `tests/Domain.SmokeTests`.
+### Logging y variables de entorno
 
-# CI, SCA and artifacts
-- The GitHub Actions workflow generates SCA artifacts (`.github/ci-reports/vulnerable.json` and `outdated.json`) and uploads them as job artifacts.
-- InitializeDb artifacts (logs, MDF/DB file or SQLite DB) are zipped per-run and uploaded by CI; see `.github/workflows/ci-matrix.yml` for details.
-- A `SECURITY.md` file documents the SCA/pinning policy and Dependabot cadence.
+Serilog está centralizado en `Infrastructure/Logging/SerilogConfigurator`. Puedes controlarlo con:
 
-Notes and caveats
------------------
-- NHibernate-based mappings and repositories are present (XML `.hbm.xml`) and `NHibernateHelper` resolves mappings at runtime. `InitializeDb` performs schema export using NHibernate and falls back to SQLite when LocalDB is not available.
-- `--seed` is opt-in: the initializer will only seed data if you pass `--seed` (or call the programmatic API with seeding enabled). The seed is implemented via the domain CENs/CPs and is idempotent.
-- Password hashing used in tests/seed is for demo/validation only — replace with a secure hashing algorithm (PBKDF2 / BCrypt / Argon2) before production use.
-- Many transitive packages are reported as outdated by SCA; no High/Critical advisories were detected in the most recent scan, but you should monitor CI/Dependabot and apply targeted pins or upgrades when advisories appear.
+- `LOG_FILE` — ruta a archivo de log.
+- `LOG_LEVEL` — nivel deseado (`Debug`, `Information`, `Warning`, ...).
+- `LOG_VERBOSE=true` — atajo para `Debug`.
 
-If you want, I can add more CP unit tests or improve the README further (usage examples, advanced debugging tips, or a short troubleshooting section for LocalDB on Windows). 
+El CLI pasa `--log-file` a este configurador; en tests se usa `InitializeDbService.RunAsync(...)` y se puede capturar la salida mediante un `TextWriter`.
+
+### Tests y ejecución
+
+Comandos rápidos (PowerShell):
+
+```powershell
+dotnet restore
+dotnet build ./DSM-NeuralPlay.sln
+dotnet test ./DSM-NeuralPlay.sln
+
+# Ejecutar solo UnitTests
+dotnet test ./tests/UnitTests/UnitTests.csproj
+
+# Ejecutar solo Smoke tests
+dotnet test ./tests/Domain.SmokeTests/Domain.SmokeTests.csproj
+```
+
+### Registro de implementaciones (DI)
+
+Durante el seed (`InitializeDbService`) el contenedor `IServiceCollection` registra tanto las implementaciones NHibernate como las en memoria (para la ruta de validación). Si añades nuevos repositorios, sigue el patrón: interfaz en `ApplicationCore/Domain/Repositories`, implementaciones en NHibernate y en memoria, y registrar en DI (ej. `InitializeDbService`).
+
+### Problemas conocidos y consejos
+
+- El flujo de `schemaexport` intenta usar LocalDB; si LocalDB no está disponible o la DB con el mismo nombre ya existe, se hace fallback a SQLite (`project.db`) en `--data-dir`.
+- Tests que leen archivos de log usan esperas/reintentos para tolerar escrituras asíncronas del sink de Serilog; en entornos muy lentos aumenta timeouts si detectas flakes.
+- Mantén las dependencias actualizadas y revisa los avisos de SCA/Dependabot. Se actualizó Moq a una versión sin la advertencia previa.
+
+### Dónde mirar (referencia rápida)
+
+- Entidades: `ApplicationCore/Domain/EN/`
+- CENs: `ApplicationCore/Domain/CEN/`
+- CPs: `ApplicationCore/Domain/CP/`
+- Repositorios (contratos): `ApplicationCore/Domain/Repositories/`
+- Repositorios en memoria: `ApplicationCore/Infrastructure/Memory/`
+- Repositorios NHibernate: `Infrastructure/NHibernate/`
+- InitializeDb: `InitializeDb/InitializeDbService.cs`
+
+Si quieres, puedo generar un script PowerShell de comprobación (restore/build/test/schemaexport) o crear ejemplos concretos de uso de `AuthenticationCEN.Login` y de un CP transaccional. Indica qué prefieres y lo añado.

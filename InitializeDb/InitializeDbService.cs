@@ -293,6 +293,10 @@ END
                             services.AddScoped<IRepository<Comunidad>, NHibernateComunidadRepository>();
                             services.AddScoped<IRepository<Equipo>, NHibernateEquipoRepository>();
                             services.AddScoped<IRepository<MiembroComunidad>, NHibernateMiembroComunidadRepository>();
+                            // Register specialized repository interfaces so CENs can depend on them directly
+                            services.AddScoped<IParticipacionTorneoRepository, NHibernateParticipacionTorneoRepository>();
+                            services.AddScoped<IMiembroEquipoRepository, NHibernateMiembroEquipoRepository>();
+                            services.AddScoped<IMiembroComunidadRepository, NHibernateMiembroComunidadRepository>();
 
                             services.AddScoped<IUnitOfWork, NHibernateUnitOfWork>();
                             services.AddScoped<UsuarioCEN>();
@@ -387,9 +391,9 @@ END
                 var perfilRepo = new InMemoryRepository<Perfil>();
                 var juegoRepo = new InMemoryRepository<Juego>();
                 var propuestaRepo = new InMemoryRepository<PropuestaTorneo>();
-                var participacionRepo = new InMemoryRepository<ParticipacionTorneo>();
-                var miembroComunidadRepo = new InMemoryRepository<MiembroComunidad>();
-                var miembroEquipoRepo = new InMemoryRepository<MiembroEquipo>();
+                var participacionRepo = new ApplicationCore.Infrastructure.Memory.InMemoryParticipacionTorneoRepository();
+                var miembroComunidadRepo = new ApplicationCore.Infrastructure.Memory.InMemoryMiembroComunidadRepository();
+                var miembroEquipoRepo = new ApplicationCore.Infrastructure.Memory.InMemoryMiembroEquipoRepository();
                 var notRepo = new InMemoryRepository<Notificacion>();
 
                 var uow = new InMemoryUnitOfWork();
