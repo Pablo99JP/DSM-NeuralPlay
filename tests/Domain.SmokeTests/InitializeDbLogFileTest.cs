@@ -43,11 +43,8 @@ namespace Domain.SmokeTests
             };
 
             // Use ArgumentList to avoid quoting/parsing issues
-            // Prefer running the compiled EXE directly to avoid dotnet/msbuild invocations in the test runner
-            var exePath = Path.Combine(solutionDir.FullName, "InitializeDb", "bin", "Debug", "net8.0", "InitializeDb.exe");
-            Assert.True(File.Exists(exePath), $"InitializeDb EXE not found at {exePath}. Build the solution before running this test.");
-
-            // Call the programmatic API directly and capture external log output via StringWriter
+            // Do not require a platform-specific EXE (CI may build DLLs). Call the programmatic API directly
+            // and capture external log output via StringWriter.
             var args = new[] { "--mode=schemaexport", "--seed", $"--data-dir={tmp}", $"--log-file={logPath}" };
             using (var sw = new StringWriter())
             {
