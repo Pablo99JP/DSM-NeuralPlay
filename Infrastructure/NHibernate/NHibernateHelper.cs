@@ -98,11 +98,12 @@ namespace Infrastructure.NHibernate
 
         public static ISession OpenSession() => SessionFactory.OpenSession();
 
-        // Export schema to the provided connection string. Optionally override dialect.
-        public static void ExportSchema(string connectionString, string? dialect = null)
+        // Export schema to the provided connection string. Optionally override dialect and driver class.
+        public static void ExportSchema(string connectionString, string? dialect = null, string? driverClass = null)
         {
             var cfg = BuildConfiguration();
             if (!string.IsNullOrEmpty(dialect)) cfg.SetProperty("dialect", dialect);
+            if (!string.IsNullOrEmpty(driverClass)) cfg.SetProperty("connection.driver_class", driverClass);
             cfg.SetProperty("connection.connection_string", connectionString);
 
             // Use NHibernate's SchemaExport to create the schema

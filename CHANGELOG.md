@@ -11,6 +11,11 @@
 ### Changed
 - `InitializeDb` now falls back to SQLite file when LocalDB is not available; CLI supports safety flags `--force-drop` and `--confirm`.
 - NHibernate helper improved to load embedded mappings and export schema programmatically.
+ - Replaced `System.Data.SqlClient` with `Microsoft.Data.SqlClient` in projects that target SQL Server (notably `Infrastructure` and `InitializeDb`) to address known vulnerabilities in the older package. Solution builds and full test suite passed locally (38/38).
+
+### Notes
+- The replacement uses `Microsoft.Data.SqlClient` v6.1.2 in the edited projects. Consider aligning versions across all projects that connect to SQL Server and running Dependabot/renovate to keep the package up to date.
+- If you need a rollback or prefer a different supported version, I can update the CSProj entries accordingly and run the test suite again.
 
 ### Security
 - Upgraded NHibernate and related dependencies to address advisory notices; ensure Dependabot runs for future updates.

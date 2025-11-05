@@ -32,5 +32,21 @@ namespace ApplicationCore.Domain.CEN
             // Delegate to repository for efficiency
             return _repo.GetUsuariosByEquipo(idEquipo);
         }
+
+        // Banear miembro de equipo: marcar como expulsado y fijar fecha de baja/acción
+        public void BanearMiembroEquipo(MiembroEquipo miembro)
+        {
+            miembro.Estado = ApplicationCore.Domain.Enums.EstadoMembresia.EXPULSADA;
+            miembro.FechaBaja = System.DateTime.UtcNow;
+            miembro.FechaAccion = System.DateTime.UtcNow;
+            _repo.Modify(miembro);
+        }
+
+        // Actualizar la fecha de accion
+        public void ActualizarFechaAccion(MiembroEquipo miembro)
+        {
+            miembro.FechaAccion = System.DateTime.UtcNow;
+            _repo.Modify(miembro);
+        }
     }
 }

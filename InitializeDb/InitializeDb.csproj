@@ -18,6 +18,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  <!-- Replaced System.Data.SqlClient with Microsoft.Data.SqlClient (modern, supported) -->
   </ItemGroup>
   <ItemGroup>
     <!-- Pin transitive packages flagged as vulnerable -->

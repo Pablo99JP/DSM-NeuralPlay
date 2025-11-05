@@ -10,6 +10,7 @@
     <property name="Rol" column="Rol" />
     <property name="Estado" column="Estado" />
     <property name="FechaAlta" column="FechaAlta" />
+  <property name="FechaAccion" column="FechaAccion" />
     <property name="FechaBaja" column="FechaBaja" />
 
     <many-to-one name="Usuario" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="UsuarioId" />
