@@ -15,19 +15,18 @@
 8. TorneoCEN
 9. PublicacionCEN
 10. SolicitudIngresoCEN
-11. InvitacionCEN ⭐
-12. ChatEquipoCEN ⭐
-13. MensajeChatCEN ⭐
-14. ComentarioCEN ⭐
-15. ReaccionCEN ⭐
-16. NotificacionCEN ⭐
-17. PropuestaTorneoCEN ⭐
-18. VotoTorneoCEN ⭐
-19. ParticipacionTorneoCEN ⭐
-20. PerfilJuegoCEN ⭐
-21. SesionCEN ⭐
+11. InvitacionCEN
+12. ChatEquipoCEN
+13. MensajeChatCEN
+14. ComentarioCEN
+15. ReaccionCEN
+16. NotificacionCEN
+17. PropuestaTorneoCEN
+18. VotoTorneoCEN
+19. ParticipacionTorneoCEN
+20. PerfilJuegoCEN
+21. SesionCEN
 
-**⭐ = CENs nuevos agregados con CRUD completo**
 
 ## ✅ Métodos Custom (8 implementados, mínimo 3 requeridos)
 1. **`UsuarioCEN.Login(correo, password)`** - Autenticación de usuarios
@@ -55,11 +54,11 @@
    - Cambia Estado → RECHAZADA
    - Establece FechaRespuesta → DateTime.Now
 
-7. **`NotificacionCEN.MarcarComoLeida(id)`** ⭐ - Marcar notificaciones
+7. **`NotificacionCEN.MarcarComoLeida(id)`** - Marcar notificaciones
    - Establece Leida → true
    - Método de conveniencia para caso de uso común
 
-8. **`SesionCEN.CerrarSesion(id)`** ⭐ - Logout de usuarios
+8. **`SesionCEN.CerrarSesion(id)`** - Logout de usuarios
    - Establece FechaFin → DateTime.Now
    - Método de conveniencia para finalizar sesión
 

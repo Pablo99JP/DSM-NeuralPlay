@@ -55,10 +55,10 @@ Este documento confirma que el proyecto cumple **TODOS** los requisitos especifi
 6. **`SolicitudIngresoCEN.Rechazar(id)`**
    - Rechaza la solicitud (estado RECHAZADA + FechaResolucion)
 
-7. **`NotificacionCEN.MarcarComoLeida(id)`** ⭐
+7. **`NotificacionCEN.MarcarComoLeida(id)`**
    - Marca notificación como leída (Leida → true)
 
-8. **`SesionCEN.CerrarSesion(id)`** ⭐
+8. **`SesionCEN.CerrarSesion(id)`**
    - Cierra sesión (FechaFin → DateTime.Now)
 
 **✅ CUMPLIDO: 8 métodos custom > mínimo 3**
@@ -170,7 +170,7 @@ public Usuario Login(string correoElectronico, string contrasenaHash)
 - SessionFactory y Session
 - 13+ repositorios concretos
 - IUnitOfWork
-- 9 CENs
+- 21 CENs
 - 4 CPs
 
 #### 3. ✅ Creación de Entidades
