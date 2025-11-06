@@ -1,0 +1,1145 @@
+# Proyecto Clean Architecture DDD - Monolito
+
+Este proyecto implementa una arquitectura Clean DDD basada en el modelo de dominio generado desde `dominio.puml`.
+
+## 📚 Documentación
+
+La documentación completa del proyecto está organizada en archivos específicos dentro de la carpeta `docs/`:
+
+1. **[Estructura del Proyecto](docs/01_ESTRUCTURA.md)**
+   - Arquitectura y organización de carpetas
+   - Archivos generados (EN, Enums, CENs, CPs, Repositories)
+   - Convenciones aplicadas
+   - Tecnologías y requisitos
+
+2. **[Guía de Compilación y Pruebas](docs/02_COMPILACION_Y_PRUEBAS.md)**
+   - Requisitos previos (.NET 8.0, SQL Server/LocalDB)
+   - Pasos para compilar el proyecto
+   - Cómo ejecutar InitializeDb
+   - Verificación de base de datos
+   - Solución de problemas comunes
+
+3. **[Integración con Frontend](docs/03_INTEGRACION_FRONTEND.md)**
+   - Cómo crear Web API
+   - Configuración de Dependency Injection
+   - Ejemplos de Controllers (UsuarioController)
+   - Ejemplos de consumo desde React/TypeScript
+   - Ventajas de la arquitectura
+
+4. **[Flujo de Lógica de Negocio](docs/04_FLUJO_LOGICA_NEGOCIO.md)**
+   - Diagrama de arquitectura en capas
+   - Flujo completo de una operación (Registro de Usuario)
+   - Flujo de métodos custom (Login)
+   - Referencias entre archivos y líneas de código
+   - SQL generado por NHibernate
+
+5. **[Funcionalidades Implementadas](docs/05_FUNCIONALIDADES.md)**
+   - CRUD completo (10 CENs)
+   - 6 Métodos Custom (Login, PromoverAModerador, BanearMiembro, etc.)
+   - 12 ReadFilters (generales + específicos)
+   - 4 Custom Transactions (CPs transaccionales)
+   - Reglas de negocio documentadas
+   - InitializeDb completo
+
+## 🚀 Inicio Rápido
+
+### Compilar y Ejecutar
+
+```powershell
+# 1. Restaurar dependencias
+dotnet restore Solution.sln
+
+# 2. Compilar
+dotnet build Solution.sln --configuration Release
+
+# 3. Inicializar base de datos y seed
+cd InitializeDb
+dotnet run
+```
+
+### Resultado Esperado
+
+```
+✓ ApplicationCore realizado correctamente
+✓ Infrastructure realizado correctamente
+✓ InitializeDb realizado correctamente
+
+=== Iniciando InitializeDb ===
+✓ Conectado a SQL Server Express (o LocalDB)
+✓ Esquema creado correctamente
+✓ Usuarios creados: 4
+✓ Comunidades creadas: 3
+✓ Equipos creados: 1
+✓✓✓ InitializeDb COMPLETADO EXITOSAMENTE ✓✓✓
+```
+
+## ⚡ Resumen del Proyecto
+
+### Arquitectura
+- **Clean Architecture + DDD**: Separación clara entre dominio e infraestructura
+- **NHibernate ORM**: Persistencia con mappings XML
+- **.NET 8.0**: Framework moderno y eficiente
+
+### Componentes Principales
+- **21 Entidades** (Usuario, Comunidad, Equipo, Torneo, etc.)
+- **11 Enums** (RolComunidad, EstadoMembresia, TipoNotificacion, etc.)
+- **10 CENs** con CRUD completo + 6 métodos custom
+- **4 CPs** transaccionales (RegistroUsuarioCP, CrearComunidadCP, etc.)
+- **12 ReadFilters** (8 generales + 4 específicos)
+
+Ver detalles completos en **[Estructura del Proyecto](docs/01_ESTRUCTURA.md)** y **[Funcionalidades](docs/05_FUNCIONALIDADES.md)**
+
+## � Documentación Adicional
+
+- **[IMPLEMENTACIONES.md](IMPLEMENTACIONES.md)** - Detalle técnico completo de todas las implementaciones
+- **[VERIFICACION_REQUISITOS.md](VERIFICACION_REQUISITOS.md)** - Verificación exhaustiva de requisitos cumplidos
+
+## 🛠️ Tecnologías
+
+- **.NET 8.0** - Framework principal
+- **NHibernate 5.5.2** - ORM con mappings XML
+- **SQL Server Express / LocalDB** - Base de datos
+- **Clean Architecture + DDD** - Patrón arquitectónico
+
+## 📝 Notas Importantes
+
+- Las entidades NO tienen referencias a Entity Framework o NHibernate (POCOs puros)
+- Los CENs solo exponen operaciones sobre UNA entidad
+- Los CPs orquestan MÚLTIPLES CENs y aplican lógica transaccional
+- Generador HiLo para IDs eficiente sin round-trips a BD
+- Todas las operaciones son síncronas según especificación
+- Validaciones de negocio centralizadas en CENs y CPs
+
+---
+
+**Para información detallada, consulta los archivos de documentación en la carpeta `docs/`**
+
+### Paso 1: Verificar Requisitos Previos
+Antes de compilar, asegúrate de tener instalado:
+- **.NET 8.0 SDK** o superior
+- **SQL Server Express** (localhost\SQLEXPRESS) O **LocalDB** (el proyecto usa LocalDB como fallback automático)
+- **Visual Studio 2022** o **VS Code** (opcional, pero recomendado)
+
+Verifica la instalación de .NET:
+```powershell
+dotnet --version
+# Debe mostrar 8.0.x o superior
+```
+
+### Paso 2: Clonar o Descargar el Proyecto
+```powershell
+cd C:\tu\carpeta\destino
+# Si tienes el proyecto, navega a la carpeta DSM_Prueba
+```
+
+### Paso 3: Restaurar Dependencias NuGet
+```powershell
+# Desde la carpeta raíz del proyecto (donde está Solution.sln)
+dotnet restore Solution.sln
+```
+
+Este comando descarga todos los paquetes NuGet necesarios:
+- NHibernate 5.5.2
+- System.Data.SqlClient 4.8.6
+- Microsoft.Extensions.DependencyInjection 8.0.0
+
+### Paso 4: Compilar la Solución Completa
+```powershell
+dotnet build Solution.sln --configuration Release
+```
+
+Deberías ver:
+```
+✓ ApplicationCore realizado correctamente
+✓ Infrastructure realizado correctamente
+✓ InitializeDb realizado correctamente
+Compilación realizado correctamente en X.Xs
+```
+
+### Paso 5: Ejecutar InitializeDb (Primera Vez)
+```powershell
+cd InitializeDb
+dotnet run
+```
+
+**¿Qué hace InitializeDb?**
+1. **Intenta conectar a SQL Server Express** (localhost\SQLEXPRESS)
+2. **Si falla, usa LocalDB automáticamente** como fallback
+3. **Crea el esquema de base de datos** usando NHibernate SchemaExport
+4. **Inserta datos de prueba**:
+   - 4 Usuarios (player1, player2, player3, newplayer)
+   - 3 Comunidades (Gamers Pro, Casual Players, Elite Squad)
+   - 1 Equipo (Team Alpha)
+   - 2 Juegos (League of Legends, FIFA 24)
+   - 1 Torneo (Copa de Verano 2025)
+   - Membresías y publicaciones
+5. **Prueba todos los métodos**:
+   - ✓ Login de usuario
+   - ✓ Métodos Custom (Promocionar, Actualizar, Banear)
+   - ✓ Custom Transactions (CPs)
+   - ✓ Filtros (ReadFilter)
+6. **Muestra un resumen** con contadores de entidades creadas
+
+**Salida esperada:**
+```
+=== Iniciando InitializeDb ===
+
+1. Configurando base de datos...
+   ✓ Conectado a SQL Server Express.
+   (o)
+   ✗ No se pudo conectar a SQL Server Express
+   → Usando LocalDB como fallback...
+   ✓ Configurado LocalDB.
+
+2. Creando esquema de base de datos...
+   ✓ Esquema creado correctamente.
+
+3. Inicializando SessionFactory y repositorios...
+   ✓ Componentes inicializados.
+
+4. Creando entidades de prueba...
+   --- USUARIOS ---
+   ✓ Usuario creado: player1 (ID: 1)
+   ✓ Usuario creado: player2 (ID: 2)
+   ...
+
+5. Probando métodos CUSTOM (CEN)...
+   --- LOGIN ---
+   ✓ Login exitoso: player1
+   ...
+
+6. Probando CUSTOM TRANSACTIONS (CP)...
+   ✓ CP ejecutado: Usuario + Perfil creados
+   ...
+
+7. Probando FILTROS (ReadFilter)...
+   ✓ Usuarios encontrados: 4
+   ...
+
+=== RESUMEN DE INICIALIZACIÓN ===
+✓ Usuarios creados: 4
+✓ Comunidades creadas: 3
+✓ Equipos creados: 1
+✓ Juegos creados: 2
+✓ Torneos creados: 1
+...
+
+✓✓✓ InitializeDb COMPLETADO EXITOSAMENTE ✓✓✓
+```
+
+### Paso 6: Verificar la Base de Datos
+
+**Si usaste SQL Server Express:**
+```sql
+-- Conéctate con SQL Server Management Studio (SSMS) o Azure Data Studio
+Server: localhost\SQLEXPRESS
+Database: ProjectDatabase
+Authentication: Windows Authentication
+
+-- Verifica las tablas creadas
+SELECT * FROM Usuario;
+SELECT * FROM Comunidad;
+SELECT * FROM Equipo;
+-- etc.
+```
+
+**Si usaste LocalDB:**
+```powershell
+# La base de datos se crea en:
+# InitializeDb\bin\Debug\net8.0\Data\ProjectDatabase.mdf
+
+# Conéctate con:
+Server: (localdb)\MSSQLLocalDB
+Database: ProjectDatabase
+# O adjunta el archivo .mdf en SSMS
+```
+
+### Paso 7: Ejecutar Pruebas Manuales
+
+Puedes modificar `InitializeDb/Program.cs` para probar tus propios escenarios:
+
+```csharp
+// Ejemplo: Crear un nuevo usuario y loguearse
+var nuevoUsuario = usuarioCEN.Crear("testuser", "test@email.com", "hash123");
+unitOfWork.SaveChanges();
+
+var usuarioLogueado = usuarioCEN.Login("test@email.com", "hash123");
+Console.WriteLine($"Usuario logueado: {usuarioLogueado.Nick}");
+```
+
+### Solución de Problemas Comunes
+
+**Error: "No se encuentra el SDK de .NET"**
+```powershell
+# Instala .NET 8.0 SDK desde:
+# https://dotnet.microsoft.com/download/dotnet/8.0
+```
+
+**Error: "No se puede conectar a SQL Server"**
+- El proyecto usa **LocalDB automáticamente** como fallback
+- No necesitas configurar nada adicional
+- LocalDB viene incluido con Visual Studio
+
+**Error: "NuGet package not found"**
+```powershell
+# Limpia y restaura:
+dotnet clean
+dotnet restore --force
+dotnet build
+```
+
+**Error: "The type or namespace name 'NHibernate' could not be found"**
+```powershell
+# Verifica que los paquetes se hayan instalado:
+dotnet list package
+# Restaura explícitamente:
+dotnet restore Solution.sln
+```
+
+## 🎨 Cómo Integrar con un Frontend
+
+### Arquitectura para API REST
+
+Este proyecto está diseñado siguiendo Clean Architecture, lo que facilita la creación de una capa de API REST para consumir desde cualquier frontend (React, Angular, Vue, etc.).
+
+#### Paso 1: Crear Proyecto Web API
+
+```powershell
+# Crear nuevo proyecto Web API en la solución
+dotnet new webapi -n WebAPI
+dotnet sln Solution.sln add WebAPI/WebAPI.csproj
+
+# Agregar referencias a los proyectos existentes
+cd WebAPI
+dotnet add reference ../ApplicationCore/ApplicationCore.csproj
+dotnet add reference ../Infrastructure/Infrastructure.csproj
+```
+
+#### Paso 2: Configurar Dependency Injection (Program.cs o Startup.cs)
+
+```csharp
+using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.CP;
+using ApplicationCore.Domain.Repositories;
+using Infrastructure.NHibernate;
+using Infrastructure.NHibernate.Repositories;
+using Infrastructure.UnitOfWork;
+using NHibernate;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar NHibernate SessionFactory
+builder.Services.AddSingleton<ISessionFactory>(provider =>
+{
+    return NHibernateHelper.SessionFactory; // Singleton global
+});
+
+// Registrar ISession como Scoped (una por request)
+builder.Services.AddScoped<ISession>(provider =>
+{
+    var sessionFactory = provider.GetRequiredService<ISessionFactory>();
+    return sessionFactory.OpenSession();
+});
+
+// Registrar UnitOfWork
+builder.Services.AddScoped<IUnitOfWork, NHibernateUnitOfWork>();
+
+// Registrar Repositorios
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IComunidadRepository, ComunidadRepository>();
+builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
+builder.Services.AddScoped<IMiembroComunidadRepository, MiembroComunidadRepository>();
+builder.Services.AddScoped<IMiembroEquipoRepository, MiembroEquipoRepository>();
+builder.Services.AddScoped<IJuegoRepository, JuegoRepository>();
+builder.Services.AddScoped<IPerfilRepository, PerfilRepository>();
+builder.Services.AddScoped<ITorneoRepository, TorneoRepository>();
+builder.Services.AddScoped<IInvitacionRepository, InvitacionRepository>();
+builder.Services.AddScoped<ISolicitudIngresoRepository, SolicitudIngresoRepository>();
+builder.Services.AddScoped<IPropuestaTorneoRepository, PropuestaTorneoRepository>();
+builder.Services.AddScoped<IParticipacionTorneoRepository, ParticipacionTorneoRepository>();
+builder.Services.AddScoped<IPublicacionRepository, PublicacionRepository>();
+
+// Registrar CENs
+builder.Services.AddScoped<UsuarioCEN>();
+builder.Services.AddScoped<ComunidadCEN>();
+builder.Services.AddScoped<EquipoCEN>();
+builder.Services.AddScoped<MiembroComunidadCEN>();
+builder.Services.AddScoped<MiembroEquipoCEN>();
+builder.Services.AddScoped<JuegoCEN>();
+builder.Services.AddScoped<PerfilCEN>();
+builder.Services.AddScoped<TorneoCEN>();
+builder.Services.AddScoped<PublicacionCEN>();
+builder.Services.AddScoped<SolicitudIngresoCEN>();
+
+// Registrar CPs
+builder.Services.AddScoped<RegistroUsuarioCP>();
+builder.Services.AddScoped<CrearComunidadCP>();
+builder.Services.AddScoped<AceptarInvitacionEquipoCP>();
+builder.Services.AddScoped<AprobarPropuestaTorneoCP>();
+
+// Configurar CORS para frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:4200") // React, Angular
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowFrontend");
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+```
+
+#### Paso 3: Crear Controladores (Ejemplo: UsuarioController.cs)
+
+```csharp
+using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.CP;
+using ApplicationCore.Domain.Enums;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsuarioController : ControllerBase
+    {
+        private readonly UsuarioCEN _usuarioCEN;
+        private readonly RegistroUsuarioCP _registroUsuarioCP;
+
+        // Constructor: Inyección de dependencias
+        // El framework ASP.NET Core resuelve automáticamente los CENs y CPs
+        public UsuarioController(UsuarioCEN usuarioCEN, RegistroUsuarioCP registroUsuarioCP)
+        {
+            _usuarioCEN = usuarioCEN;
+            _registroUsuarioCP = registroUsuarioCP;
+        }
+
+        // GET: api/Usuario
+        [HttpGet]
+        public IActionResult GetTodos()
+        {
+            var usuarios = _usuarioCEN.DameTodos();
+            return Ok(usuarios);
+        }
+
+        // GET: api/Usuario/5
+        [HttpGet("{id}")]
+        public IActionResult GetPorId(long id)
+        {
+            var usuario = _usuarioCEN.DamePorOID(id);
+            if (usuario == null)
+                return NotFound(new { mensaje = "Usuario no encontrado" });
+            
+            return Ok(usuario);
+        }
+
+        // POST: api/Usuario/registro
+        [HttpPost("registro")]
+        public IActionResult Registrar([FromBody] RegistroUsuarioDto dto)
+        {
+            try
+            {
+                // Usa el CP transaccional que crea Usuario + Perfil
+                var idUsuario = _registroUsuarioCP.RegistrarUsuarioConPerfil(
+                    dto.Nick,
+                    dto.CorreoElectronico,
+                    dto.ContrasenaHash,
+                    dto.Telefono
+                );
+
+                return CreatedAtAction(
+                    nameof(GetPorId),
+                    new { id = idUsuario },
+                    new { id = idUsuario, mensaje = "Usuario registrado exitosamente" }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // POST: api/Usuario/login
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDto dto)
+        {
+            try
+            {
+                // Usa el método custom del CEN
+                var usuario = _usuarioCEN.Login(dto.CorreoElectronico, dto.ContrasenaHash);
+                
+                return Ok(new
+                {
+                    id = usuario.IdUsuario,
+                    nick = usuario.Nick,
+                    correo = usuario.CorreoElectronico,
+                    mensaje = "Login exitoso"
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
+            }
+        }
+
+        // GET: api/Usuario/filtro/{texto}
+        [HttpGet("filtro/{texto}")]
+        public IActionResult Filtrar(string texto)
+        {
+            var usuarios = _usuarioCEN.DamePorFiltro(texto);
+            return Ok(usuarios);
+        }
+
+        // PUT: api/Usuario/5
+        [HttpPut("{id}")]
+        public IActionResult Modificar(long id, [FromBody] ModificarUsuarioDto dto)
+        {
+            try
+            {
+                _usuarioCEN.Modificar(
+                    id,
+                    dto.Nick,
+                    dto.CorreoElectronico,
+                    dto.ContrasenaHash,
+                    dto.FechaRegistro,
+                    dto.EstadoCuenta,
+                    dto.Telefono
+                );
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // DELETE: api/Usuario/5
+        [HttpDelete("{id}")]
+        public IActionResult Eliminar(long id)
+        {
+            try
+            {
+                _usuarioCEN.Eliminar(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+    }
+
+    // DTOs (Data Transfer Objects) - Evitan exponer entidades directamente
+    public class RegistroUsuarioDto
+    {
+        public string Nick { get; set; }
+        public string CorreoElectronico { get; set; }
+        public string ContrasenaHash { get; set; }
+        public string? Telefono { get; set; }
+    }
+
+    public class LoginDto
+    {
+        public string CorreoElectronico { get; set; }
+        public string ContrasenaHash { get; set; }
+    }
+
+    public class ModificarUsuarioDto
+    {
+        public string Nick { get; set; }
+        public string CorreoElectronico { get; set; }
+        public string ContrasenaHash { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public EstadoCuenta EstadoCuenta { get; set; }
+        public string? Telefono { get; set; }
+    }
+}
+```
+
+#### Paso 4: Consumir desde Frontend (Ejemplo React/TypeScript)
+
+```typescript
+// services/usuarioService.ts
+const API_BASE_URL = 'http://localhost:5000/api';
+
+export interface Usuario {
+  idUsuario: number;
+  nick: string;
+  correoElectronico: string;
+  telefono?: string;
+  fechaRegistro: string;
+  estadoCuenta: string;
+}
+
+export interface RegistroUsuario {
+  nick: string;
+  correoElectronico: string;
+  contrasenaHash: string;
+  telefono?: string;
+}
+
+export interface Login {
+  correoElectronico: string;
+  contrasenaHash: string;
+}
+
+// Obtener todos los usuarios
+export async function obtenerUsuarios(): Promise<Usuario[]> {
+  const response = await fetch(`${API_BASE_URL}/Usuario`);
+  if (!response.ok) throw new Error('Error al obtener usuarios');
+  return await response.json();
+}
+
+// Registrar nuevo usuario
+export async function registrarUsuario(datos: RegistroUsuario): Promise<{ id: number }> {
+  const response = await fetch(`${API_BASE_URL}/Usuario/registro`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos)
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Error al registrar');
+  }
+  return await response.json();
+}
+
+// Login
+export async function loginUsuario(datos: Login): Promise<Usuario> {
+  const response = await fetch(`${API_BASE_URL}/Usuario/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos)
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Credenciales inválidas');
+  }
+  return await response.json();
+}
+
+// Filtrar usuarios
+export async function filtrarUsuarios(texto: string): Promise<Usuario[]> {
+  const response = await fetch(`${API_BASE_URL}/Usuario/filtro/${encodeURIComponent(texto)}`);
+  if (!response.ok) throw new Error('Error al filtrar');
+  return await response.json();
+}
+```
+
+```tsx
+// components/LoginForm.tsx
+import React, { useState } from 'react';
+import { loginUsuario } from '../services/usuarioService';
+
+export function LoginForm() {
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const usuario = await loginUsuario({
+        correoElectronico: correo,
+        contrasenaHash: password // En producción, hashear antes de enviar
+      });
+      console.log('Login exitoso:', usuario);
+      // Guardar en contexto/Redux/localStorage
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+      window.location.href = '/dashboard';
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={correo}
+        onChange={(e) => setCorreo(e.target.value)}
+        placeholder="Correo electrónico"
+        required
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Contraseña"
+        required
+      />
+      {error && <p className="error">{error}</p>}
+      <button type="submit">Iniciar Sesión</button>
+    </form>
+  );
+}
+```
+
+### Ventajas de esta Arquitectura para Frontend
+
+✅ **Separación de Responsabilidades**: El frontend solo consume APIs REST, no conoce la base de datos ni NHibernate
+
+✅ **Transaccionalidad**: Los CPs garantizan que operaciones complejas sean atómicas (todo o nada)
+
+✅ **Validaciones Centralizadas**: Todas las reglas de negocio están en CENs/CPs, no en el frontend
+
+✅ **Reutilización**: Los mismos CENs/CPs pueden usarse desde Web API, gRPC, GraphQL, etc.
+
+✅ **Testabilidad**: Fácil escribir tests unitarios para CENs y CPs sin base de datos real
+
+✅ **Escalabilidad**: Puedes tener múltiples frontends (web, móvil) consumiendo la misma API
+
+## Requisitos
+
+- .NET 8.0 SDK
+- SQL Server Express (localhost\SQLEXPRESS) o LocalDB
+- SQL Server Browser en ejecución (para SQL Express)
+
+## Cadenas de Conexión
+
+### SQL Server Express (por defecto)
+```
+Server=localhost\SQLEXPRESS;Database=ProjectDatabase;Integrated Security=True;
+```
+
+### LocalDB (fallback automático)
+```
+Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=ProjectDatabase;Integrated Security=True;AttachDBFilename=|DataDirectory|\ProjectDatabase.mdf
+```
+
+## 🔄 Flujo de Lógica de Negocio y Aplicación
+
+### Arquitectura en Capas (Clean Architecture + DDD)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      FRONTEND                           │
+│            (React, Angular, Vue, etc.)                  │
+└────────────────────┬────────────────────────────────────┘
+                     │ HTTP REST / GraphQL
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                    WEB API LAYER                        │
+│              (Controllers + DTOs)                       │
+│  • Recibe peticiones HTTP                              │
+│  • Valida entrada                                       │
+│  • Llama a CPs o CENs                                   │
+│  • Retorna respuestas JSON                              │
+└────────────────────┬────────────────────────────────────┘
+                     │ Dependency Injection
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              APPLICATION CORE (Dominio)                 │
+│  ┌───────────────────────────────────────────────────┐ │
+│  │  CP (Casos de Proceso)                            │ │
+│  │  • RegistroUsuarioCP                              │ │
+│  │  • CrearComunidadCP                               │ │
+│  │  • AceptarInvitacionEquipoCP                      │ │
+│  │  • AprobarPropuestaTorneoCP                       │ │
+│  │  ───────────────────────────────────────────────  │ │
+│  │  Orquestan múltiples CENs + UnitOfWork           │ │
+│  │  Garantizan transaccionalidad                     │ │
+│  └───────────────────┬───────────────────────────────┘ │
+│                      │ Llama a                          │
+│                      ▼                                   │
+│  ┌───────────────────────────────────────────────────┐ │
+│  │  CEN (Componentes Entidad Negocio)               │ │
+│  │  • UsuarioCEN, ComunidadCEN, EquipoCEN, etc.     │ │
+│  │  ───────────────────────────────────────────────  │ │
+│  │  CRUD + Métodos Custom por entidad               │ │
+│  │  Validaciones de negocio                          │ │
+│  │  Reglas de dominio                                │ │
+│  └───────────────────┬───────────────────────────────┘ │
+│                      │ Usa                              │
+│                      ▼                                   │
+│  ┌───────────────────────────────────────────────────┐ │
+│  │  Interfaces de Repositorio (IRepository)         │ │
+│  │  • IUsuarioRepository                             │ │
+│  │  • IComunidadRepository                           │ │
+│  │  • IEquipoRepository, etc.                        │ │
+│  │  ───────────────────────────────────────────────  │ │
+│  │  Abstracción de persistencia                      │ │
+│  │  SIN implementación concreta                      │ │
+│  └───────────────────┬───────────────────────────────┘ │
+│                      │                                   │
+│  ┌───────────────────┴───────────────────────────────┐ │
+│  │  Entidades de Dominio (EN)                        │ │
+│  │  • Usuario, Comunidad, Equipo, etc.              │ │
+│  │  ───────────────────────────────────────────────  │ │
+│  │  POCOs sin dependencias de infraestructura       │ │
+│  │  Propiedades virtuales para lazy loading         │ │
+│  └───────────────────────────────────────────────────┘ │
+└────────────────────┬────────────────────────────────────┘
+                     │ Implementa
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              INFRASTRUCTURE LAYER                       │
+│  ┌───────────────────────────────────────────────────┐ │
+│  │  Repositorios Concretos (NHibernate)             │ │
+│  │  • UsuarioRepository                              │ │
+│  │  • ComunidadRepository                            │ │
+│  │  • EquipoRepository, etc.                         │ │
+│  │  ───────────────────────────────────────────────  │ │
+│  │  Implementación con ISession                      │ │
+│  │  LINQ to NHibernate                               │ │
+│  └───────────────────┬───────────────────────────────┘ │
+│                      │                                   │
+│  ┌───────────────────┴───────────────────────────────┐ │
+│  │  NHibernate Configuration                         │ │
+│  │  • Mappings XML (.hbm.xml)                        │ │
+│  │  • NHibernateHelper                               │ │
+│  │  • SessionFactory (Singleton)                     │ │
+│  └───────────────────┬───────────────────────────────┘ │
+│                      │                                   │
+│  ┌───────────────────┴───────────────────────────────┐ │
+│  │  UnitOfWork (NHibernateUnitOfWork)               │ │
+│  │  • ITransaction                                    │ │
+│  │  • SaveChanges() → Commit                         │ │
+│  │  • Rollback en caso de error                      │ │
+│  └───────────────────────────────────────────────────┘ │
+└────────────────────┬────────────────────────────────────┘
+                     │ SQL
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                  DATABASE LAYER                         │
+│              SQL Server / LocalDB                       │
+│  • Tablas generadas por SchemaExport                   │
+│  • IDs con generador HiLo                              │
+│  • Relaciones FK configuradas en mappings              │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Flujo de una Operación Completa (Ejemplo: Registro de Usuario)
+
+#### 1️⃣ **Petición desde Frontend**
+```typescript
+// Usuario hace clic en "Registrarse"
+const response = await fetch('http://localhost:5000/api/Usuario/registro', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    nick: 'newuser',
+    correoElectronico: 'newuser@test.com',
+    contrasenaHash: 'hashed_password',
+    telefono: '123456789'
+  })
+});
+```
+
+#### 2️⃣ **Controlador Web API recibe la petición**
+```csharp
+// WebAPI/Controllers/UsuarioController.cs (línea ~50)
+[HttpPost("registro")]
+public IActionResult Registrar([FromBody] RegistroUsuarioDto dto)
+{
+    // Valida el modelo
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+    
+    try
+    {
+        // FLUJO SE DESPLAZA A: ApplicationCore/Domain/CP/RegistroUsuarioCP.cs
+        var idUsuario = _registroUsuarioCP.RegistrarUsuarioConPerfil(
+            dto.Nick,
+            dto.CorreoElectronico,
+            dto.ContrasenaHash,
+            dto.Telefono
+        );
+        
+        return CreatedAtAction(nameof(GetPorId), new { id = idUsuario }, 
+            new { id = idUsuario, mensaje = "Usuario registrado exitosamente" });
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(new { error = ex.Message });
+    }
+}
+```
+
+#### 3️⃣ **CP (Caso de Proceso) orquesta la operación**
+```csharp
+// ApplicationCore/Domain/CP/RegistroUsuarioCP.cs (línea ~20)
+public long RegistrarUsuarioConPerfil(string nick, string correoElectronico, 
+    string contrasenaHash, string telefono = null)
+{
+    // PASO 1: Crear Usuario
+    // FLUJO SE DESPLAZA A: ApplicationCore/Domain/CEN/UsuarioCEN.cs (línea ~18)
+    var idUsuario = _usuarioCEN.Crear(
+        nick: nick,
+        correoElectronico: correoElectronico,
+        contrasenaHash: contrasenaHash,
+        telefono: telefono
+    );
+
+    // PASO 2: Crear Perfil asociado
+    // FLUJO SE DESPLAZA A: ApplicationCore/Domain/CEN/PerfilCEN.cs (línea ~18)
+    _perfilCEN.Crear(
+        visibilidadPerfil: Visibilidad.PUBLICO,
+        visibilidadActividad: Visibilidad.PUBLICO
+    );
+
+    // PASO 3: Guardar TODO en una transacción
+    // FLUJO SE DESPLAZA A: Infrastructure/UnitOfWork/NHibernateUnitOfWork.cs (línea ~30)
+    _unitOfWork.SaveChanges(); // ← Si falla, se hace ROLLBACK automático
+
+    return idUsuario;
+}
+```
+
+#### 4️⃣ **CEN (Componente Entidad Negocio) ejecuta lógica de dominio**
+```csharp
+// ApplicationCore/Domain/CEN/UsuarioCEN.cs (línea ~18)
+public long Crear(string nick, string correoElectronico, string contrasenaHash, 
+    string telefono = null)
+{
+    // Construye la entidad de dominio con reglas de negocio
+    var usuario = new Usuario
+    {
+        Nick = nick,
+        CorreoElectronico = correoElectronico,
+        ContrasenaHash = contrasenaHash,
+        FechaRegistro = DateTime.Now,           // ← Regla: Siempre fecha actual
+        EstadoCuenta = EstadoCuenta.ACTIVA,     // ← Regla: Siempre ACTIVA al crear
+        Telefono = telefono
+    };
+
+    // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/UsuarioRepository.cs
+    // Que extiende de GenericRepository<Usuario, long> (línea ~12)
+    _usuarioRepository.New(usuario);
+    
+    return usuario.IdUsuario;
+}
+```
+
+#### 5️⃣ **Repositorio persiste en base de datos**
+```csharp
+// Infrastructure/NHibernate/Repositories/GenericRepository.cs (línea ~28)
+public virtual void New(T entity)
+{
+    // ISession es la abstracción de NHibernate para la conexión BD
+    // FLUJO SE DESPLAZA A: NHibernate (biblioteca externa)
+    // Save() marca la entidad para inserción (no ejecuta SQL todavía)
+    _session.Save(entity);
+}
+```
+
+#### 6️⃣ **UnitOfWork confirma la transacción**
+```csharp
+// Infrastructure/UnitOfWork/NHibernateUnitOfWork.cs (línea ~30)
+public void SaveChanges()
+{
+    if (_transaction != null && _transaction.IsActive)
+    {
+        // AQUÍ se ejecutan TODOS los SQL INSERT/UPDATE/DELETE pendientes
+        // FLUJO SE DESPLAZA A: NHibernate (biblioteca externa)
+        _transaction.Commit(); // ← Confirma cambios en BD
+        
+        // Inicia nueva transacción para siguientes operaciones
+        _transaction = _session.BeginTransaction();
+    }
+}
+```
+
+#### 7️⃣ **NHibernate ejecuta SQL**
+```sql
+-- NHibernate genera y ejecuta SQL automáticamente:
+
+-- 1. Obtener siguiente ID del generador HiLo
+SELECT NextHigh FROM NHibernateUniqueKey WHERE TableKey = 'Usuario';
+UPDATE NHibernateUniqueKey SET NextHigh = NextHigh + 1 WHERE TableKey = 'Usuario';
+
+-- 2. Insertar Usuario (ID calculado localmente con HiLo: eficiente)
+INSERT INTO Usuario (IdUsuario, Nick, CorreoElectronico, ContrasenaHash, 
+    Telefono, FechaRegistro, EstadoCuenta)
+VALUES (1, 'newuser', 'newuser@test.com', 'hashed_password', 
+    '123456789', '2025-11-06 10:30:00', 0);
+
+-- 3. Insertar Perfil asociado
+INSERT INTO Perfil (IdPerfil, VisibilidadPerfil, VisibilidadActividad, ...)
+VALUES (1, 0, 0, ...);
+
+-- 4. COMMIT de la transacción
+COMMIT;
+```
+
+#### 8️⃣ **Respuesta al Frontend**
+```json
+{
+  "id": 1,
+  "mensaje": "Usuario registrado exitosamente"
+}
+```
+
+### Flujo de Métodos Custom (Ejemplo: Login)
+
+#### 1️⃣ Frontend envía credenciales
+```typescript
+const response = await fetch('http://localhost:5000/api/Usuario/login', {
+  method: 'POST',
+  body: JSON.stringify({
+    correoElectronico: 'player1@test.com',
+    contrasenaHash: 'hash123'
+  })
+});
+```
+
+#### 2️⃣ Controlador llama al método custom del CEN
+```csharp
+// WebAPI/Controllers/UsuarioController.cs
+[HttpPost("login")]
+public IActionResult Login([FromBody] LoginDto dto)
+{
+    try
+    {
+        // FLUJO SE DESPLAZA A: ApplicationCore/Domain/CEN/UsuarioCEN.cs (línea ~67)
+        var usuario = _usuarioCEN.Login(dto.CorreoElectronico, dto.ContrasenaHash);
+        
+        return Ok(new { id = usuario.IdUsuario, nick = usuario.Nick });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+        return Unauthorized(new { error = ex.Message });
+    }
+}
+```
+
+#### 3️⃣ CEN ejecuta lógica de autenticación
+```csharp
+// ApplicationCore/Domain/CEN/UsuarioCEN.cs (línea ~67)
+public Usuario Login(string correoElectronico, string contrasenaHash)
+{
+    // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/UsuarioRepository.cs
+    var usuarios = _usuarioRepository.DameTodos();
+    
+    // LINQ to Objects: filtra en memoria (o usa DamePorFiltro para filtrar en BD)
+    var usuario = usuarios.FirstOrDefault(u => 
+        u.CorreoElectronico == correoElectronico && 
+        u.ContrasenaHash == contrasenaHash &&
+        u.EstadoCuenta == EstadoCuenta.ACTIVA);
+
+    if (usuario == null)
+    {
+        throw new UnauthorizedAccessException("Credenciales inválidas o cuenta inactiva.");
+    }
+
+    return usuario;
+}
+```
+
+#### 4️⃣ Repositorio consulta base de datos
+```csharp
+// Infrastructure/NHibernate/Repositories/GenericRepository.cs (línea ~35)
+public virtual IList<T> DameTodos()
+{
+    // LINQ to NHibernate: genera SELECT * FROM Usuario
+    return _session.Query<T>().ToList();
+}
+```
+
+#### 5️⃣ SQL ejecutado
+```sql
+SELECT IdUsuario, Nick, CorreoElectronico, ContrasenaHash, 
+       Telefono, FechaRegistro, EstadoCuenta
+FROM Usuario;
+```
+
+#### 6️⃣ Respuesta al Frontend
+```json
+{
+  "id": 1,
+  "nick": "player1",
+  "correo": "player1@test.com",
+  "mensaje": "Login exitoso"
+}
+```
+
+### Puntos Clave del Flujo
+
+✅ **Separación de Responsabilidades**: Cada capa tiene su función específica
+
+✅ **Dependency Inversion**: ApplicationCore NO conoce Infrastructure (solo interfaces)
+
+✅ **Transaccionalidad**: UnitOfWork garantiza atomicidad (todo o nada)
+
+✅ **Lazy Loading**: NHibernate carga relaciones bajo demanda (propiedades `virtual`)
+
+✅ **Generador HiLo**: IDs eficientes sin round-trips a BD por cada INSERT
+
+✅ **LINQ to NHibernate**: Consultas tipadas que se traducen a SQL
+
+✅ **Validaciones Centralizadas**: Reglas de negocio en CENs, no dispersas
+
+## Tecnologías
+
+- .NET 8.0
+- NHibernate 5.5.2
+- SQL Server / LocalDB
+- Clean Architecture + DDD
+
+## Funcionalidades Implementadas
+
+### ✅ Operaciones CRUD Completas
+- **10 CENs** con operaciones `Crear`, `Modificar`, `Eliminar`, `DamePorOID`, `DameTodos`
+- Cobertura total de todas las entidades principales del dominio
+
+### ✅ Métodos Custom (6 implementados, mínimo 3)
+1. `UsuarioCEN.Login()` - Autenticación de usuarios
+2. `MiembroComunidadCEN.PromoverAModerador()` - Cambio de rol
+3. `MiembroComunidadCEN.ActualizarFechaAccion()` - Gestión temporal
+4. `MiembroEquipoCEN.BanearMiembro()` - Expulsión de miembros
+5. `SolicitudIngresoCEN.Aprobar()` - Aprobación de solicitudes
+6. `SolicitudIngresoCEN.Rechazar()` - Rechazo de solicitudes
+
+### ✅ Filtros ReadFilter (12 implementados, mínimo 4)
+- **Filtros generales**: Usuario, Comunidad, Equipo, Torneo, Juego, Publicacion, Notificacion, Perfil
+- **Filtros específicos**: 
+  - `DamePorTorneo` - Equipos en torneo
+  - `DamePorEquipo` - Torneos y usuarios por equipo
+  - `DamePorComunidad` - Usuarios por comunidad
+
+### ✅ Custom Transactions (4 CPs implementados, mínimo 2)
+1. `RegistroUsuarioCP` - Registro de usuario + creación de perfil (transaccional)
+2. `CrearComunidadCP` - Creación de comunidad + líder (transaccional)
+3. `AceptarInvitacionEquipoCP` - Aceptación de invitación + membresía (transaccional)
+4. `AprobarPropuestaTorneoCP` - Aprobación de propuesta + participación (transaccional)
+
+### ✅ InitializeDB Completo
+El programa `InitializeDb` incluye:
+- Creación automática del esquema de base de datos
+- Seed de datos de prueba (usuarios, comunidades, equipos, torneos, juegos)
+- Validación de métodos CRUD
+- Validación de métodos Custom
+- Validación de CustomTransactions
+- Validación de Filtros
+- Resumen completo de la inicialización
+
+## Notas Importantes
+
+- Las entidades NO tienen referencias a Entity Framework o NHibernate
+- Los CENs solo exponen operaciones sobre una entidad
+- Los CPs orquestan múltiples CENs y aplican lógica transaccional
+- Generador HiLo para IDs eficiente y sin round-trips a BD
+- Todas las operaciones son síncronas según especificación
+- Validaciones de negocio implementadas en CENs y CPs
+
+## Documentos Adicionales
+
+- **IMPLEMENTACIONES.md** - Detalle de todas las implementaciones realizadas
+- **VERIFICACION_REQUISITOS.md** - Verificación completa de todos los requisitos cumplidos

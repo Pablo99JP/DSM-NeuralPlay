@@ -1,351 +1,115 @@
-## DSM-NeuralPlay
+# Proyecto Clean Architecture DDD - Monolito
 
-Este repositorio contiene una implementación con ideas de Clean Architecture / DDD para el dominio "NeuralPlay".
-El objetivo principal de este README es explicar en castellano las piezas del proyecto (clases, repositorios, operaciones CRUD, CRUD custom, CP/CEN, UnitOfWork, etc.) y dar instrucciones prácticas para ejecutar el servicio y las pruebas desde PowerShell en Windows.
+Este proyecto implementa una arquitectura Clean DDD basada en el modelo de dominio generado desde `dominio.puml`.
 
-### Estructura general
+## 📚 Documentación
 
-- `ApplicationCore/` — Núcleo del dominio: entidades (EN), CEN (componentes por entidad), CP (casos de proceso), interfaces de repositorio y lógica de negocio.
-- `Infrastructure/` — Implementaciones de persistencia y utilidades.
-	- `Infrastructure/NHibernate/` — repositorios NHibernate, mappings, `NHibernateHelper`.
-	- `Infrastructure/Logging/` — configurador de Serilog (`SerilogConfigurator`).
-- `InitializeDb/` — ejecutable auxiliar para exportar esquema y seed (modo `inmemory` o `schemaexport`).
-- `tests/` — pruebas (smoke y unit).
+La documentación completa del proyecto está organizada en archivos específicos dentro de la carpeta `docs/`:
 
-### Piezas clave y responsabilidad
+1. **[Estructura del Proyecto](docs/01_ESTRUCTURA.md)**
+   - Arquitectura y organización de carpetas
+   - Archivos generados (EN, Enums, CENs, CPs, Repositories)
+   - Convenciones aplicadas
+   - Tecnologías y requisitos
 
-- Entidades (EN): `ApplicationCore/Domain/EN` — clases POCO que definen el modelo (p. ej. `Usuario`, `Comunidad`, `Equipo`, `Torneo`, `MiembroEquipo`, `MiembroComunidad`, `ParticipacionTorneo`).
-- CEN (Componentes de Entidad): `ApplicationCore/Domain/CEN` — encapsulan lógica de negocio por entidad (validaciones, creación de objetos, invariantes). Ejemplo: `UsuarioCEN` crea usuarios con valores por defecto.
-- CP (Casos de Proceso): `ApplicationCore/Domain/CP` — orquestan múltiples operaciones sobre varios repositorios y usan `IUnitOfWork` para asegurar atomicidad (ejemplo: `CrearComunidadCP`).
-- Repositorios (interfaces): `ApplicationCore/Domain/Repositories` — contratos de persistencia; la interfaz base es `IRepository<T>`.
-- Implementaciones en memoria: `ApplicationCore/Infrastructure/Memory` — útil para pruebas rápidas y validación sin BD.
-- Implementaciones NHibernate: `Infrastructure/NHibernate` — persistencia real, mapeos y `NHibernateUnitOfWork`.
+2. **[Guía de Compilación y Pruebas](docs/02_COMPILACION_Y_PRUEBAS.md)**
+   - Requisitos previos (.NET 8.0, SQL Server/LocalDB)
+   - Pasos para compilar el proyecto
+   - Cómo ejecutar InitializeDb
+   - Verificación de base de datos
+   - Solución de problemas comunes
 
-### Operaciones CRUD (contrato y semántica)
+3. **[Integración con Frontend](docs/03_INTEGRACION_FRONTEND.md)**
+   - Cómo crear Web API
+   - Configuración de Dependency Injection
+   - Ejemplos de Controllers (UsuarioController)
+   - Ejemplos de consumo desde React/TypeScript
+   - Ventajas de la arquitectura
 
-La interfaz base `IRepository<T>` define estas operaciones:
+4. **[Flujo de Lógica de Negocio](docs/04_FLUJO_LOGICA_NEGOCIO.md)**
+   - Diagrama de arquitectura en capas
+   - Flujo completo de una operación (Registro de Usuario)
+   - Flujo de métodos custom (Login)
+   - Referencias entre archivos y líneas de código
+   - SQL generado por NHibernate
 
-- `T? ReadById(long id)` — leer por id.
-- `IEnumerable<T> ReadAll()` — listar todo.
-- `IEnumerable<T> ReadFilter(string filter)` — búsqueda por texto (implementación en memoria hace reflexión sobre `string` properties; NHibernate puede mapear a consultas más eficientes).
-- `void New(T entity)` — crear/insertar (en memoria asigna id si existe propiedad `Id*`).
-- `void Modify(T entity)` — actualizar por id.
-- `void Destroy(long id)` — eliminar.
+5. **[Funcionalidades Implementadas](docs/05_FUNCIONALIDADES.md)**
+   - CRUD completo (10 CENs)
+   - 6 Métodos Custom (Login, PromoverAModerador, BanearMiembro, etc.)
+   - 12 ReadFilters (generales + específicos)
+   - 4 Custom Transactions (CPs transaccionales)
+   - Reglas de negocio documentadas
+   - InitializeDb completo
 
-### CRUD custom y reglas de negocio ya implementadas
+## 🚀 Inicio Rápido
 
-- Usuario: `UsuarioCEN.NewUsuario(...)` establece `EstadoCuenta` a `ACTIVA` por defecto.
-- MiembroEquipo / MiembroComunidad: al crear no se asigna `FechaBaja` (queda null); la baja es un flujo aparte.
-- SolicitudIngreso: `SolicitudIngresoCEN.NewSolicitudIngreso(...)` evita crear la solicitud si el usuario ya está en un equipo de la comunidad objetivo (lanza `InvalidOperationException`).
+### Compilar y Ejecutar
 
-### ReadFilter y consultas optimizadas
-
-Además del `ReadFilter` genérico existen repositorios especializados con métodos optimizados:
-
-- `IParticipacionTorneoRepository`:
-	- `GetEquiposByTorneo(long idTorneo)`
-	- `GetTorneosByEquipo(long idEquipo)`
-- `IMiembroEquipoRepository`:
-	- `GetUsuariosByEquipo(long idEquipo)`
-- `IMiembroComunidadRepository`:
-	- `GetUsuariosByComunidad(long idComunidad)`
-
-Estos métodos permiten que NHibernate ejecute consultas eficientes y que las implementaciones en memoria reproduzcan la semántica para tests.
-
-### Transacciones / UnitOfWork
-
-- `IUnitOfWork` agrupa cambios y expone `SaveChanges()`.
-- Implementaciones:
-	- `NHibernateUnitOfWork` — controla la sesión y transacciones reales.
-	- `InMemoryUnitOfWork` — no-op para tests.
-
-### Autenticación / Login
-
-- `AuthenticationCEN.Login(nick, password)` está implementado; busca usuario por nick (`IUsuarioRepository.ReadByNick`) y verifica contraseña usando `PasswordHasher` (PBKDF2 en código actual). Revisar parámetros antes de usar en producción.
-
-### InitializeDb: modos, flags y ejemplos
-
-`InitializeDb` es un proyecto ejecutable que inicializa la base de datos y ejecuta el seed de datos. Por defecto está configurado para trabajar con **SQL Server LocalDB** y ejecutar automáticamente el seed.
-
-#### Configuración por defecto
-
-Cuando ejecutas `InitializeDb` sin argumentos:
 ```powershell
+# 1. Restaurar dependencias
+dotnet restore Solution.sln
+
+# 2. Compilar
+dotnet build Solution.sln --configuration Release
+
+# 3. Inicializar base de datos y seed
 cd InitializeDb
 dotnet run
 ```
 
-El sistema automáticamente:
-1. **Modo**: `schemaexport` (persistencia en base de datos real)
-2. **Seed**: Activado (inserta datos de prueba)
-3. **Base de datos**: `ProjectDatabase` en LocalDB
-4. **Ubicación**: `InitializeDb/Data/ProjectDatabase.mdf`
-
-#### Flujo de ejecución completo
-
-Cuando ejecutas `InitializeDb`, el sistema sigue este flujo:
+### Resultado Esperado
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. ANÁLISIS DE ARGUMENTOS                                      │
-│    - Modo: schemaexport (por defecto)                          │
-│    - Seed: true (activado por defecto)                         │
-│    - DB Name: ProjectDatabase                                   │
-│    - Data Dir: InitializeDb/Data                               │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ 2. CONFIGURACIÓN DE LOGGING                                     │
-│    - Inicializa Serilog vía SerilogConfigurator               │
-│    - Sinks: Console + Archivo (si --log-file especificado)    │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ 3. CREACIÓN DE BASE DE DATOS (LocalDB)                         │
-│    - Lee NHibernate.cfg.xml                                     │
-│    - Construye configuración de NHibernate                     │
-│    - Verifica existencia de ProjectDatabase.mdf               │
-│    - Si existe y NO hay --force-drop: ERROR y termina         │
-│    - Si --force-drop + --confirm: Elimina MDF/LDF existentes  │
-│    - Crea nueva base de datos en LocalDB                       │
-│    - Ejecuta SchemaExport de NHibernate                        │
-│      → Genera y ejecuta DDL SQL                                │
-│      → Crea 22 tablas: Usuario, Comunidad, Equipo,            │
-│        MiembroComunidad, MiembroEquipo, Torneo,               │
-│        ParticipacionTorneo, PropuestaTorneo, VotoTorneo,      │
-│        Publicacion, Comentario, Reaccion, Perfil,             │
-│        PerfilJuego, Juego, ChatEquipo, MensajeChat,           │
-│        Invitacion, Notificacion, Sesion,                      │
-│        SolicitudIngreso, NHibernateUniqueKey                  │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ 4. SEED DE DATOS (si --seed está activo, por defecto SÍ)       │
-│    A. Construye IServiceCollection con DI:                     │
-│       - SessionFactory de NHibernate                           │
-│       - Todos los repositorios NHibernate                      │
-│       - IUnitOfWork (NHibernateUnitOfWork)                     │
-│       - Todos los CEN (UsuarioCEN, ComunidadCEN, etc.)        │
-│                                                                 │
-│    B. SEED IDEMPOTENTE (verifica antes de insertar):          │
-│       ┌─────────────────────────────────────────────────┐     │
-│       │ Usuarios (si no existen por nick):             │     │
-│       │   • alice (alice@example.com)                  │     │
-│       │   • bob (bob@example.com)                      │     │
-│       │   → Contraseñas hasheadas con PBKDF2          │     │
-│       └─────────────────────────────────────────────────┘     │
-│                      ↓                                          │
-│       ┌─────────────────────────────────────────────────┐     │
-│       │ Comunidad (si no existe):                      │     │
-│       │   • Gamers (Comunidad de prueba)              │     │
-│       └─────────────────────────────────────────────────┘     │
-│                      ↓                                          │
-│       ┌─────────────────────────────────────────────────┐     │
-│       │ Equipo (si no existe):                         │     │
-│       │   • TeamA                                      │     │
-│       └─────────────────────────────────────────────────┘     │
-│                      ↓                                          │
-│       ┌─────────────────────────────────────────────────┐     │
-│       │ Relaciones:                                    │     │
-│       │   • MiembroComunidad (alice → Gamers)         │     │
-│       │     Rol: LIDER, Estado: ACTIVA                │     │
-│       └─────────────────────────────────────────────────┘     │
-│                      ↓                                          │
-│    C. Llama a uow.SaveChanges() para persistir                │
-│    D. Cierra SessionFactory limpiamente                        │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ 5. FINALIZACIÓN                                                 │
-│    - Flush de logs de Serilog                                  │
-│    - Log final: "InitializeDb completed"                       │
-│    - Return code 0 (éxito) o non-zero (error)                 │
-└─────────────────────────────────────────────────────────────────┘
+✓ ApplicationCore realizado correctamente
+✓ Infrastructure realizado correctamente
+✓ InitializeDb realizado correctamente
+
+=== Iniciando InitializeDb ===
+✓ Conectado a SQL Server Express (o LocalDB)
+✓ Esquema creado correctamente
+✓ Usuarios creados: 4
+✓ Comunidades creadas: 3
+✓ Equipos creados: 1
+✓✓✓ InitializeDb COMPLETADO EXITOSAMENTE ✓✓✓
 ```
 
-#### Flujo alternativo: Modo en memoria
+## ⚡ Resumen del Proyecto
 
-Si ejecutas con `--mode=inmemory`:
+### Arquitectura
+- **Clean Architecture + DDD**: Separación clara entre dominio e infraestructura
+- **NHibernate ORM**: Persistencia con mappings XML
+- **.NET 8.0**: Framework moderno y eficiente
 
-```powershell
-dotnet run -- --mode=inmemory
-```
+### Componentes Principales
+- **21 Entidades** (Usuario, Comunidad, Equipo, Torneo, Invitacion, ChatEquipo, MensajeChat, Comentario, Reaccion, Notificacion, PropuestaTorneo, VotoTorneo, ParticipacionTorneo, PerfilJuego, Sesion, etc.)
+- **11 Enums** (RolComunidad, EstadoMembresia, TipoNotificacion, TipoInvitacion, EstadoSolicitud, TipoReaccion, etc.)
+- **21 CENs** con CRUD completo + 6 métodos custom
+- **4 CPs** transaccionales (RegistroUsuarioCP, CrearComunidadCP, AceptarInvitacionEquipoCP, AprobarPropuestaTorneoCP)
+- **12 ReadFilters** (8 generales + 4 específicos)
 
-El flujo cambia a:
+Ver detalles completos en **[Estructura del Proyecto](docs/01_ESTRUCTURA.md)** y **[Funcionalidades](docs/05_FUNCIONALIDADES.md)**
 
-```
-1. Crea repositorios InMemory (ApplicationCore/Infrastructure/Memory)
-2. Instancia todos los CEN con repositorios en memoria
-3. Instancia todos los CP (Casos de Proceso)
-4. Ejecuta seed completo en memoria:
-   → Crea 3 usuarios (alice, bob, charlie)
-   → Crea 2 comunidades (Gamers, Devs)
-   → Crea 2 equipos (TeamA, TeamB)
-   → Crea publicaciones, comentarios, reacciones
-   → Crea perfiles, juegos, perfil-juegos
-   → Crea torneos, propuestas, participaciones, votos
-   → Crea membresías, invitaciones, mensajes, notificaciones
-5. Invoca TODOS los métodos de TODOS los CEN/CP:
-   → 20 CENs: New, ReadAll, ReadOID, Modify, ReadFilter
-   → 4 CPs: Ejecutar() con transacciones
-   → Métodos custom: AddComentario, AprobarSiVotosUnanimes,
-     PromocionarAModerador, BanearMiembroEquipo, etc.
-6. Imprime resultados con checkmarks (✓) en consola
-7. NO persiste nada (solo validación)
-```
+## 📖 Documentación Adicional
 
-#### Optimizaciones de rendimiento
+- **[IMPLEMENTACIONES.md](IMPLEMENTACIONES.md)** - Detalle técnico completo de todas las implementaciones
+- **[VERIFICACION_REQUISITOS.md](VERIFICACION_REQUISITOS.md)** - Verificación exhaustiva de requisitos cumplidos
 
-**Filtrado en SQL (no en memoria)**
+## 🛠️ Tecnologías
 
-Todos los `ReadFilter` de los repositorios NHibernate utilizan **LINQ to NHibernate**, que traduce las expresiones a consultas SQL optimizadas:
+- **.NET 8.0** - Framework principal
+- **NHibernate 5.5.2** - ORM con mappings XML
+- **SQL Server Express / LocalDB** - Base de datos
+- **Clean Architecture + DDD** - Patrón arquitectónico
 
-```csharp
-// Ejemplo en NHibernateComunidadRepository
-public IEnumerable<Comunidad> ReadFilter(string filter)
-{
-    if (string.IsNullOrWhiteSpace(filter)) return ReadAll();
-    var f = filter.ToLowerInvariant();
-    // ✅ Esto se traduce a SQL:
-    // SELECT * FROM Comunidad 
-    // WHERE LOWER(Nombre) LIKE '%filter%' OR LOWER(Descripcion) LIKE '%filter%'
-    return _session.Query<Comunidad>()
-        .Where(c => c.Nombre.ToLower().Contains(f) || 
-                    (c.Descripcion != null && c.Descripcion.ToLower().Contains(f)))
-        .ToList();
-}
-```
+## 📝 Notas Importantes
 
-**Consultas especializadas optimizadas**:
-- `GetUsuariosByEquipo(idEquipo)` → `SELECT DISTINCT u.* FROM MiembroEquipo JOIN Usuario...`
-- `GetEquiposByTorneo(idTorneo)` → `SELECT DISTINCT e.* FROM ParticipacionTorneo JOIN Equipo...`
-- `ReadByEmail(email)` → `SELECT TOP 1 * FROM Usuario WHERE LOWER(CorreoElectronico) = @email`
+- Las entidades NO tienen referencias a Entity Framework o NHibernate (POCOs puros)
+- Los CENs solo exponen operaciones sobre UNA entidad
+- Los CPs orquestan MÚLTIPLES CENs y aplican lógica transaccional
+- Generador HiLo para IDs eficiente sin round-trips a BD
+- Todas las operaciones son síncronas según especificación
+- Validaciones de negocio centralizadas en CENs y CPs
 
-Beneficios:
-- ✅ Solo se cargan los registros necesarios
-- ✅ SQL Server usa índices automáticamente
-- ✅ Menor uso de memoria del backend
-- ✅ Mayor velocidad en conjuntos de datos grandes
+---
 
-#### Flags disponibles (CLI)
-
-- `--mode=<inmemory|schemaexport>` — Modo de ejecución (default: `schemaexport`)
-- `--seed` — Ejecutar seed idempotente (default: activado)
-- `--db-name=<name>` — Nombre de la BD (default: `ProjectDatabase`)
-- `--data-dir=<path>` — Directorio de artifacts (default: `InitializeDb/Data`)
-- `--force-drop` — Permite eliminar MDF existente (⚠️ destructivo)
-- `--confirm` — Confirmación requerida con `--force-drop`
-- `--log-file=<path>` — Ruta de log para Serilog
-- `--verbose` o `-v` — Salida detallada (nivel Debug)
-- `--target-connection=<cadena>` — Cadena de conexión personalizada
-- `--dialect=<dialecto>` — Dialecto NHibernate personalizado
-
-#### Ejemplos de uso en PowerShell
-
-**Ejecución estándar (LocalDB + Seed):**
-```powershell
-cd InitializeDb
-dotnet run
-```
-
-**Recrear base de datos desde cero:**
-```powershell
-dotnet run -- --force-drop --confirm
-```
-
-**Validación rápida en memoria (sin tocar disco):**
-```powershell
-dotnet run -- --mode=inmemory
-```
-
-**Con logs detallados:**
-```powershell
-dotnet run -- --verbose --log-file=./Data/init.log
-```
-
-**Conectar a SQL Server remoto:**
-```powershell
-dotnet run -- --target-connection="Server=mi-servidor;Database=MiDB;User Id=usuario;Password=clave;" --dialect="NHibernate.Dialect.MsSql2012Dialect"
-```
-
-**Base de datos personalizada:**
-```powershell
-dotnet run -- --db-name=MiBaseDeDatos --data-dir=./MiData
-```
-
-#### Verificar resultados
-
-**Listar tablas creadas:**
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME"
-```
-
-**Ver datos del seed:**
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT IdUsuario, Nick, CorreoElectronico FROM Usuario"
-```
-
-**Ver membresías:**
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT m.IdMiembroComunidad, u.Nick, c.Nombre, m.Rol FROM MiembroComunidad m JOIN Usuario u ON m.IdUsuario = u.IdUsuario JOIN Comunidad c ON m.IdComunidad = c.IdComunidad"
-```
-
-#### Fallback automático
-
-Si LocalDB no está disponible o falla, el sistema automáticamente:
-1. Intenta crear base de datos SQLite en `<data-dir>/project.db`
-2. Usa `SQLiteDialect` y `SQLite20Driver`
-3. Continúa con el mismo flujo de seed
-
-Esto es útil para:
-- ✅ CI/CD en entornos sin LocalDB
-- ✅ Desarrollo en sistemas sin SQL Server
-- ✅ Tests de integración portables
-
-### Logging y variables de entorno
-
-Serilog está centralizado en `Infrastructure/Logging/SerilogConfigurator`. Puedes controlarlo con:
-
-- `LOG_FILE` — ruta a archivo de log.
-- `LOG_LEVEL` — nivel deseado (`Debug`, `Information`, `Warning`, ...).
-- `LOG_VERBOSE=true` — atajo para `Debug`.
-
-El CLI pasa `--log-file` a este configurador; en tests se usa `InitializeDbService.RunAsync(...)` y se puede capturar la salida mediante un `TextWriter`.
-
-### Tests y ejecución
-
-Comandos rápidos (PowerShell):
-
-```powershell
-dotnet restore
-dotnet build ./DSM-NeuralPlay.sln
-dotnet test ./DSM-NeuralPlay.sln
-
-# Ejecutar solo UnitTests
-dotnet test ./tests/UnitTests/UnitTests.csproj
-
-# Ejecutar solo Smoke tests
-dotnet test ./tests/Domain.SmokeTests/Domain.SmokeTests.csproj
-```
-
-### Registro de implementaciones (DI)
-
-Durante el seed (`InitializeDbService`) el contenedor `IServiceCollection` registra tanto las implementaciones NHibernate como las en memoria (para la ruta de validación). Si añades nuevos repositorios, sigue el patrón: interfaz en `ApplicationCore/Domain/Repositories`, implementaciones en NHibernate y en memoria, y registrar en DI (ej. `InitializeDbService`).
-
-### Problemas conocidos y consejos
-
-- El flujo de `schemaexport` intenta usar LocalDB; si LocalDB no está disponible o la DB con el mismo nombre ya existe, se hace fallback a SQLite (`project.db`) en `--data-dir`.
-- Tests que leen archivos de log usan esperas/reintentos para tolerar escrituras asíncronas del sink de Serilog; en entornos muy lentos aumenta timeouts si detectas flakes.
-- Mantén las dependencias actualizadas y revisa los avisos de SCA/Dependabot. Se actualizó Moq a una versión sin la advertencia previa.
-
-### Dónde mirar (referencia rápida)
-
-- Entidades: `ApplicationCore/Domain/EN/`
-- CENs: `ApplicationCore/Domain/CEN/`
-- CPs: `ApplicationCore/Domain/CP/`
-- Repositorios (contratos): `ApplicationCore/Domain/Repositories/`
-- Repositorios en memoria: `ApplicationCore/Infrastructure/Memory/`
-- Repositorios NHibernate: `Infrastructure/NHibernate/`
-- InitializeDb: `InitializeDb/InitializeDbService.cs`
-
-Si quieres, puedo generar un script PowerShell de comprobación (restore/build/test/schemaexport) o crear ejemplos concretos de uso de `AuthenticationCEN.Login` y de un CP transaccional. Indica qué prefieres y lo añado.
+**Para información detallada, consulta los archivos de documentación en la carpeta `docs/`**

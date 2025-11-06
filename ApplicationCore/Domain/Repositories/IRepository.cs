@@ -2,13 +2,13 @@ using System.Collections.Generic;
 
 namespace ApplicationCore.Domain.Repositories
 {
-    public interface IRepository<T>
+    public interface IRepository<T, TId> where T : class
     {
-        T? ReadById(long id);
-        IEnumerable<T> ReadAll();
-        IEnumerable<T> ReadFilter(string filter);
+        T DamePorOID(TId id);
+        IList<T> DameTodos();
         void New(T entity);
         void Modify(T entity);
-        void Destroy(long id);
+        void Destroy(TId id);
+        void ModifyAll(IEnumerable<T> entities);
     }
 }

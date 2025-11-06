@@ -6,8 +6,8 @@ namespace ApplicationCore.Domain.EN
     {
         public virtual long IdPerfilJuego { get; set; }
         public virtual DateTime FechaAdicion { get; set; }
-
-        public virtual Perfil Perfil { get; set; } = null!;
-        public virtual Juego Juego { get; set; } = null!;
+        
+        public virtual Perfil Perfil { get; set; }
+        public virtual Juego Juego { get; set; }
     }
 }

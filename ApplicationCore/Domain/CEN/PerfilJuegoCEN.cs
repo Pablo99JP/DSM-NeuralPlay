@@ -1,29 +1,97 @@
+using System;
 using System.Collections.Generic;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 
 namespace ApplicationCore.Domain.CEN
 {
+    /// <summary>
+    /// CEN (Componente Entidad Negocio) para la entidad PerfilJuego.
+    /// Expone operaciones CRUD para gestionar la relación entre perfiles y juegos.
+    /// Representa los juegos que un usuario tiene en su colección/lista.
+    /// NO contiene lógica transaccional compleja (eso va en los CPs).
+    /// </summary>
     public class PerfilJuegoCEN
     {
-        private readonly IRepository<PerfilJuego> _repo;
+        // Dependencia: Interfaz del repositorio (NO implementación concreta)
+        private readonly IPerfilJuegoRepository _perfilJuegoRepository;
 
-        public PerfilJuegoCEN(IRepository<PerfilJuego> repo)
+        /// <summary>
+        /// Constructor: Inyección de dependencias.
+        /// </summary>
+        /// <param name="perfilJuegoRepository">Implementación del repositorio de perfil-juego</param>
+        public PerfilJuegoCEN(IPerfilJuegoRepository perfilJuegoRepository)
         {
-            _repo = repo;
+            _perfilJuegoRepository = perfilJuegoRepository;
         }
 
-        public PerfilJuego NewPerfilJuego(Perfil perfil, Juego juego)
+        /// <summary>
+        /// [CRUD - CREATE] Crea una nueva relación entre perfil y juego.
+        /// REGLA DE NEGOCIO: FechaAdicion se establece automáticamente a DateTime.Now.
+        /// </summary>
+        /// <returns>ID de la relación creada</returns>
+        public long Crear()
         {
-            var pj = new PerfilJuego { Perfil = perfil, Juego = juego, FechaAdicion = System.DateTime.UtcNow };
-            _repo.New(pj);
-            return pj;
+            // Construye la entidad de dominio aplicando reglas de negocio
+            var perfilJuego = new PerfilJuego
+            {
+                FechaAdicion = DateTime.Now  // ← REGLA: Siempre fecha actual
+            };
+
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.New()
+            _perfilJuegoRepository.New(perfilJuego);
+            
+            return perfilJuego.IdPerfilJuego;
         }
 
-        public PerfilJuego? ReadOID_PerfilJuego(long id) => _repo.ReadById(id);
-        public IEnumerable<PerfilJuego> ReadAll_PerfilJuego() => _repo.ReadAll();
-        public void ModifyPerfilJuego(PerfilJuego pj) => _repo.Modify(pj);
-        public void DestroyPerfilJuego(long id) => _repo.Destroy(id);
-        public IEnumerable<PerfilJuego> ReadFilter_PerfilJuego(string filter) => _repo.ReadFilter(filter);
+        /// <summary>
+        /// [CRUD - UPDATE] Modifica una relación perfil-juego existente.
+        /// Normalmente esta entidad no se modifica, pero se incluye para completitud.
+        /// </summary>
+        /// <param name="idPerfilJuego">ID de la relación a modificar</param>
+        /// <param name="fechaAdicion">Fecha de adición del juego al perfil</param>
+        public void Modificar(long idPerfilJuego, DateTime fechaAdicion)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.DamePorOID()
+            var perfilJuego = _perfilJuegoRepository.DamePorOID(idPerfilJuego);
+            
+            // Actualiza las propiedades
+            perfilJuego.FechaAdicion = fechaAdicion;
+
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.Modify()
+            _perfilJuegoRepository.Modify(perfilJuego);
+        }
+
+        /// <summary>
+        /// [CRUD - DELETE] Elimina una relación perfil-juego por su ID.
+        /// Se usa cuando un usuario quiere quitar un juego de su lista.
+        /// </summary>
+        /// <param name="idPerfilJuego">ID de la relación a eliminar</param>
+        public void Eliminar(long idPerfilJuego)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.Destroy()
+            _perfilJuegoRepository.Destroy(idPerfilJuego);
+        }
+
+        /// <summary>
+        /// [CRUD - READ BY ID] Obtiene una relación perfil-juego por su identificador único.
+        /// </summary>
+        /// <param name="idPerfilJuego">ID de la relación</param>
+        /// <returns>Entidad PerfilJuego o null si no existe</returns>
+        public PerfilJuego DamePorOID(long idPerfilJuego)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.DamePorOID()
+            return _perfilJuegoRepository.DamePorOID(idPerfilJuego);
+        }
+
+        /// <summary>
+        /// [CRUD - READ ALL] Obtiene todas las relaciones perfil-juego del sistema.
+        /// </summary>
+        /// <returns>Lista de todas las relaciones perfil-juego</returns>
+        public IList<PerfilJuego> DameTodos()
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/PerfilJuegoRepository.cs → GenericRepository.DameTodos()
+            return _perfilJuegoRepository.DameTodos();
+        }
     }
 }

@@ -10,10 +10,10 @@ namespace ApplicationCore.Domain.EN
         public virtual EstadoSolicitud Estado { get; set; }
         public virtual DateTime FechaEnvio { get; set; }
         public virtual DateTime? FechaRespuesta { get; set; }
-
-        public virtual Usuario? Emisor { get; set; }
-        public virtual Usuario? Destinatario { get; set; }
-        public virtual Comunidad? Comunidad { get; set; }
-        public virtual Equipo? Equipo { get; set; }
+        
+        public virtual Usuario Emisor { get; set; }
+        public virtual Usuario Destinatario { get; set; }
+        public virtual Comunidad Comunidad { get; set; }
+        public virtual Equipo Equipo { get; set; }
     }
 }

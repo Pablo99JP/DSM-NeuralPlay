@@ -6,13 +6,25 @@ namespace ApplicationCore.Domain.EN
     public class Comunidad
     {
         public virtual long IdComunidad { get; set; }
-        public virtual string Nombre { get; set; } = null!;
-        public virtual string? Descripcion { get; set; }
+        public virtual string Nombre { get; set; }
+        public virtual string Descripcion { get; set; }
         public virtual DateTime FechaCreacion { get; set; }
-
-        public virtual IList<Equipo> Equipos { get; set; } = new List<Equipo>();
-        public virtual IList<Torneo> Torneos { get; set; } = new List<Torneo>();
-        public virtual IList<MiembroComunidad> Miembros { get; set; } = new List<MiembroComunidad>();
-        public virtual IList<Publicacion> Publicaciones { get; set; } = new List<Publicacion>();
+        
+        public virtual ICollection<MiembroComunidad> Miembros { get; set; }
+        public virtual ICollection<Equipo> Equipos { get; set; }
+        public virtual ICollection<Torneo> Torneos { get; set; }
+        public virtual ICollection<Invitacion> Invitaciones { get; set; }
+        public virtual ICollection<SolicitudIngreso> Solicitudes { get; set; }
+        public virtual ICollection<Publicacion> Publicaciones { get; set; }
+        
+        public Comunidad()
+        {
+            Miembros = new List<MiembroComunidad>();
+            Equipos = new List<Equipo>();
+            Torneos = new List<Torneo>();
+            Invitaciones = new List<Invitacion>();
+            Solicitudes = new List<SolicitudIngreso>();
+            Publicaciones = new List<Publicacion>();
+        }
     }
 }

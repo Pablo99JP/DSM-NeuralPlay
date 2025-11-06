@@ -6,9 +6,14 @@ namespace ApplicationCore.Domain.EN
     public class Juego
     {
         public virtual long IdJuego { get; set; }
-        public virtual string NombreJuego { get; set; } = null!;
+        public virtual string NombreJuego { get; set; }
         public virtual GeneroJuego Genero { get; set; }
-
-        public virtual IList<PerfilJuego> PerfilJuegos { get; set; } = new List<PerfilJuego>();
+        
+        public virtual ICollection<PerfilJuego> PerfilJuegos { get; set; }
+        
+        public Juego()
+        {
+            PerfilJuegos = new List<PerfilJuego>();
+        }
     }
 }

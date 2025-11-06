@@ -9,10 +9,17 @@ namespace ApplicationCore.Domain.EN
         public virtual long IdPropuesta { get; set; }
         public virtual DateTime FechaPropuesta { get; set; }
         public virtual EstadoSolicitud Estado { get; set; }
-
-        public virtual Equipo? EquipoProponente { get; set; }
-        public virtual Torneo? Torneo { get; set; }
-        public virtual Usuario? PropuestoPor { get; set; }
-        public virtual IList<VotoTorneo> Votos { get; set; } = new List<VotoTorneo>();
+        
+        public virtual Equipo Equipo { get; set; }
+        public virtual Torneo Torneo { get; set; }
+        public virtual Usuario PropuestoPor { get; set; }
+        public virtual ICollection<VotoTorneo> Votos { get; set; }
+        public virtual ICollection<Notificacion> Notificaciones { get; set; }
+        
+        public PropuestaTorneo()
+        {
+            Votos = new List<VotoTorneo>();
+            Notificaciones = new List<Notificacion>();
+        }
     }
 }

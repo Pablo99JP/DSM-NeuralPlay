@@ -1,36 +1,102 @@
+using System;
 using System.Collections.Generic;
 using ApplicationCore.Domain.EN;
+using ApplicationCore.Domain.Enums;
 using ApplicationCore.Domain.Repositories;
 
 namespace ApplicationCore.Domain.CEN
 {
+    /// <summary>
+    /// CEN (Componente Entidad Negocio) para la entidad ParticipacionTorneo.
+    /// Expone operaciones CRUD para gestionar la participación de equipos en torneos.
+    /// Representa la inscripción formal de un equipo en un torneo después de aprobar la propuesta.
+    /// NO contiene lógica transaccional compleja (eso va en los CPs).
+    /// </summary>
     public class ParticipacionTorneoCEN
     {
-        private readonly IParticipacionTorneoRepository _repo;
+        // Dependencia: Interfaz del repositorio (NO implementación concreta)
+        private readonly IParticipacionTorneoRepository _participacionTorneoRepository;
 
-        public ParticipacionTorneoCEN(IParticipacionTorneoRepository repo)
+        /// <summary>
+        /// Constructor: Inyección de dependencias.
+        /// </summary>
+        /// <param name="participacionTorneoRepository">Implementación del repositorio de participaciones en torneos</param>
+        public ParticipacionTorneoCEN(IParticipacionTorneoRepository participacionTorneoRepository)
         {
-            _repo = repo;
+            _participacionTorneoRepository = participacionTorneoRepository;
         }
 
-        public ParticipacionTorneo NewParticipacionTorneo(Equipo equipo, Torneo torneo)
+        /// <summary>
+        /// [CRUD - CREATE] Crea una nueva participación de equipo en torneo.
+        /// REGLA DE NEGOCIO: FechaAlta se establece automáticamente a DateTime.Now.
+        /// REGLA DE NEGOCIO: Estado inicial suele ser ACEPTADA (ya que viene de una propuesta aprobada).
+        /// </summary>
+        /// <param name="estado">Estado de la participación (ACEPTADA, PENDIENTE, RECHAZADA, RETIRADA)</param>
+        /// <returns>ID de la participación creada</returns>
+        public long Crear(EstadoParticipacion estado)
         {
-            var p = new ParticipacionTorneo { Equipo = equipo, Torneo = torneo, Estado = ApplicationCore.Domain.Enums.EstadoParticipacion.PENDIENTE.ToString(), FechaAlta = System.DateTime.UtcNow };
-            _repo.New(p);
-            return p;
+            // Construye la entidad de dominio aplicando reglas de negocio
+            var participacionTorneo = new ParticipacionTorneo
+            {
+                Estado = estado,
+                FechaAlta = DateTime.Now  // ← REGLA: Siempre fecha actual
+            };
+
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.New()
+            _participacionTorneoRepository.New(participacionTorneo);
+            
+            return participacionTorneo.IdParticipacion;
         }
 
-        public ParticipacionTorneo? ReadOID_ParticipacionTorneo(long id) => _repo.ReadById(id);
-        public IEnumerable<ParticipacionTorneo> ReadAll_ParticipacionTorneo() => _repo.ReadAll();
-        public void ModifyParticipacionTorneo(ParticipacionTorneo p) => _repo.Modify(p);
-        public void DestroyParticipacionTorneo(long id) => _repo.Destroy(id);
-        public IEnumerable<ParticipacionTorneo> ReadFilter_ParticipacionTorneo(string filter) => _repo.ReadFilter(filter);
+        /// <summary>
+        /// [CRUD - UPDATE] Modifica una participación de torneo existente.
+        /// Se usa para cambiar el estado (ej: de ACEPTADA a RETIRADA).
+        /// </summary>
+        /// <param name="idParticipacion">ID de la participación a modificar</param>
+        /// <param name="estado">Nuevo estado de la participación</param>
+        /// <param name="fechaAlta">Fecha de alta en el torneo</param>
+        public void Modificar(long idParticipacion, EstadoParticipacion estado, DateTime fechaAlta)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.DamePorOID()
+            var participacionTorneo = _participacionTorneoRepository.DamePorOID(idParticipacion);
+            
+            // Actualiza las propiedades
+            participacionTorneo.Estado = estado;
+            participacionTorneo.FechaAlta = fechaAlta;
 
-        // ReadFilters custom (delegados a repositorio para ejecución eficiente en BD)
-        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Equipo> ReadFilter_EquiposByTorneo(long idTorneo)
-            => _repo.GetEquiposByTorneo(idTorneo);
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.Modify()
+            _participacionTorneoRepository.Modify(participacionTorneo);
+        }
 
-        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Torneo> ReadFilter_TorneosByEquipo(long idEquipo)
-            => _repo.GetTorneosByEquipo(idEquipo);
+        /// <summary>
+        /// [CRUD - DELETE] Elimina una participación de torneo por su ID.
+        /// </summary>
+        /// <param name="idParticipacion">ID de la participación a eliminar</param>
+        public void Eliminar(long idParticipacion)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.Destroy()
+            _participacionTorneoRepository.Destroy(idParticipacion);
+        }
+
+        /// <summary>
+        /// [CRUD - READ BY ID] Obtiene una participación de torneo por su identificador único.
+        /// </summary>
+        /// <param name="idParticipacion">ID de la participación</param>
+        /// <returns>Entidad ParticipacionTorneo o null si no existe</returns>
+        public ParticipacionTorneo DamePorOID(long idParticipacion)
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.DamePorOID()
+            return _participacionTorneoRepository.DamePorOID(idParticipacion);
+        }
+
+        /// <summary>
+        /// [CRUD - READ ALL] Obtiene todas las participaciones de torneos del sistema.
+        /// </summary>
+        /// <returns>Lista de todas las participaciones</returns>
+        public IList<ParticipacionTorneo> DameTodos()
+        {
+            // FLUJO SE DESPLAZA A: Infrastructure/NHibernate/Repositories/ParticipacionTorneoRepository.cs → GenericRepository.DameTodos()
+            return _participacionTorneoRepository.DameTodos();
+        }
     }
 }

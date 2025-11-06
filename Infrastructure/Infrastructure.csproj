@@ -1,47 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-  <PackageReference Include="NHibernate" Version="5.6.0" />
-  <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
-    <!-- Provide the SQLite ADO.NET provider for NHibernate's SQLite driver during tests -->
-  <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
-  </ItemGroup>
-  <ItemGroup>
-    <!-- Pin transitive packages flagged as vulnerable -->
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="runtime.native.System.Security.Cryptography.OpenSsl" Version="4.3.3" />
+    <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Centralized logging dependencies (shared Serilog configuration) -->
-  <PackageReference Include="Serilog" Version="4.3.0" />
-  <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
-  <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-  <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="NHibernate" Version="5.5.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- NHibernate configuration and mapping files are inside the NHibernate folder -->
-    <None Update="NHibernate\NHibernate.cfg.xml">
+    <None Update="NHibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="NHibernate\Mappings\*.hbm.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <!-- Also embed mapping files so NHibernate can load them when the config/mappings are not copied to the test output -->
-    <EmbeddedResource Include="NHibernate\Mappings\*.hbm.xml" />
-    <EmbeddedResource Include="NHibernate\NHibernate.cfg.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
   </ItemGroup>
 
 </Project>

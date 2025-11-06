@@ -9,10 +9,9 @@ namespace ApplicationCore.Domain.EN
         public virtual RolComunidad Rol { get; set; }
         public virtual EstadoMembresia Estado { get; set; }
         public virtual DateTime FechaAlta { get; set; }
-        public virtual DateTime? FechaAccion { get; set; }
         public virtual DateTime? FechaBaja { get; set; }
-
-        public virtual Usuario Usuario { get; set; } = null!;
-        public virtual Comunidad Comunidad { get; set; } = null!;
+        
+        public virtual Usuario Usuario { get; set; }
+        public virtual Comunidad Comunidad { get; set; }
     }
 }

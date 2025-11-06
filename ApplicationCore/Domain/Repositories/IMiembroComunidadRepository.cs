@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using ApplicationCore.Domain.EN;
 
 namespace ApplicationCore.Domain.Repositories
 {
-    public interface IMiembroComunidadRepository : IRepository<MiembroComunidad>
+    public interface IMiembroComunidadRepository : IRepository<MiembroComunidad, long>
     {
-        IEnumerable<Usuario> GetUsuariosByComunidad(long idComunidad);
     }
 }

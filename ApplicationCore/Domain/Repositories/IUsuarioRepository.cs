@@ -1,12 +1,12 @@
-using ApplicationCore.Domain.EN;
 using System.Collections.Generic;
+using ApplicationCore.Domain.EN;
 
 namespace ApplicationCore.Domain.Repositories
 {
-    public interface IUsuarioRepository : IRepository<Usuario>
+    public interface IUsuarioRepository : IRepository<Usuario, long>
     {
-        // Extensiones específicas de Usuario
-        Usuario? ReadByNick(string nick);
-        Usuario? ReadByEmail(string email);
+        IList<Usuario> DamePorFiltro(string filtro);
+        IList<Usuario> DamePorEquipo(long idEquipo);
+        IList<Usuario> DamePorComunidad(long idComunidad);
     }
 }
