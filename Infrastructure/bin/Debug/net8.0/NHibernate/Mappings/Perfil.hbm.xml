@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="Perfil" table="Perfil">
+    <id name="IdPerfil" column="IdPerfil" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="FotoPerfilUrl" column="FotoPerfilUrl" type="string" />
+    <property name="Descripcion" column="Descripcion" type="string" />
+    <property name="VisibilidadPerfil" column="VisibilidadPerfil" type="ApplicationCore.Domain.Enums.Visibilidad, ApplicationCore" not-null="true" />
+    <property name="VisibilidadActividad" column="VisibilidadActividad" type="ApplicationCore.Domain.Enums.Visibilidad, ApplicationCore" not-null="true" />
+    <property name="JuegoFavoritoId" column="JuegoFavoritoId" type="long" />
+    
+    <one-to-one name="Usuario" class="Usuario" />
+    <bag name="PerfilJuegos" inverse="true" cascade="all">
+      <key column="PerfilId" />
+      <one-to-many class="PerfilJuego" />
+    </bag>
+    <many-to-one name="JuegoFavorito" class="Juego" column="JuegoFavoritoId" insert="false" update="false" />
+  </class>
+</hibernate-mapping>

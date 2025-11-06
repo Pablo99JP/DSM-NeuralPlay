@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="Usuario" table="Usuario">
+    <id name="IdUsuario" column="IdUsuario" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="Nick" column="Nick" type="string" not-null="true" />
+    <property name="CorreoElectronico" column="CorreoElectronico" type="string" not-null="true" />
+    <property name="ContrasenaHash" column="ContrasenaHash" type="string" not-null="true" />
+    <property name="Telefono" column="Telefono" type="string" />
+    <property name="FechaRegistro" column="FechaRegistro" type="datetime" not-null="true" />
+    <property name="EstadoCuenta" column="EstadoCuenta" type="ApplicationCore.Domain.Enums.EstadoCuenta, ApplicationCore" not-null="true" />
+    
+    <bag name="MiembrosComunidad" inverse="true" cascade="all">
+      <key column="UsuarioId" />
+      <one-to-many class="MiembroComunidad" />
+    </bag>
+    <bag name="MiembrosEquipo" inverse="true" cascade="all">
+      <key column="UsuarioId" />
+      <one-to-many class="MiembroEquipo" />
+    </bag>
+    <bag name="MensajesChat" inverse="true" cascade="all">
+      <key column="AutorId" />
+      <one-to-many class="MensajeChat" />
+    </bag>
+    <bag name="InvitacionesEmitidas" inverse="true" cascade="all">
+      <key column="EmisorId" />
+      <one-to-many class="Invitacion" />
+    </bag>
+    <bag name="InvitacionesRecibidas" inverse="true" cascade="all">
+      <key column="DestinatarioId" />
+      <one-to-many class="Invitacion" />
+    </bag>
+    <bag name="Solicitudes" inverse="true" cascade="all">
+      <key column="SolicitanteId" />
+      <one-to-many class="SolicitudIngreso" />
+    </bag>
+    <bag name="Publicaciones" inverse="true" cascade="all">
+      <key column="AutorId" />
+      <one-to-many class="Publicacion" />
+    </bag>
+    <bag name="Comentarios" inverse="true" cascade="all">
+      <key column="AutorId" />
+      <one-to-many class="Comentario" />
+    </bag>
+    <bag name="Reacciones" inverse="true" cascade="all">
+      <key column="AutorId" />
+      <one-to-many class="Reaccion" />
+    </bag>
+    <bag name="Notificaciones" inverse="true" cascade="all">
+      <key column="DestinatarioId" />
+      <one-to-many class="Notificacion" />
+    </bag>
+    <bag name="PropuestasTorneo" inverse="true" cascade="all">
+      <key column="PropuestoPorId" />
+      <one-to-many class="PropuestaTorneo" />
+    </bag>
+    <bag name="VotosTorneo" inverse="true" cascade="all">
+      <key column="VotanteId" />
+      <one-to-many class="VotoTorneo" />
+    </bag>
+    <one-to-one name="Perfil" class="Perfil" cascade="all" />
+    <bag name="Sesiones" inverse="true" cascade="all">
+      <key column="UsuarioId" />
+      <one-to-many class="Sesion" />
+    </bag>
+  </class>
+</hibernate-mapping>

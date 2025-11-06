@@ -1,0 +1,554 @@
+{
+  "enums": [
+    {
+      "name": "RolComunidad",
+      "values": ["LIDER", "COLABORADOR", "MIEMBRO"]
+    },
+    {
+      "name": "RolEquipo",
+      "values": ["ADMIN", "MIEMBRO"]
+    },
+    {
+      "name": "EstadoMembresia",
+      "values": ["PENDIENTE", "ACTIVA", "EXPULSADA", "ABANDONADA"]
+    },
+    {
+      "name": "EstadoSolicitud",
+      "values": ["PENDIENTE", "ACEPTADA", "RECHAZADA", "CANCELADA"]
+    },
+    {
+      "name": "TipoInvitacion",
+      "values": ["COMUNIDAD", "EQUIPO"]
+    },
+    {
+      "name": "TipoReaccion",
+      "values": ["ME_GUSTA", "OTRO"]
+    },
+    {
+      "name": "EstadoParticipacion",
+      "values": ["PENDIENTE", "ACEPTADA", "RECHAZADA", "RETIRADA"]
+    },
+    {
+      "name": "TipoNotificacion",
+      "values": ["REACCION", "COMENTARIO", "PUBLICACION", "PROPUESTA_TORNEO", "UNION_TORNEO", "SISTEMA", "MENSAJE", "ALERTA"]
+    },
+    {
+      "name": "EstadoCuenta",
+      "values": ["ACTIVA"]
+    },
+    {
+      "name": "Visibilidad",
+      "values": ["PUBLICO", "PRIVADO", "AMIGOS"]
+    },
+    {
+      "name": "GeneroJuego",
+      "values": ["ACCION", "AVENTURA", "ESTRATEGIA", "RPG", "DEPORTE", "OTRO"]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Usuario",
+      "package": "Social",
+      "properties": [
+        { "name": "IdUsuario", "type": "long", "nullable": false, "isId": true },
+        { "name": "Nick", "type": "string", "nullable": false },
+        { "name": "CorreoElectronico", "type": "string", "nullable": false },
+        { "name": "ContrasenaHash", "type": "string", "nullable": false },
+        { "name": "Telefono", "type": "string", "nullable": true },
+        { "name": "FechaRegistro", "type": "date-time", "nullable": false },
+        { "name": "EstadoCuenta", "type": "EstadoCuenta", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newUsuario", "params": ["nick: String", "correo: String", "contrasenaHash: String"], "returnType": "Usuario", "stereotype": "New" },
+        { "name": "modifyUsuario", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyUsuario", "params": ["idUsuario: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Usuario", "params": ["idUsuario: Long"], "returnType": "Usuario", "stereotype": "ReadOID" },
+        { "name": "readAll_Usuario", "params": [], "returnType": "List<Usuario>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Usuario", "params": ["filter: String"], "returnType": "List<Usuario>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "MiembroComunidad", "type": "one-to-many", "name": "miembrosComunidad" },
+        { "target": "MiembroEquipo", "type": "one-to-many", "name": "miembrosEquipo" },
+        { "target": "MensajeChat", "type": "one-to-many", "name": "mensajesChat" },
+        { "target": "Invitacion", "type": "one-to-many", "name": "invitacionesEmitidas", "role": "emisor" },
+        { "target": "Invitacion", "type": "one-to-many", "name": "invitacionesRecibidas", "role": "destinatario" },
+        { "target": "SolicitudIngreso", "type": "one-to-many", "name": "solicitudes" },
+        { "target": "Publicacion", "type": "one-to-many", "name": "publicaciones" },
+        { "target": "Comentario", "type": "one-to-many", "name": "comentarios" },
+        { "target": "Reaccion", "type": "one-to-many", "name": "reacciones" },
+        { "target": "Notificacion", "type": "one-to-many", "name": "notificaciones" },
+        { "target": "PropuestaTorneo", "type": "one-to-many", "name": "propuestasTorneo" },
+        { "target": "VotoTorneo", "type": "one-to-many", "name": "votosTorneo" },
+        { "target": "Perfil", "type": "one-to-one", "name": "perfil" },
+        { "target": "Sesion", "type": "one-to-many", "name": "sesiones" }
+      ]
+    },
+    {
+      "name": "Comunidad",
+      "package": "Social",
+      "properties": [
+        { "name": "IdComunidad", "type": "long", "nullable": false, "isId": true },
+        { "name": "Nombre", "type": "string", "nullable": false },
+        { "name": "Descripcion", "type": "string", "nullable": true },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newComunidad", "params": ["nombre: String", "descripcion: String"], "returnType": "Comunidad", "stereotype": "New" },
+        { "name": "modifyComunidad", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyComunidad", "params": ["idComunidad: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Comunidad", "params": ["idComunidad: Long"], "returnType": "Comunidad", "stereotype": "ReadOID" },
+        { "name": "readAll_Comunidad", "params": [], "returnType": "List<Comunidad>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Comunidad", "params": ["filter: String"], "returnType": "List<Comunidad>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "MiembroComunidad", "type": "one-to-many", "name": "miembros" },
+        { "target": "Equipo", "type": "one-to-many", "name": "equipos" },
+        { "target": "Torneo", "type": "one-to-many", "name": "torneos" },
+        { "target": "Invitacion", "type": "one-to-many", "name": "invitaciones" },
+        { "target": "SolicitudIngreso", "type": "one-to-many", "name": "solicitudes" },
+        { "target": "Publicacion", "type": "one-to-many", "name": "publicaciones" }
+      ]
+    },
+    {
+      "name": "Equipo",
+      "package": "Social",
+      "properties": [
+        { "name": "IdEquipo", "type": "long", "nullable": false, "isId": true },
+        { "name": "Nombre", "type": "string", "nullable": false },
+        { "name": "Descripcion", "type": "string", "nullable": true },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newEquipo", "params": ["nombre: String", "descripcion: String"], "returnType": "Equipo", "stereotype": "New" },
+        { "name": "modifyEquipo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyEquipo", "params": ["idEquipo: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Equipo", "params": ["idEquipo: Long"], "returnType": "Equipo", "stereotype": "ReadOID" },
+        { "name": "readAll_Equipo", "params": [], "returnType": "List<Equipo>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Equipo", "params": ["filter: String"], "returnType": "List<Equipo>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "MiembroEquipo", "type": "one-to-many", "name": "miembros" },
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" },
+        { "target": "ChatEquipo", "type": "one-to-one", "name": "chat" },
+        { "target": "Invitacion", "type": "one-to-many", "name": "invitaciones" },
+        { "target": "SolicitudIngreso", "type": "one-to-many", "name": "solicitudes" },
+        { "target": "PropuestaTorneo", "type": "one-to-many", "name": "propuestasTorneo" },
+        { "target": "ParticipacionTorneo", "type": "one-to-many", "name": "participaciones" }
+      ]
+    },
+    {
+      "name": "MiembroComunidad",
+      "package": "Social",
+      "properties": [
+        { "name": "IdMiembroComunidad", "type": "long", "nullable": false, "isId": true },
+        { "name": "Rol", "type": "RolComunidad", "nullable": false },
+        { "name": "Estado", "type": "EstadoMembresia", "nullable": false },
+        { "name": "FechaAlta", "type": "date-time", "nullable": false },
+        { "name": "FechaBaja", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newMiembroComunidad", "params": ["usuarioId: Long", "comunidadId: Long", "rol: RolComunidad"], "returnType": "MiembroComunidad", "stereotype": "New" },
+        { "name": "modifyMiembroComunidad", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyMiembroComunidad", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_MiembroComunidad", "params": ["id: Long"], "returnType": "MiembroComunidad", "stereotype": "ReadOID" },
+        { "name": "readAll_MiembroComunidad", "params": [], "returnType": "List<MiembroComunidad>", "stereotype": "ReadAll" },
+        { "name": "salir", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "expulsar", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "cambiarRol", "params": ["nuevoRol: RolComunidad"], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "usuario" },
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" }
+      ]
+    },
+    {
+      "name": "MiembroEquipo",
+      "package": "Social",
+      "properties": [
+        { "name": "IdMiembroEquipo", "type": "long", "nullable": false, "isId": true },
+        { "name": "Rol", "type": "RolEquipo", "nullable": false },
+        { "name": "Estado", "type": "EstadoMembresia", "nullable": false },
+        { "name": "FechaAlta", "type": "date-time", "nullable": false },
+        { "name": "FechaBaja", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newMiembroEquipo", "params": ["usuarioId: Long", "equipoId: Long", "rol: RolEquipo"], "returnType": "MiembroEquipo", "stereotype": "New" },
+        { "name": "modifyMiembroEquipo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyMiembroEquipo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_MiembroEquipo", "params": ["id: Long"], "returnType": "MiembroEquipo", "stereotype": "ReadOID" },
+        { "name": "readAll_MiembroEquipo", "params": [], "returnType": "List<MiembroEquipo>", "stereotype": "ReadAll" },
+        { "name": "salir", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "expulsar", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "cambiarRol", "params": ["nuevoRol: RolEquipo"], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "usuario" },
+        { "target": "Equipo", "type": "many-to-one", "name": "equipo" }
+      ]
+    },
+    {
+      "name": "Invitacion",
+      "package": "Social",
+      "properties": [
+        { "name": "IdInvitacion", "type": "long", "nullable": false, "isId": true },
+        { "name": "Tipo", "type": "TipoInvitacion", "nullable": false },
+        { "name": "Estado", "type": "EstadoSolicitud", "nullable": false },
+        { "name": "FechaEnvio", "type": "date-time", "nullable": false },
+        { "name": "FechaRespuesta", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newInvitacion", "params": ["..."], "returnType": "Invitacion", "stereotype": "New" },
+        { "name": "modifyInvitacion", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyInvitacion", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Invitacion", "params": ["id: Long"], "returnType": "Invitacion", "stereotype": "ReadOID" },
+        { "name": "readAll_Invitacion", "params": [], "returnType": "List<Invitacion>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "emisor" },
+        { "target": "Usuario", "type": "many-to-one", "name": "destinatario" },
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" },
+        { "target": "Equipo", "type": "many-to-one", "name": "equipo" }
+      ]
+    },
+    {
+      "name": "SolicitudIngreso",
+      "package": "Social",
+      "properties": [
+        { "name": "IdSolicitud", "type": "long", "nullable": false, "isId": true },
+        { "name": "Tipo", "type": "TipoInvitacion", "nullable": false },
+        { "name": "Estado", "type": "EstadoSolicitud", "nullable": false },
+        { "name": "FechaSolicitud", "type": "date-time", "nullable": false },
+        { "name": "FechaResolucion", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newSolicitudIngreso", "params": ["..."], "returnType": "SolicitudIngreso", "stereotype": "New" },
+        { "name": "modifySolicitudIngreso", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroySolicitudIngreso", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_SolicitudIngreso", "params": ["id: Long"], "returnType": "SolicitudIngreso", "stereotype": "ReadOID" },
+        { "name": "readAll_SolicitudIngreso", "params": [], "returnType": "List<SolicitudIngreso>", "stereotype": "ReadAll" },
+        { "name": "aprobar", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "rechazar", "params": [], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "solicitante" },
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" },
+        { "target": "Equipo", "type": "many-to-one", "name": "equipo" }
+      ]
+    },
+    {
+      "name": "ChatEquipo",
+      "package": "Social",
+      "properties": [
+        { "name": "IdChatEquipo", "type": "long", "nullable": false, "isId": true }
+      ],
+      "methods": [
+        { "name": "newChatEquipo", "params": ["equipoId: Long"], "returnType": "ChatEquipo", "stereotype": "New" },
+        { "name": "modifyChatEquipo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyChatEquipo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_ChatEquipo", "params": ["id: Long"], "returnType": "ChatEquipo", "stereotype": "ReadOID" },
+        { "name": "readAll_ChatEquipo", "params": [], "returnType": "List<ChatEquipo>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Equipo", "type": "one-to-one", "name": "equipo" },
+        { "target": "MensajeChat", "type": "one-to-many", "name": "mensajes" }
+      ]
+    },
+    {
+      "name": "MensajeChat",
+      "package": "Social",
+      "properties": [
+        { "name": "IdMensajeChat", "type": "long", "nullable": false, "isId": true },
+        { "name": "Contenido", "type": "string", "nullable": false },
+        { "name": "FechaEnvio", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newMensajeChat", "params": ["..."], "returnType": "MensajeChat", "stereotype": "New" },
+        { "name": "modifyMensajeChat", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyMensajeChat", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_MensajeChat", "params": ["id: Long"], "returnType": "MensajeChat", "stereotype": "ReadOID" },
+        { "name": "readAll_MensajeChat", "params": [], "returnType": "List<MensajeChat>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "ChatEquipo", "type": "many-to-one", "name": "chat" },
+        { "target": "Usuario", "type": "many-to-one", "name": "autor" }
+      ]
+    },
+    {
+      "name": "Publicacion",
+      "package": "Social",
+      "properties": [
+        { "name": "IdPublicacion", "type": "long", "nullable": false, "isId": true },
+        { "name": "Contenido", "type": "string", "nullable": false },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false },
+        { "name": "FechaEdicion", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newPublicacion", "params": ["..."], "returnType": "Publicacion", "stereotype": "New" },
+        { "name": "modifyPublicacion", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyPublicacion", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Publicacion", "params": ["id: Long"], "returnType": "Publicacion", "stereotype": "ReadOID" },
+        { "name": "readAll_Publicacion", "params": [], "returnType": "List<Publicacion>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Publicacion", "params": ["filter: String"], "returnType": "List<Publicacion>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" },
+        { "target": "Usuario", "type": "many-to-one", "name": "autor" },
+        { "target": "Comentario", "type": "one-to-many", "name": "comentarios" },
+        { "target": "Reaccion", "type": "one-to-many", "name": "reacciones" },
+        { "target": "Notificacion", "type": "one-to-many", "name": "notificaciones" }
+      ]
+    },
+    {
+      "name": "Comentario",
+      "package": "Social",
+      "properties": [
+        { "name": "IdComentario", "type": "long", "nullable": false, "isId": true },
+        { "name": "Contenido", "type": "string", "nullable": false },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false },
+        { "name": "FechaEdicion", "type": "date-time", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newComentario", "params": ["..."], "returnType": "Comentario", "stereotype": "New" },
+        { "name": "modifyComentario", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyComentario", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Comentario", "params": ["id: Long"], "returnType": "Comentario", "stereotype": "ReadOID" },
+        { "name": "readAll_Comentario", "params": [], "returnType": "List<Comentario>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Publicacion", "type": "many-to-one", "name": "publicacion" },
+        { "target": "Usuario", "type": "many-to-one", "name": "autor" },
+        { "target": "Reaccion", "type": "one-to-many", "name": "reacciones" },
+        { "target": "Notificacion", "type": "one-to-many", "name": "notificaciones" }
+      ]
+    },
+    {
+      "name": "Reaccion",
+      "package": "Social",
+      "properties": [
+        { "name": "IdReaccion", "type": "long", "nullable": false, "isId": true },
+        { "name": "Tipo", "type": "TipoReaccion", "nullable": false },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newReaccion", "params": ["..."], "returnType": "Reaccion", "stereotype": "New" },
+        { "name": "modifyReaccion", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyReaccion", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Reaccion", "params": ["id: Long"], "returnType": "Reaccion", "stereotype": "ReadOID" },
+        { "name": "readAll_Reaccion", "params": [], "returnType": "List<Reaccion>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Publicacion", "type": "many-to-one", "name": "publicacion" },
+        { "target": "Comentario", "type": "many-to-one", "name": "comentario" },
+        { "target": "Usuario", "type": "many-to-one", "name": "autor" },
+        { "target": "Notificacion", "type": "one-to-many", "name": "notificaciones" }
+      ]
+    },
+    {
+      "name": "Notificacion",
+      "package": "Social",
+      "properties": [
+        { "name": "IdNotificacion", "type": "long", "nullable": false, "isId": true },
+        { "name": "Tipo", "type": "TipoNotificacion", "nullable": false },
+        { "name": "Mensaje", "type": "string", "nullable": false },
+        { "name": "Leida", "type": "boolean", "nullable": false },
+        { "name": "FechaCreacion", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newNotificacion", "params": ["..."], "returnType": "Notificacion", "stereotype": "New" },
+        { "name": "modifyNotificacion", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyNotificacion", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Notificacion", "params": ["id: Long"], "returnType": "Notificacion", "stereotype": "ReadOID" },
+        { "name": "readAll_Notificacion", "params": [], "returnType": "List<Notificacion>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Notificacion", "params": ["filter: String"], "returnType": "List<Notificacion>", "stereotype": "ReadFilter" },
+        { "name": "marcarLeida", "params": [], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "destinatario" },
+        { "target": "Publicacion", "type": "many-to-one", "name": "origenPublicacion" },
+        { "target": "Comentario", "type": "many-to-one", "name": "origenComentario" },
+        { "target": "PropuestaTorneo", "type": "many-to-one", "name": "origenPropuesta" },
+        { "target": "Reaccion", "type": "many-to-one", "name": "origenReaccion" }
+      ]
+    },
+    {
+      "name": "Torneo",
+      "package": "Torneos",
+      "properties": [
+        { "name": "IdTorneo", "type": "long", "nullable": false, "isId": true },
+        { "name": "Nombre", "type": "string", "nullable": false },
+        { "name": "FechaInicio", "type": "date-time", "nullable": false },
+        { "name": "Reglas", "type": "string", "nullable": true },
+        { "name": "Estado", "type": "string", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newTorneo", "params": ["nombre: String", "fechaInicio: DateTime"], "returnType": "Torneo", "stereotype": "New" },
+        { "name": "modifyTorneo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyTorneo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Torneo", "params": ["id: Long"], "returnType": "Torneo", "stereotype": "ReadOID" },
+        { "name": "readAll_Torneo", "params": [], "returnType": "List<Torneo>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Torneo", "params": ["filter: String"], "returnType": "List<Torneo>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "Comunidad", "type": "many-to-one", "name": "comunidad" },
+        { "target": "PropuestaTorneo", "type": "one-to-many", "name": "propuestas" },
+        { "target": "ParticipacionTorneo", "type": "one-to-many", "name": "participaciones" }
+      ]
+    },
+    {
+      "name": "PropuestaTorneo",
+      "package": "Torneos",
+      "properties": [
+        { "name": "IdPropuesta", "type": "long", "nullable": false, "isId": true },
+        { "name": "FechaPropuesta", "type": "date-time", "nullable": false },
+        { "name": "Estado", "type": "EstadoSolicitud", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newPropuestaTorneo", "params": ["..."], "returnType": "PropuestaTorneo", "stereotype": "New" },
+        { "name": "modifyPropuestaTorneo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyPropuestaTorneo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_PropuestaTorneo", "params": ["id: Long"], "returnType": "PropuestaTorneo", "stereotype": "ReadOID" },
+        { "name": "readAll_PropuestaTorneo", "params": [], "returnType": "List<PropuestaTorneo>", "stereotype": "ReadAll" },
+        { "name": "aprobarSiVotosUnanimes", "params": [], "returnType": "Boolean", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Equipo", "type": "many-to-one", "name": "equipo" },
+        { "target": "Torneo", "type": "many-to-one", "name": "torneo" },
+        { "target": "Usuario", "type": "many-to-one", "name": "propuestoPor" },
+        { "target": "VotoTorneo", "type": "one-to-many", "name": "votos" },
+        { "target": "Notificacion", "type": "one-to-many", "name": "notificaciones" }
+      ]
+    },
+    {
+      "name": "VotoTorneo",
+      "package": "Torneos",
+      "properties": [
+        { "name": "IdVoto", "type": "long", "nullable": false, "isId": true },
+        { "name": "Valor", "type": "boolean", "nullable": false },
+        { "name": "FechaVoto", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newVotoTorneo", "params": ["..."], "returnType": "VotoTorneo", "stereotype": "New" },
+        { "name": "modifyVotoTorneo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyVotoTorneo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_VotoTorneo", "params": ["id: Long"], "returnType": "VotoTorneo", "stereotype": "ReadOID" },
+        { "name": "readAll_VotoTorneo", "params": [], "returnType": "List<VotoTorneo>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "PropuestaTorneo", "type": "many-to-one", "name": "propuesta" },
+        { "target": "Usuario", "type": "many-to-one", "name": "votante" }
+      ]
+    },
+    {
+      "name": "ParticipacionTorneo",
+      "package": "Torneos",
+      "properties": [
+        { "name": "IdParticipacion", "type": "long", "nullable": false, "isId": true },
+        { "name": "Estado", "type": "EstadoParticipacion", "nullable": false },
+        { "name": "FechaAlta", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newParticipacionTorneo", "params": ["..."], "returnType": "ParticipacionTorneo", "stereotype": "New" },
+        { "name": "modifyParticipacionTorneo", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyParticipacionTorneo", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_ParticipacionTorneo", "params": ["id: Long"], "returnType": "ParticipacionTorneo", "stereotype": "ReadOID" },
+        { "name": "readAll_ParticipacionTorneo", "params": [], "returnType": "List<ParticipacionTorneo>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Equipo", "type": "many-to-one", "name": "equipo" },
+        { "target": "Torneo", "type": "many-to-one", "name": "torneo" }
+      ]
+    },
+    {
+      "name": "Perfil",
+      "package": "Perfil & Juegos",
+      "properties": [
+        { "name": "IdPerfil", "type": "long", "nullable": false, "isId": true },
+        { "name": "FotoPerfilUrl", "type": "string", "nullable": true },
+        { "name": "Descripcion", "type": "string", "nullable": true },
+        { "name": "VisibilidadPerfil", "type": "Visibilidad", "nullable": false },
+        { "name": "VisibilidadActividad", "type": "Visibilidad", "nullable": false },
+        { "name": "JuegoFavoritoId", "type": "long", "nullable": true }
+      ],
+      "methods": [
+        { "name": "newPerfil", "params": ["usuarioId: Long"], "returnType": "Perfil", "stereotype": "New" },
+        { "name": "modifyPerfil", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyPerfil", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Perfil", "params": ["id: Long"], "returnType": "Perfil", "stereotype": "ReadOID" },
+        { "name": "readAll_Perfil", "params": [], "returnType": "List<Perfil>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Perfil", "params": ["filter: String"], "returnType": "List<Perfil>", "stereotype": "ReadFilter" },
+        { "name": "modificarNombreUsuario", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "modificarFotoPerfil", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "modificarDescripcion", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "seleccionarVisibilidadPerfil", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "seleccionarVisibilidadActividad", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "seleccionarJuegoFavorito", "params": [], "returnType": "Void", "stereotype": "Custom" },
+        { "name": "quitarJuegoFavorito", "params": [], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "one-to-one", "name": "usuario" },
+        { "target": "PerfilJuego", "type": "one-to-many", "name": "perfilJuegos" },
+        { "target": "Juego", "type": "many-to-one", "name": "juegoFavorito" }
+      ]
+    },
+    {
+      "name": "Juego",
+      "package": "Perfil & Juegos",
+      "properties": [
+        { "name": "IdJuego", "type": "long", "nullable": false, "isId": true },
+        { "name": "NombreJuego", "type": "string", "nullable": false },
+        { "name": "Genero", "type": "GeneroJuego", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newJuego", "params": ["nombre: String", "genero: GeneroJuego"], "returnType": "Juego", "stereotype": "New" },
+        { "name": "modifyJuego", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyJuego", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Juego", "params": ["id: Long"], "returnType": "Juego", "stereotype": "ReadOID" },
+        { "name": "readAll_Juego", "params": [], "returnType": "List<Juego>", "stereotype": "ReadAll" },
+        { "name": "readFilter_Juego", "params": ["filter: String"], "returnType": "List<Juego>", "stereotype": "ReadFilter" }
+      ],
+      "relations": [
+        { "target": "PerfilJuego", "type": "one-to-many", "name": "perfilJuegos" }
+      ]
+    },
+    {
+      "name": "PerfilJuego",
+      "package": "Perfil & Juegos",
+      "properties": [
+        { "name": "IdPerfilJuego", "type": "long", "nullable": false, "isId": true },
+        { "name": "FechaAdicion", "type": "date-time", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newPerfilJuego", "params": ["perfilId: Long", "juegoId: Long"], "returnType": "PerfilJuego", "stereotype": "New" },
+        { "name": "modifyPerfilJuego", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroyPerfilJuego", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_PerfilJuego", "params": ["id: Long"], "returnType": "PerfilJuego", "stereotype": "ReadOID" },
+        { "name": "readAll_PerfilJuego", "params": [], "returnType": "List<PerfilJuego>", "stereotype": "ReadAll" }
+      ],
+      "relations": [
+        { "target": "Perfil", "type": "many-to-one", "name": "perfil" },
+        { "target": "Juego", "type": "many-to-one", "name": "juego" }
+      ]
+    },
+    {
+      "name": "Sesion",
+      "package": "Autenticación",
+      "properties": [
+        { "name": "IdSesion", "type": "long", "nullable": false, "isId": true },
+        { "name": "FechaInicio", "type": "date-time", "nullable": false },
+        { "name": "FechaFin", "type": "date-time", "nullable": true },
+        { "name": "Token", "type": "string", "nullable": false }
+      ],
+      "methods": [
+        { "name": "newSesion", "params": ["usuarioId: Long"], "returnType": "Sesion", "stereotype": "New" },
+        { "name": "modifySesion", "params": ["..."], "returnType": "Void", "stereotype": "Modify" },
+        { "name": "destroySesion", "params": ["id: Long"], "returnType": "Void", "stereotype": "Destroy" },
+        { "name": "readOID_Sesion", "params": ["id: Long"], "returnType": "Sesion", "stereotype": "ReadOID" },
+        { "name": "readAll_Sesion", "params": [], "returnType": "List<Sesion>", "stereotype": "ReadAll" },
+        { "name": "cerrarSesion", "params": [], "returnType": "Void", "stereotype": "Custom" }
+      ],
+      "relations": [
+        { "target": "Usuario", "type": "many-to-one", "name": "usuario" }
+      ]
+    }
+  ]
+}

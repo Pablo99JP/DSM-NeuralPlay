@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="SolicitudIngreso" table="SolicitudIngreso">
+    <id name="IdSolicitud" column="IdSolicitud" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="Tipo" column="Tipo" type="ApplicationCore.Domain.Enums.TipoInvitacion, ApplicationCore" not-null="true" />
+    <property name="Estado" column="Estado" type="ApplicationCore.Domain.Enums.EstadoSolicitud, ApplicationCore" not-null="true" />
+    <property name="FechaSolicitud" column="FechaSolicitud" type="datetime" not-null="true" />
+    <property name="FechaResolucion" column="FechaResolucion" type="datetime" />
+    
+    <many-to-one name="Solicitante" column="SolicitanteId" class="Usuario" not-null="true" />
+    <many-to-one name="Comunidad" column="ComunidadId" class="Comunidad" />
+    <many-to-one name="Equipo" column="EquipoId" class="Equipo" />
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN">
+  <class name="Torneo" table="Torneo">
+    <id name="IdTorneo" column="IdTorneo" type="long">
+      <generator class="hilo">
+        <param name="table">NHibernateUniqueKey</param>
+        <param name="column">NextHigh</param>
+        <param name="max_lo">100</param>
+      </generator>
+    </id>
+    <property name="Nombre" column="Nombre" type="string" not-null="true" />
+    <property name="FechaInicio" column="FechaInicio" type="datetime" not-null="true" />
+    <property name="Reglas" column="Reglas" type="string" />
+    <property name="Estado" column="Estado" type="string" not-null="true" />
+    
+    <many-to-one name="Comunidad" class="Comunidad" column="ComunidadId" />
+    <bag name="Propuestas" inverse="true" cascade="all">
+      <key column="TorneoId" />
+      <one-to-many class="PropuestaTorneo" />
+    </bag>
+    <bag name="Participaciones" inverse="true" cascade="all">
+      <key column="TorneoId" />
+      <one-to-many class="ParticipacionTorneo" />
+    </bag>
+  </class>
+</hibernate-mapping>
