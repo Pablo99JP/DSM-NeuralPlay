@@ -12,9 +12,9 @@
     <property name="FechaEnvio" column="FechaEnvio" />
     <property name="FechaRespuesta" column="FechaRespuesta" />
 
-    <many-to-one name="Emisor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="EmisorId" />
-    <many-to-one name="Destinatario" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="DestinatarioId" />
-    <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
-    <many-to-one name="Equipo" class="ApplicationCore.Domain.EN.Equipo, ApplicationCore" column="EquipoId" />
+    <many-to-one name="Emisor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="EmisorId" lazy="false" />
+    <many-to-one name="Destinatario" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="DestinatarioId" lazy="false" />
+    <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" lazy="false" />
+    <many-to-one name="Equipo" class="ApplicationCore.Domain.EN.Equipo, ApplicationCore" column="EquipoId" lazy="false" />
   </class>
 </hibernate-mapping>

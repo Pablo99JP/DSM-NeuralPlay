@@ -16,7 +16,18 @@ namespace Infrastructure.NHibernate
             _session = session;
         }
 
-        public Invitacion? ReadById(long id) => _session.Get<Invitacion>(id);
+        public Invitacion? ReadById(long id)
+        {
+            // Use eager loading with Fetch to ensure navigation properties are loaded
+            return _session.Query<Invitacion>()
+                .Where(i => i.IdInvitacion == id)
+                .Fetch(i => i.Emisor)
+                .Fetch(i => i.Destinatario)
+                .Fetch(i => i.Equipo)
+                .Fetch(i => i.Comunidad)
+                .ToList()
+                .FirstOrDefault();
+        }
 
         public IEnumerable<Invitacion> ReadAll() => _session.Query<Invitacion>().ToList();
 

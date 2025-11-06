@@ -65,25 +65,242 @@ Estos métodos permiten que NHibernate ejecute consultas eficientes y que las im
 
 ### InitializeDb: modos, flags y ejemplos
 
-`InitializeDb` puede usarse en modo `inmemory` (validación local) o `schemaexport` (exportar esquema y opcionalmente seed). Flags principales:
+`InitializeDb` es un proyecto ejecutable que inicializa la base de datos y ejecuta el seed de datos. Por defecto está configurado para trabajar con **SQL Server LocalDB** y ejecutar automáticamente el seed.
 
-- `--mode=<inmemory|schemaexport>` (default: `inmemory`)
-- `--seed` — ejecutar seed idempotente.
-- `--db-name=<name>` — nombre de la BD (por defecto `ProjectDatabase`).
-- `--force-drop` y `--confirm` — para eliminar MDF existente de forma controlada.
-- `--data-dir=<path>` — directorio donde escribir artifacts (logs, mdf, project.db).
-- `--log-file=<path>` — ruta de log para Serilog.
-- `--verbose` o `-v` — para salida más detallada.
+#### Configuración por defecto
 
-Ejemplos en PowerShell:
+Cuando ejecutas `InitializeDb` sin argumentos:
+```powershell
+cd InitializeDb
+dotnet run
+```
+
+El sistema automáticamente:
+1. **Modo**: `schemaexport` (persistencia en base de datos real)
+2. **Seed**: Activado (inserta datos de prueba)
+3. **Base de datos**: `ProjectDatabase` en LocalDB
+4. **Ubicación**: `InitializeDb/Data/ProjectDatabase.mdf`
+
+#### Flujo de ejecución completo
+
+Cuando ejecutas `InitializeDb`, el sistema sigue este flujo:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. ANÁLISIS DE ARGUMENTOS                                      │
+│    - Modo: schemaexport (por defecto)                          │
+│    - Seed: true (activado por defecto)                         │
+│    - DB Name: ProjectDatabase                                   │
+│    - Data Dir: InitializeDb/Data                               │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. CONFIGURACIÓN DE LOGGING                                     │
+│    - Inicializa Serilog vía SerilogConfigurator               │
+│    - Sinks: Console + Archivo (si --log-file especificado)    │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. CREACIÓN DE BASE DE DATOS (LocalDB)                         │
+│    - Lee NHibernate.cfg.xml                                     │
+│    - Construye configuración de NHibernate                     │
+│    - Verifica existencia de ProjectDatabase.mdf               │
+│    - Si existe y NO hay --force-drop: ERROR y termina         │
+│    - Si --force-drop + --confirm: Elimina MDF/LDF existentes  │
+│    - Crea nueva base de datos en LocalDB                       │
+│    - Ejecuta SchemaExport de NHibernate                        │
+│      → Genera y ejecuta DDL SQL                                │
+│      → Crea 22 tablas: Usuario, Comunidad, Equipo,            │
+│        MiembroComunidad, MiembroEquipo, Torneo,               │
+│        ParticipacionTorneo, PropuestaTorneo, VotoTorneo,      │
+│        Publicacion, Comentario, Reaccion, Perfil,             │
+│        PerfilJuego, Juego, ChatEquipo, MensajeChat,           │
+│        Invitacion, Notificacion, Sesion,                      │
+│        SolicitudIngreso, NHibernateUniqueKey                  │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. SEED DE DATOS (si --seed está activo, por defecto SÍ)       │
+│    A. Construye IServiceCollection con DI:                     │
+│       - SessionFactory de NHibernate                           │
+│       - Todos los repositorios NHibernate                      │
+│       - IUnitOfWork (NHibernateUnitOfWork)                     │
+│       - Todos los CEN (UsuarioCEN, ComunidadCEN, etc.)        │
+│                                                                 │
+│    B. SEED IDEMPOTENTE (verifica antes de insertar):          │
+│       ┌─────────────────────────────────────────────────┐     │
+│       │ Usuarios (si no existen por nick):             │     │
+│       │   • alice (alice@example.com)                  │     │
+│       │   • bob (bob@example.com)                      │     │
+│       │   → Contraseñas hasheadas con PBKDF2          │     │
+│       └─────────────────────────────────────────────────┘     │
+│                      ↓                                          │
+│       ┌─────────────────────────────────────────────────┐     │
+│       │ Comunidad (si no existe):                      │     │
+│       │   • Gamers (Comunidad de prueba)              │     │
+│       └─────────────────────────────────────────────────┘     │
+│                      ↓                                          │
+│       ┌─────────────────────────────────────────────────┐     │
+│       │ Equipo (si no existe):                         │     │
+│       │   • TeamA                                      │     │
+│       └─────────────────────────────────────────────────┘     │
+│                      ↓                                          │
+│       ┌─────────────────────────────────────────────────┐     │
+│       │ Relaciones:                                    │     │
+│       │   • MiembroComunidad (alice → Gamers)         │     │
+│       │     Rol: LIDER, Estado: ACTIVA                │     │
+│       └─────────────────────────────────────────────────┘     │
+│                      ↓                                          │
+│    C. Llama a uow.SaveChanges() para persistir                │
+│    D. Cierra SessionFactory limpiamente                        │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. FINALIZACIÓN                                                 │
+│    - Flush de logs de Serilog                                  │
+│    - Log final: "InitializeDb completed"                       │
+│    - Return code 0 (éxito) o non-zero (error)                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Flujo alternativo: Modo en memoria
+
+Si ejecutas con `--mode=inmemory`:
 
 ```powershell
-# Validación en memoria (no toca disco)
-dotnet run --project .\InitializeDb\InitializeDb.csproj
-
-# Exportar esquema y seed con confirmación
-dotnet run --project .\InitializeDb\InitializeDb.csproj -- --mode=schemaexport --db-name=ProjectDatabase --force-drop --confirm --seed --data-dir=InitializeDb/Data --log-file=InitializeDb/Data/init.log --verbose
+dotnet run -- --mode=inmemory
 ```
+
+El flujo cambia a:
+
+```
+1. Crea repositorios InMemory (ApplicationCore/Infrastructure/Memory)
+2. Instancia todos los CEN con repositorios en memoria
+3. Instancia todos los CP (Casos de Proceso)
+4. Ejecuta seed completo en memoria:
+   → Crea 3 usuarios (alice, bob, charlie)
+   → Crea 2 comunidades (Gamers, Devs)
+   → Crea 2 equipos (TeamA, TeamB)
+   → Crea publicaciones, comentarios, reacciones
+   → Crea perfiles, juegos, perfil-juegos
+   → Crea torneos, propuestas, participaciones, votos
+   → Crea membresías, invitaciones, mensajes, notificaciones
+5. Invoca TODOS los métodos de TODOS los CEN/CP:
+   → 20 CENs: New, ReadAll, ReadOID, Modify, ReadFilter
+   → 4 CPs: Ejecutar() con transacciones
+   → Métodos custom: AddComentario, AprobarSiVotosUnanimes,
+     PromocionarAModerador, BanearMiembroEquipo, etc.
+6. Imprime resultados con checkmarks (✓) en consola
+7. NO persiste nada (solo validación)
+```
+
+#### Optimizaciones de rendimiento
+
+**Filtrado en SQL (no en memoria)**
+
+Todos los `ReadFilter` de los repositorios NHibernate utilizan **LINQ to NHibernate**, que traduce las expresiones a consultas SQL optimizadas:
+
+```csharp
+// Ejemplo en NHibernateComunidadRepository
+public IEnumerable<Comunidad> ReadFilter(string filter)
+{
+    if (string.IsNullOrWhiteSpace(filter)) return ReadAll();
+    var f = filter.ToLowerInvariant();
+    // ✅ Esto se traduce a SQL:
+    // SELECT * FROM Comunidad 
+    // WHERE LOWER(Nombre) LIKE '%filter%' OR LOWER(Descripcion) LIKE '%filter%'
+    return _session.Query<Comunidad>()
+        .Where(c => c.Nombre.ToLower().Contains(f) || 
+                    (c.Descripcion != null && c.Descripcion.ToLower().Contains(f)))
+        .ToList();
+}
+```
+
+**Consultas especializadas optimizadas**:
+- `GetUsuariosByEquipo(idEquipo)` → `SELECT DISTINCT u.* FROM MiembroEquipo JOIN Usuario...`
+- `GetEquiposByTorneo(idTorneo)` → `SELECT DISTINCT e.* FROM ParticipacionTorneo JOIN Equipo...`
+- `ReadByEmail(email)` → `SELECT TOP 1 * FROM Usuario WHERE LOWER(CorreoElectronico) = @email`
+
+Beneficios:
+- ✅ Solo se cargan los registros necesarios
+- ✅ SQL Server usa índices automáticamente
+- ✅ Menor uso de memoria del backend
+- ✅ Mayor velocidad en conjuntos de datos grandes
+
+#### Flags disponibles (CLI)
+
+- `--mode=<inmemory|schemaexport>` — Modo de ejecución (default: `schemaexport`)
+- `--seed` — Ejecutar seed idempotente (default: activado)
+- `--db-name=<name>` — Nombre de la BD (default: `ProjectDatabase`)
+- `--data-dir=<path>` — Directorio de artifacts (default: `InitializeDb/Data`)
+- `--force-drop` — Permite eliminar MDF existente (⚠️ destructivo)
+- `--confirm` — Confirmación requerida con `--force-drop`
+- `--log-file=<path>` — Ruta de log para Serilog
+- `--verbose` o `-v` — Salida detallada (nivel Debug)
+- `--target-connection=<cadena>` — Cadena de conexión personalizada
+- `--dialect=<dialecto>` — Dialecto NHibernate personalizado
+
+#### Ejemplos de uso en PowerShell
+
+**Ejecución estándar (LocalDB + Seed):**
+```powershell
+cd InitializeDb
+dotnet run
+```
+
+**Recrear base de datos desde cero:**
+```powershell
+dotnet run -- --force-drop --confirm
+```
+
+**Validación rápida en memoria (sin tocar disco):**
+```powershell
+dotnet run -- --mode=inmemory
+```
+
+**Con logs detallados:**
+```powershell
+dotnet run -- --verbose --log-file=./Data/init.log
+```
+
+**Conectar a SQL Server remoto:**
+```powershell
+dotnet run -- --target-connection="Server=mi-servidor;Database=MiDB;User Id=usuario;Password=clave;" --dialect="NHibernate.Dialect.MsSql2012Dialect"
+```
+
+**Base de datos personalizada:**
+```powershell
+dotnet run -- --db-name=MiBaseDeDatos --data-dir=./MiData
+```
+
+#### Verificar resultados
+
+**Listar tablas creadas:**
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME"
+```
+
+**Ver datos del seed:**
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT IdUsuario, Nick, CorreoElectronico FROM Usuario"
+```
+
+**Ver membresías:**
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d ProjectDatabase -Q "SELECT m.IdMiembroComunidad, u.Nick, c.Nombre, m.Rol FROM MiembroComunidad m JOIN Usuario u ON m.IdUsuario = u.IdUsuario JOIN Comunidad c ON m.IdComunidad = c.IdComunidad"
+```
+
+#### Fallback automático
+
+Si LocalDB no está disponible o falla, el sistema automáticamente:
+1. Intenta crear base de datos SQLite en `<data-dir>/project.db`
+2. Usa `SQLiteDialect` y `SQLite20Driver`
+3. Continúa con el mismo flujo de seed
+
+Esto es útil para:
+- ✅ CI/CD en entornos sin LocalDB
+- ✅ Desarrollo en sistemas sin SQL Server
+- ✅ Tests de integración portables
 
 ### Logging y variables de entorno
 

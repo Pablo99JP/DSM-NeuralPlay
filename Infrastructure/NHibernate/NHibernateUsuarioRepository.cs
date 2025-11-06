@@ -48,6 +48,12 @@ namespace Infrastructure.NHibernate
             return _session.Query<Usuario>().FirstOrDefault(u => u.Nick.ToLower() == nick.ToLower());
         }
 
+        public Usuario? ReadByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            return _session.Query<Usuario>().FirstOrDefault(u => u.CorreoElectronico.ToLower() == email.ToLower());
+        }
+
         public IEnumerable<Usuario> ReadFilter(string filter)
         {
             if (string.IsNullOrWhiteSpace(filter)) return ReadAll();
