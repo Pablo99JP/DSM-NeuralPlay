@@ -38,7 +38,7 @@ La interfaz base `IRepository<T>` define estas operaciones:
 - MiembroEquipo / MiembroComunidad: al crear no se asigna `FechaBaja` (queda null); la baja es un flujo aparte.
 - SolicitudIngreso: `SolicitudIngresoCEN.NewSolicitudIngreso(...)` evita crear la solicitud si el usuario ya está en un equipo de la comunidad objetivo (lanza `InvalidOperationException`).
 
-### ReadFilter y consultas optimizadas (Option A)
+### ReadFilter y consultas optimizadas
 
 Además del `ReadFilter` genérico existen repositorios especializados con métodos optimizados:
 
