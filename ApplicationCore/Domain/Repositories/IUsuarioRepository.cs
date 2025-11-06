@@ -7,5 +7,6 @@ namespace ApplicationCore.Domain.Repositories
     {
         // Extensiones específicas de Usuario
         Usuario? ReadByNick(string nick);
+        Usuario? ReadByEmail(string email);
     }
 }

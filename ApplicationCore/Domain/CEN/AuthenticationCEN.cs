@@ -59,8 +59,9 @@ namespace ApplicationCore.Domain.CEN
 
         public Usuario? Login(string nickOrEmail, string password)
         {
+            // Primero intenta por nick, luego por email (sin cargar datos extra a memoria)
             var byNick = _usuarioRepo.ReadByNick(nickOrEmail);
-            Usuario? user = byNick ?? _usuarioRepo.ReadFilter(nickOrEmail).FirstOrDefault(u => u.CorreoElectronico == nickOrEmail);
+            Usuario? user = byNick ?? _usuarioRepo.ReadByEmail(nickOrEmail);
             if (user == null) return null;
             if (PasswordHasher.Verify(password, user.ContrasenaHash)) return user;
             return null;

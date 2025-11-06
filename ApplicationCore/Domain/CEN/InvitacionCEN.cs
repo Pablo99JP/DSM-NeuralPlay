@@ -16,7 +16,16 @@ namespace ApplicationCore.Domain.CEN
 
         public Invitacion NewInvitacion(TipoInvitacion tipo, Usuario emisor, Usuario destinatario, Comunidad? comunidad = null, Equipo? equipo = null)
         {
-            var i = new Invitacion { Tipo = tipo, Estado = ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE, FechaEnvio = System.DateTime.UtcNow, /* propietario */ };
+            var i = new Invitacion 
+            { 
+                Tipo = tipo, 
+                Estado = ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE, 
+                FechaEnvio = System.DateTime.UtcNow,
+                Emisor = emisor,
+                Destinatario = destinatario,
+                Comunidad = comunidad,
+                Equipo = equipo
+            };
             _repo.New(i);
             return i;
         }

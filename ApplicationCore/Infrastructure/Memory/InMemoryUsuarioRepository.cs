@@ -13,6 +13,12 @@ namespace ApplicationCore.Infrastructure.Memory
             return ReadAll().FirstOrDefault(u => u.Nick?.ToLowerInvariant() == nick.ToLowerInvariant());
         }
 
+        public Usuario? ReadByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            return ReadAll().FirstOrDefault(u => u.CorreoElectronico?.ToLowerInvariant() == email.ToLowerInvariant());
+        }
+
         public override IEnumerable<Usuario> ReadFilter(string filter)
         {
             return base.ReadFilter(filter);
