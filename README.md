@@ -34,7 +34,7 @@ La documentación completa del proyecto está organizada en archivos específico
    - SQL generado por NHibernate
 
 5. **[Funcionalidades Implementadas](docs/05_FUNCIONALIDADES.md)**
-   - CRUD completo (10 CENs)
+   - CRUD completo (21 CENs)
    - 6 Métodos Custom (Login, PromoverAModerador, BanearMiembro, etc.)
    - 12 ReadFilters (generales + específicos)
    - 4 Custom Transactions (CPs transaccionales)
