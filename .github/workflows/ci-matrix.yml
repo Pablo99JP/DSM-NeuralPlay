@@ -27,6 +27,15 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Install native dependencies (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          # Install native libs required by Microsoft.Data.SqlClient and other native packages on Linux runners
+          sudo apt-get update -y
+          # Ubuntu 22.04 uses libssl3; older runners may need libssl1.1. Install common packages that satisfy MS SQL client and zip tooling.
+          sudo apt-get install -y libkrb5-3 libssl3 ca-certificates zip unzip || true
+
       - name: Run SCA (vulnerable & outdated)
         run: |
           mkdir -p sca-reports || New-Item -ItemType Directory -Path sca-reports -Force | Out-Null
@@ -214,5 +223,6 @@ jobs:
           retention-days: 7
 
       - name: Run tests
-        # Use the solution explicitly and build as needed (ensures tests run even if previous build step used different config)
-        run: dotnet test DSM-NeuralPlay.sln -c Release --verbosity normal
+        # Run tests against the Release build previously produced. Use --no-build and --no-restore so dotnet test doesn't try
+        # to rebuild the solution with a different configuration (avoids VSTest/Debug vs Release mismatches on the runner).
+        run: dotnet test DSM-NeuralPlay.sln -c Release --no-build --no-restore --verbosity normal
