@@ -12,6 +12,8 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
+    env:
+      BUILD_CONFIG: Release
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -36,11 +38,21 @@ jobs:
           # Ubuntu 22.04 uses libssl3; older runners may need libssl1.1. Install common packages that satisfy MS SQL client and zip tooling.
           sudo apt-get install -y libkrb5-3 libssl3 ca-certificates zip unzip || true
 
-      - name: Run SCA (vulnerable & outdated)
+      - name: Run SCA (vulnerable & outdated) (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
         run: |
-          mkdir -p sca-reports || New-Item -ItemType Directory -Path sca-reports -Force | Out-Null
+          mkdir -p sca-reports
           dotnet list package --vulnerable --include-transitive --format json > sca-reports/vulnerable.json
           dotnet list package --outdated --include-transitive --format json > sca-reports/outdated.json
+
+      - name: Run SCA (vulnerable & outdated) (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path -Path sca-reports)) { New-Item -ItemType Directory -Path sca-reports -Force | Out-Null }
+          dotnet list package --vulnerable --include-transitive --format json > sca-reports\vulnerable.json
+          dotnet list package --outdated --include-transitive --format json > sca-reports\outdated.json
 
       - name: Upload SCA reports
         uses: actions/upload-artifact@v4
@@ -126,7 +138,7 @@ jobs:
           fi
 
       - name: Build
-        run: dotnet build --no-restore -c Release
+        run: dotnet build --no-restore -c ${{ env.BUILD_CONFIG }}
 
       - name: Detect LocalDB on Windows
         if: matrix.os == 'windows-latest'
@@ -223,6 +235,5 @@ jobs:
           retention-days: 7
 
       - name: Run tests
-        # Run tests against the Release build previously produced. Use --no-build and --no-restore so dotnet test doesn't try
-        # to rebuild the solution with a different configuration (avoids VSTest/Debug vs Release mismatches on the runner).
-        run: dotnet test DSM-NeuralPlay.sln -c Release --no-build --no-restore --verbosity normal
+        # Run tests against the build previously produced. Use the same configuration as the Build step to avoid VSTest Debug/Release mismatches.
+        run: dotnet test DSM-NeuralPlay.sln -c ${{ env.BUILD_CONFIG }} --no-build --no-restore --verbosity normal
