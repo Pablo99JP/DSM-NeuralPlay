@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.PerfilJuego, ApplicationCore" table="PerfilJuego">
+    <id name="IdPerfilJuego" column="IdPerfilJuego" type="long">
+      <generator class="native" />
+    </id>
+    <property name="FechaAdicion" column="FechaAdicion" />
+
+    <many-to-one name="Perfil" class="ApplicationCore.Domain.EN.Perfil, ApplicationCore" column="PerfilId" />
+    <many-to-one name="Juego" class="ApplicationCore.Domain.EN.Juego, ApplicationCore" column="JuegoId" />
+  </class>
+</hibernate-mapping>

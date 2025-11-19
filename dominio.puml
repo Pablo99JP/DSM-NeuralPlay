@@ -1,0 +1,446 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+skinparam classFontSize 12
+hide circle
+skinparam classAttributeIconSize 0
+
+' =================== Enumeraciones (todas en MAYÚSCULAS) ===================
+enum RolComunidad {
+  LIDER
+  COLABORADOR
+  MIEMBRO
+}
+enum RolEquipo {
+  ADMIN
+  MIEMBRO
+}
+enum EstadoMembresia {
+  PENDIENTE
+  ACTIVA
+  EXPULSADA
+  ABANDONADA
+}
+enum EstadoSolicitud {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
+}
+enum TipoInvitacion {
+  COMUNIDAD
+  EQUIPO
+}
+enum TipoReaccion {
+  ME_GUSTA
+  OTRO
+}
+enum EstadoParticipacion {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  RETIRADA
+}
+enum TipoNotificacion {
+  REACCION
+  COMENTARIO
+  PUBLICACION
+  PROPUESTA_TORNEO
+  UNION_TORNEO
+  SISTEMA
+  MENSAJE
+  ALERTA
+}
+enum EstadoCuenta {
+  ACTIVA
+}
+enum Visibilidad {
+  PUBLICO
+  PRIVADO
+  AMIGOS
+}
+enum GeneroJuego {
+  ACCION
+  AVENTURA
+  ESTRATEGIA
+  RPG
+  DEPORTE
+  OTRO
+}
+
+' =================== Paquete: Social ===================
+package "Social" {
+  class Usuario <<Entity>> {
+    -idUsuario: Long {id}
+    -nick: String
+    -correoElectronico: String
+    -contrasenaHash: String
+    -telefono: String
+    -fechaRegistro: DateTime
+    -estadoCuenta: EstadoCuenta
+    --
+    +newUsuario(nick: String, correo: String, contrasenaHash: String): Usuario <<New>>
+    +modifyUsuario(...): Void <<Modify>>
+    +destroyUsuario(idUsuario: Long): Void <<Destroy>>
+    +readOID_Usuario(idUsuario: Long): Usuario <<ReadOID>>
+    +readAll_Usuario(): List<Usuario> <<ReadAll>>
+    +readFilter_Usuario(filter: String): List<Usuario> <<ReadFilter>>
+  }
+
+  class Comunidad <<Entity>> {
+    -idComunidad: Long {id}
+    -nombre: String
+    -descripcion: String
+    -fechaCreacion: DateTime
+    --
+    +newComunidad(nombre: String, descripcion: String): Comunidad <<New>>
+    +modifyComunidad(...): Void <<Modify>>
+    +destroyComunidad(idComunidad: Long): Void <<Destroy>>
+    +readOID_Comunidad(idComunidad: Long): Comunidad <<ReadOID>>
+    +readAll_Comunidad(): List<Comunidad> <<ReadAll>>
+    +readFilter_Comunidad(filter: String): List<Comunidad> <<ReadFilter>>
+  }
+
+  class Equipo <<Entity>> {
+    -idEquipo: Long {id}
+    -nombre: String
+    -descripcion: String
+    -fechaCreacion: DateTime
+    --
+    +newEquipo(nombre: String, descripcion: String): Equipo <<New>>
+    +modifyEquipo(...): Void <<Modify>>
+    +destroyEquipo(idEquipo: Long): Void <<Destroy>>
+    +readOID_Equipo(idEquipo: Long): Equipo <<ReadOID>>
+    +readAll_Equipo(): List<Equipo> <<ReadAll>>
+    +readFilter_Equipo(filter: String): List<Equipo> <<ReadFilter>>
+  }
+
+  class MiembroComunidad <<Entity>> {
+    -idMiembroComunidad: Long {id}
+    -rol: RolComunidad
+    -estado: EstadoMembresia
+    -fechaAlta: DateTime
+    -fechaBaja: DateTime
+    --
+    +newMiembroComunidad(usuarioId: Long, comunidadId: Long, rol: RolComunidad): MiembroComunidad <<New>>
+    +modifyMiembroComunidad(...): Void <<Modify>>
+    +destroyMiembroComunidad(id: Long): Void <<Destroy>>
+    +readOID_MiembroComunidad(id: Long): MiembroComunidad <<ReadOID>>
+    +readAll_MiembroComunidad(): List<MiembroComunidad> <<ReadAll>>
+    +salir(): Void
+    +expulsar(): Void
+    +cambiarRol(nuevoRol: RolComunidad): Void
+  }
+
+  class MiembroEquipo <<Entity>> {
+    -idMiembroEquipo: Long {id}
+    -rol: RolEquipo
+    -estado: EstadoMembresia
+    -fechaAlta: DateTime
+    -fechaBaja: DateTime
+    --
+    +newMiembroEquipo(usuarioId: Long, equipoId: Long, rol: RolEquipo): MiembroEquipo <<New>>
+    +modifyMiembroEquipo(...): Void <<Modify>>
+    +destroyMiembroEquipo(id: Long): Void <<Destroy>>
+    +readOID_MiembroEquipo(id: Long): MiembroEquipo <<ReadOID>>
+    +readAll_MiembroEquipo(): List<MiembroEquipo> <<ReadAll>>
+    +salir(): Void
+    +expulsar(): Void
+    +cambiarRol(nuevoRol: RolEquipo): Void
+  }
+
+  class Invitacion <<Entity>> {
+    -idInvitacion: Long {id}
+    -tipo: TipoInvitacion
+    -estado: EstadoSolicitud
+    -fechaEnvio: DateTime
+    -fechaRespuesta: DateTime
+    --
+    +newInvitacion(...): Invitacion <<New>>
+    +modifyInvitacion(...): Void <<Modify>>
+    +destroyInvitacion(id: Long): Void <<Destroy>>
+    +readOID_Invitacion(id: Long): Invitacion <<ReadOID>>
+    +readAll_Invitacion(): List<Invitacion> <<ReadAll>>
+  }
+
+  class SolicitudIngreso <<Entity>> {
+    -idSolicitud: Long {id}
+    -tipo: TipoInvitacion
+    -estado: EstadoSolicitud
+    -fechaSolicitud: DateTime
+    -fechaResolucion: DateTime
+    --
+    +newSolicitudIngreso(...): SolicitudIngreso <<New>>
+    +modifySolicitudIngreso(...): Void <<Modify>>
+    +destroySolicitudIngreso(id: Long): Void <<Destroy>>
+    +readOID_SolicitudIngreso(id: Long): SolicitudIngreso <<ReadOID>>
+    +readAll_SolicitudIngreso(): List<SolicitudIngreso> <<ReadAll>>
+    +aprobar(): Void
+    +rechazar(): Void
+  }
+
+  class ChatEquipo <<Entity>> {
+    -idChatEquipo: Long {id}
+    --
+    +newChatEquipo(equipoId: Long): ChatEquipo <<New>>
+    +modifyChatEquipo(...): Void <<Modify>>
+    +destroyChatEquipo(id: Long): Void <<Destroy>>
+    +readOID_ChatEquipo(id: Long): ChatEquipo <<ReadOID>>
+    +readAll_ChatEquipo(): List<ChatEquipo> <<ReadAll>>
+  }
+
+  class MensajeChat <<Entity>> {
+    -idMensajeChat: Long {id}
+    -contenido: String
+    -fechaEnvio: DateTime
+    --
+    +newMensajeChat(...): MensajeChat <<New>>
+    +modifyMensajeChat(...): Void <<Modify>>
+    +destroyMensajeChat(id: Long): Void <<Destroy>>
+    +readOID_MensajeChat(id: Long): MensajeChat <<ReadOID>>
+    +readAll_MensajeChat(): List<MensajeChat> <<ReadAll>>
+  }
+
+  class Publicacion <<Entity>> {
+    -idPublicacion: Long {id}
+    -contenido: String
+    -fechaCreacion: DateTime
+    -fechaEdicion: DateTime
+    --
+    +newPublicacion(...): Publicacion <<New>>
+    +modifyPublicacion(...): Void <<Modify>>
+    +destroyPublicacion(id: Long): Void <<Destroy>>
+    +readOID_Publicacion(id: Long): Publicacion <<ReadOID>>
+    +readAll_Publicacion(): List<Publicacion> <<ReadAll>>
+    +readFilter_Publicacion(filter: String): List<Publicacion> <<ReadFilter>>
+  }
+
+  class Comentario <<Entity>> {
+    -idComentario: Long {id}
+    -contenido: String
+    -fechaCreacion: DateTime
+    -fechaEdicion: DateTime
+    --
+    +newComentario(...): Comentario <<New>>
+    +modifyComentario(...): Void <<Modify>>
+    +destroyComentario(id: Long): Void <<Destroy>>
+    +readOID_Comentario(id: Long): Comentario <<ReadOID>>
+    +readAll_Comentario(): List<Comentario> <<ReadAll>>
+  }
+
+  class Reaccion <<Entity>> {
+    -idReaccion: Long {id}
+    -tipo: TipoReaccion
+    -fechaCreacion: DateTime
+    --
+    +newReaccion(...): Reaccion <<New>>
+    +modifyReaccion(...): Void <<Modify>>
+    +destroyReaccion(id: Long): Void <<Destroy>>
+    +readOID_Reaccion(id: Long): Reaccion <<ReadOID>>
+    +readAll_Reaccion(): List<Reaccion> <<ReadAll>>
+  }
+
+  class Notificacion <<Entity>> {
+    -idNotificacion: Long {id}
+    -tipo: TipoNotificacion
+    -mensaje: String
+    -leida: Boolean
+    -fechaCreacion: DateTime
+    --
+    +newNotificacion(...): Notificacion <<New>>
+    +modifyNotificacion(...): Void <<Modify>>
+    +destroyNotificacion(id: Long): Void <<Destroy>>
+    +readOID_Notificacion(id: Long): Notificacion <<ReadOID>>
+    +readAll_Notificacion(): List<Notificacion> <<ReadAll>>
+    +readFilter_Notificacion(filter: String): List<Notificacion> <<ReadFilter>>
+    +marcarLeida(): Void
+  }
+}
+
+' =================== Paquete: Torneos ===================
+package "Torneos" {
+  class Torneo <<Entity>> {
+    -idTorneo: Long {id}
+    -nombre: String
+    -fechaInicio: DateTime
+    -reglas: String
+    -estado: String
+    --
+    +newTorneo(nombre: String, fechaInicio: DateTime): Torneo <<New>>
+    +modifyTorneo(...): Void <<Modify>>
+    +destroyTorneo(id: Long): Void <<Destroy>>
+    +readOID_Torneo(id: Long): Torneo <<ReadOID>>
+    +readAll_Torneo(): List<Torneo> <<ReadAll>>
+    +readFilter_Torneo(filter: String): List<Torneo> <<ReadFilter>>
+  }
+
+  class PropuestaTorneo <<Entity>> {
+    -idPropuesta: Long {id}
+    -fechaPropuesta: DateTime
+    -estado: EstadoSolicitud
+    --
+    +newPropuestaTorneo(...): PropuestaTorneo <<New>>
+    +modifyPropuestaTorneo(...): Void <<Modify>>
+    +destroyPropuestaTorneo(id: Long): Void <<Destroy>>
+    +readOID_PropuestaTorneo(id: Long): PropuestaTorneo <<ReadOID>>
+    +readAll_PropuestaTorneo(): List<PropuestaTorneo> <<ReadAll>>
+    +aprobarSiVotosUnanimes(): Boolean
+  }
+
+  class VotoTorneo <<Entity>> {
+    -idVoto: Long {id}
+    -valor: Boolean
+    -fechaVoto: DateTime
+    --
+    +newVotoTorneo(...): VotoTorneo <<New>>
+    +modifyVotoTorneo(...): Void <<Modify>>
+    +destroyVotoTorneo(id: Long): Void <<Destroy>>
+    +readOID_VotoTorneo(id: Long): VotoTorneo <<ReadOID>>
+    +readAll_VotoTorneo(): List<VotoTorneo> <<ReadAll>>
+  }
+
+  class ParticipacionTorneo <<Entity>> {
+    -idParticipacion: Long {id}
+    -estado: EstadoParticipacion
+    -fechaAlta: DateTime
+    --
+    +newParticipacionTorneo(...): ParticipacionTorneo <<New>>
+    +modifyParticipacionTorneo(...): Void <<Modify>>
+    +destroyParticipacionTorneo(id: Long): Void <<Destroy>>
+    +readOID_ParticipacionTorneo(id: Long): ParticipacionTorneo <<ReadOID>>
+    +readAll_ParticipacionTorneo(): List<ParticipacionTorneo> <<ReadAll>>
+  }
+}
+
+' =================== Paquete: Perfil & Juegos ===================
+package "Perfil & Juegos" {
+  class Perfil <<Entity>> {
+    -idPerfil: Long {id}
+    -fotoPerfilUrl: String
+    -descripcion: String
+    -visibilidadPerfil: Visibilidad
+    -visibilidadActividad: Visibilidad
+    -juegoFavoritoId: Long
+    --
+    +newPerfil(usuarioId: Long): Perfil <<New>>
+    +modifyPerfil(...): Void <<Modify>>
+    +destroyPerfil(id: Long): Void <<Destroy>>
+    +readOID_Perfil(id: Long): Perfil <<ReadOID>>
+    +readAll_Perfil(): List<Perfil> <<ReadAll>>
+    +readFilter_Perfil(filter: String): List<Perfil> <<ReadFilter>>
+    +modificarNombreUsuario(): Void
+    +modificarFotoPerfil(): Void
+    +modificarDescripcion(): Void
+    +seleccionarVisibilidadPerfil(): Void
+    +seleccionarVisibilidadActividad(): Void
+    +seleccionarJuegoFavorito(): Void
+    +quitarJuegoFavorito(): Void
+  }
+
+  class Juego <<Entity>> {
+    -idJuego: Long {id}
+    -nombreJuego: String
+    -genero: GeneroJuego
+    --
+    +newJuego(nombre: String, genero: GeneroJuego): Juego <<New>>
+    +modifyJuego(...): Void <<Modify>>
+    +destroyJuego(id: Long): Void <<Destroy>>
+    +readOID_Juego(id: Long): Juego <<ReadOID>>
+    +readAll_Juego(): List<Juego> <<ReadAll>>
+    +readFilter_Juego(filter: String): List<Juego> <<ReadFilter>>
+  }
+
+  class PerfilJuego <<Entity>> {
+    -idPerfilJuego: Long {id}
+    -fechaAdicion: DateTime
+    --
+    +newPerfilJuego(perfilId: Long, juegoId: Long): PerfilJuego <<New>>
+    +modifyPerfilJuego(...): Void <<Modify>>
+    +destroyPerfilJuego(id: Long): Void <<Destroy>>
+    +readOID_PerfilJuego(id: Long): PerfilJuego <<ReadOID>>
+    +readAll_PerfilJuego(): List<PerfilJuego> <<ReadAll>>
+  }
+}
+
+' =================== Paquete: Autenticación (mínima, sin seguridad) ===================
+package "Autenticación" {
+  class Sesion <<Entity>> {
+    -idSesion: Long {id}
+    -fechaInicio: DateTime
+    -fechaFin: DateTime
+    -token: String
+    --
+    +newSesion(usuarioId: Long): Sesion <<New>>
+    +modifySesion(...): Void <<Modify>>
+    +destroySesion(id: Long): Void <<Destroy>>
+    +readOID_Sesion(id: Long): Sesion <<ReadOID>>
+    +readAll_Sesion(): List<Sesion> <<ReadAll>>
+    +cerrarSesion(): Void
+  }
+}
+
+' =================== Generalizaciones ===================
+' (sin moderación superior ni gestión de contenido)
+
+' =================== Asociaciones ===================
+Usuario "1" -- "0..*" MiembroComunidad : usuario
+Comunidad "1" -- "0..*" MiembroComunidad : comunidad
+Usuario "1" -- "0..*" MiembroEquipo : usuario
+Equipo "1" -- "0..*" MiembroEquipo : equipo
+Comunidad "1" -- "0..*" Equipo : contiene
+Comunidad "1" -- "0..*" Torneo : organiza
+
+Equipo "1" *-- "0..1" ChatEquipo : chat
+ChatEquipo "1" -- "0..*" MensajeChat : mensajes
+Usuario "1" -- "0..*" MensajeChat : autor
+
+Usuario "1" -- "0..*" Invitacion : emisor
+Usuario "1" -- "0..*" Invitacion : destinatario
+Comunidad "1" -- "0..1" Invitacion : comunidad
+Equipo "0..1" -- "0..*" Invitacion : equipo
+
+Usuario "1" -- "0..*" SolicitudIngreso : solicitante
+Comunidad "1" -- "0..1" SolicitudIngreso : comunidad
+Equipo "0..1" -- "0..*" SolicitudIngreso : equipo
+
+Comunidad "1" -- "0..*" Publicacion : publicaciones
+Usuario "1" -- "0..*" Publicacion : autor
+Publicacion "1" -- "0..*" Comentario : comentarios
+Usuario "1" -- "0..*" Comentario : autor
+
+Publicacion "0..1" -- "0..*" Reaccion : reacciones
+Comentario "0..1" -- "0..*" Reaccion : reacciones
+Usuario "1" -- "0..*" Reaccion : autor
+
+Usuario "1" -- "0..*" Notificacion : destinatario
+Publicacion "0..1" -- "0..*" Notificacion : origenPublicacion
+Comentario "0..1" -- "0..*" Notificacion : origenComentario
+PropuestaTorneo "0..1" -- "0..*" Notificacion : origenPropuesta
+Reaccion "0..1" -- "0..*" Notificacion : origenReaccion
+
+Equipo "1" -- "0..*" PropuestaTorneo : propone
+Torneo "1" -- "0..*" PropuestaTorneo : pertenece
+Usuario "1" -- "0..*" PropuestaTorneo : propuestoPor
+PropuestaTorneo "1" -- "0..*" VotoTorneo : votos
+Usuario "1" -- "0..*" VotoTorneo : votante
+
+ParticipacionTorneo "0..*" -- "1" Equipo
+ParticipacionTorneo "0..*" -- "1" Torneo
+
+Usuario "0..1" -- "1" Perfil : tiene
+Usuario "1" -- "0..*" Sesion : tiene
+
+Perfil "1" -- "0..*" PerfilJuego
+Juego  "1" -- "0..*" PerfilJuego
+Perfil "0..1" --> "0..*" Juego : JuegoFavorito
+
+note right of Reaccion
+  Restriccion (d1): una reaccion por usuario y tipo
+  por objetivo (publicacion o comentario).
+end note
+
+note bottom of PropuestaTorneo
+  Regla (d1): si todos los miembros del equipo
+  votan "si", el equipo se une al torneo.
+end note
+@enduml

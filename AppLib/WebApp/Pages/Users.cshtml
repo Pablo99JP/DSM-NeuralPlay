@@ -1,0 +1,41 @@
+@page
+@model UsersModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Usuarios</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Usuarios</h1>
+    <p>Listado de usuarios (conexión mediante System.Data.SqlClient - LocalDB). Si la conexión falla, se muestran usuarios de ejemplo.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nick</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var u in Model.Users)
+        {
+            <tr>
+                <td>@u.Id</td>
+                <td>@u.Nick</td>
+                <td>@u.Email</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <p><a href="/">Volver</a></p>
+</body>
+</html>

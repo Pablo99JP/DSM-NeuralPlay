@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.Publicacion, ApplicationCore" table="Publicacion">
+    <id name="IdPublicacion" column="IdPublicacion" type="long">
+      <generator class="native" />
+    </id>
+    <property name="Contenido" column="Contenido" />
+    <property name="FechaCreacion" column="FechaCreacion" />
+    <property name="FechaEdicion" column="FechaEdicion" />
+
+    <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
+    <many-to-one name="Autor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="AutorId" />
+
+    <!-- Collections (Comentarios, Reacciones) omitted until those entities are mapped -->
+  </class>
+</hibernate-mapping>
