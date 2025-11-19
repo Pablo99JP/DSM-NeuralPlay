@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.VotoTorneo, ApplicationCore" table="VotoTorneo">
+    <id name="IdVoto" column="IdVoto" type="long">
+      <generator class="native" />
+    </id>
+    <property name="Valor" column="Valor" />
+    <property name="FechaVoto" column="FechaVoto" />
+
+    <many-to-one name="Votante" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="UsuarioId" />
+    <many-to-one name="Propuesta" class="ApplicationCore.Domain.EN.PropuestaTorneo, ApplicationCore" column="PropuestaId" />
+  </class>
+</hibernate-mapping>

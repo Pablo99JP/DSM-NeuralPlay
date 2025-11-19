@@ -1,0 +1,239 @@
+name: CI Matrix
+
+on:
+  push:
+  pull_request:
+ 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    env:
+      BUILD_CONFIG: Release
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        dotnet: ["8.0.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Install native dependencies (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          # Install native libs required by Microsoft.Data.SqlClient and other native packages on Linux runners
+          sudo apt-get update -y
+          # Ubuntu 22.04 uses libssl3; older runners may need libssl1.1. Install common packages that satisfy MS SQL client and zip tooling.
+          sudo apt-get install -y libkrb5-3 libssl3 ca-certificates zip unzip || true
+
+      - name: Run SCA (vulnerable & outdated) (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p sca-reports
+          dotnet list package --vulnerable --include-transitive --format json > sca-reports/vulnerable.json
+          dotnet list package --outdated --include-transitive --format json > sca-reports/outdated.json
+
+      - name: Run SCA (vulnerable & outdated) (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path -Path sca-reports)) { New-Item -ItemType Directory -Path sca-reports -Force | Out-Null }
+          dotnet list package --vulnerable --include-transitive --format json > sca-reports\vulnerable.json
+          dotnet list package --outdated --include-transitive --format json > sca-reports\outdated.json
+
+      - name: Upload SCA reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sca-reports-${{ matrix.os }}
+          path: sca-reports
+          retention-days: 7
+
+      - name: Post SCA summary as PR comment
+        # Only post a comment for PRs originating from the same repository (avoid forks)
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const vulnPath = 'sca-reports/vulnerable.json';
+            const outPath = 'sca-reports/outdated.json';
+            let vulnCount = 0;
+            let highCritical = 0;
+            try {
+              const v = JSON.parse(fs.readFileSync(vulnPath, 'utf8'));
+              for (const p of (v.projects||[])) {
+                for (const f of (p.frameworks||[])) {
+                  for (const t of (f.transitivePackages||[])) {
+                    if (t.vulnerabilities && t.vulnerabilities.length>0) {
+                      vulnCount += 1;
+                      for (const vv of t.vulnerabilities) {
+                        if (vv.severity === 'High' || vv.severity === 'Critical') highCritical += 1;
+                      }
+                    }
+                  }
+                }
+              }
+            } catch(e) { /* ignore parsing errors */ }
+
+            let outdatedCount = 0;
+            try {
+              const o = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+              for (const p of (o.projects||[])) {
+                for (const f of (p.frameworks||[])) {
+                  if (f.transitivePackages) outdatedCount += f.transitivePackages.length;
+                }
+                if (p.topLevelPackages) outdatedCount += p.topLevelPackages.length;
+              }
+            } catch(e) { }
+
+            const commentBody = `SCA summary:\n- Vulnerable packages detected: ${vulnCount} (High/Critical: ${highCritical})\n- Outdated packages (transitive/top-level): ${outdatedCount}\n\nPlease review the attached artifacts (sca-reports) for details.`;
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body: commentBody });
+
+      - name: Fail CI on High/Critical vulnerabilities (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $j = Get-Content sca-reports\vulnerable.json | ConvertFrom-Json
+          $found = $false
+          foreach ($p in $j.projects) {
+            if ($p.frameworks) {
+              foreach ($f in $p.frameworks) {
+                if ($f.transitivePackages) {
+                  foreach ($t in $f.transitivePackages) {
+                    if ($t.vulnerabilities) {
+                      foreach ($v in $t.vulnerabilities) {
+                        if ($v.severity -in @('High','Critical')) { Write-Output "VULN: $($t.id) $($v.severity) $($v.advisoryurl)"; $found = $true }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if ($found) { Write-Error 'High/Critical vulnerability detected'; exit 1 }
+
+      - name: Fail CI on High/Critical vulnerabilities (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          # Fail the job if jq finds any vulnerability with severity High or Critical.
+          # Use the jq exit code directly in the if so we don't mask it with "|| true".
+          if jq -e '.projects[]?.frameworks[]?.transitivePackages[]?.vulnerabilities[]? | select(.severity=="High" or .severity=="Critical")' sca-reports/vulnerable.json > /dev/null 2>&1; then
+            echo "High/Critical vulnerability detected"
+            exit 1
+          fi
+
+      - name: Build
+        run: dotnet build --no-restore -c ${{ env.BUILD_CONFIG }}
+
+      - name: Detect LocalDB on Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          try {
+            & sqllocaldb info MSSQLLocalDB | Out-Null
+            Write-Output "Detected LocalDB instance"
+            "LOCALDB_AVAILABLE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } catch {
+            Write-Output "LocalDB not available on runner"
+            "LOCALDB_AVAILABLE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $dataDir = "InitializeDb/Data_CI"
+          New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
+          $logFile = Join-Path $dataDir "init.log"
+          # Export log file path to environment for SerilogConfigurator
+          "LOG_FILE=$logFile" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_VERBOSE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LOG_LEVEL=Information" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          if ($env:LOCALDB_AVAILABLE -eq 'true') {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --force-drop --confirm --data-dir=$dataDir --log-file=$logFile
+          } else {
+            dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=$dataDir --log-file=$logFile
+          }
+
+      - name: Run InitializeDb SchemaExport + seed (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p InitializeDb/Data_CI
+          LOG_FILE=InitializeDb/Data_CI/init.log
+          export LOG_FILE
+          LOG_VERBOSE=true
+          export LOG_VERBOSE
+          LOG_LEVEL=Information
+          export LOG_LEVEL
+          dotnet run --project InitializeDb/InitializeDb.csproj -- --mode=schemaexport --seed --db-name=ci_db --data-dir=InitializeDb/Data_CI --log-file=InitializeDb/Data_CI/init.log
+
+      - name: Upload InitializeDb artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: initializedb-artifacts-${{ matrix.os }}
+          path: InitializeDb/Data_CI
+          retention-days: 7
+
+      - name: Zip InitializeDb artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $zip = "InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path InitializeDb/Data_CI/* -DestinationPath $zip -Force
+
+      - name: Create draft GitHub Release and attach InitializeDb ZIP (only on push to main, Windows)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.os == 'windows-latest'
+        uses: actions/create-release@v1
+        with:
+          tag_name: initializedb-${{ github.sha }}
+          release_name: InitializeDb artifacts - ${{ github.sha }}
+          body: |
+            Draft release created by CI to attach InitializeDb artifacts (zip). This is automated and draft so maintainers can review before publishing.
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload InitializeDb ZIP to Release (only on push to main, Windows)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.os == 'windows-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: InitializeDb/Data_CI/initializedb-windows-latest.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Zip InitializeDb artifacts (Non-Windows)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          zip -r InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip InitializeDb/Data_CI || true
+
+      - name: Upload InitializeDb ZIP artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: initializedb-artifact-zip-${{ matrix.os }}
+          path: InitializeDb/Data_CI/initializedb-${{ matrix.os }}.zip
+          retention-days: 7
+
+      - name: Run tests
+        # Run tests against the build previously produced. Use the same configuration as the Build step to avoid VSTest Debug/Release mismatches.
+        run: dotnet test DSM-NeuralPlay.sln -c ${{ env.BUILD_CONFIG }} --no-build --no-restore --verbosity normal

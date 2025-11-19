@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.PropuestaTorneo, ApplicationCore" table="PropuestaTorneo">
+    <id name="IdPropuesta" column="IdPropuesta" type="long">
+      <generator class="native" />
+    </id>
+    <property name="FechaPropuesta" column="FechaPropuesta" />
+    <property name="Estado" column="Estado" />
+
+    <many-to-one name="EquipoProponente" class="ApplicationCore.Domain.EN.Equipo, ApplicationCore" column="EquipoId" />
+    <many-to-one name="Torneo" class="ApplicationCore.Domain.EN.Torneo, ApplicationCore" column="TorneoId" />
+    <many-to-one name="PropuestoPor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="PropuestoPorId" />
+
+    <!-- Votos collection omitted until VotoTorneo mapping is added -->
+  </class>
+</hibernate-mapping>

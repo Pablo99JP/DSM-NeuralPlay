@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+  <class name="ApplicationCore.Domain.EN.Perfil, ApplicationCore" table="Perfil">
+    <id name="IdPerfil" column="IdPerfil" type="long">
+      <generator class="native" />
+    </id>
+    <property name="FotoPerfilUrl" column="FotoPerfilUrl" />
+    <property name="Descripcion" column="Descripcion" />
+    <property name="VisibilidadPerfil" column="VisibilidadPerfil" />
+    <property name="VisibilidadActividad" column="VisibilidadActividad" />
+    <property name="JuegoFavoritoId" column="JuegoFavoritoId" />
+
+    <!-- Simplify one-to-one as many-to-one to avoid complex one-to-one mapping for now -->
+    <many-to-one name="Usuario" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="UsuarioId" unique="true" />
+
+    <!-- PerfilJuegos collection omitted until PerfilJuego mapping exists -->
+  </class>
+</hibernate-mapping>
