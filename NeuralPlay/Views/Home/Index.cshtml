@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ApplicationCore.Domain.EN.Juego>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.IdJuego)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NombreJuego)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Genero)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IdJuego)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NombreJuego)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Genero)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.IdJuego }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.IdJuego }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.IdJuego })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

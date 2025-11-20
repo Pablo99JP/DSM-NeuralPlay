@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InitializeDb", "InitializeD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralPlay", "NeuralPlay\NeuralPlay.csproj", "{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,8 +57,23 @@ Global
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x64.Build.0 = Release|Any CPU
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF4CDEFE-EBFD-48E4-A2A2-FF59B3712C6E}.Release|x86.Build.0 = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|x64.Build.0 = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Debug|x86.Build.0 = Debug|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|x64.ActiveCfg = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|x64.Build.0 = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|x86.ActiveCfg = Release|Any CPU
+		{2C9B4C33-CD54-4135-AAC2-0BE5BE05B180}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A77E2DD5-B270-411D-A1F6-7957B959BBC7}
 	EndGlobalSection
 EndGlobal
