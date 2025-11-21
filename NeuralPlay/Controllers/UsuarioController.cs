@@ -5,6 +5,10 @@ using NeuralPlay.Models;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
+using Microsoft.AspNetCore.Http;
+
+// For session extension methods
+using Microsoft.AspNetCore.Http;
 
 namespace NeuralPlay.Controllers
 {
@@ -49,6 +53,41 @@ namespace NeuralPlay.Controllers
 
             var vm = UsuarioAssembler.ConvertENToViewModel(en);
             return View(vm);
+        }
+
+        // GET: /Usuario/Login
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: /Usuario/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            // Método hipotético en CEN que valida credenciales
+            var usuario = _usuarioCEN.Login(model.Email ?? string.Empty, model.Password ?? string.Empty);
+            if (usuario == null)
+            {
+                ModelState.AddModelError(string.Empty, "Credenciales inválidas");
+                return View(model);
+            }
+
+            // Guardar datos en session
+            HttpContext.Session.SetInt32("UsuarioId", (int)usuario.IdUsuario);
+            HttpContext.Session.SetString("UsuarioNombre", usuario.Nick ?? string.Empty);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Logout: limpia session y redirige al Login
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction(nameof(Login));
         }
 
         // POST: /Usuario/Edit/5
