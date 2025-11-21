@@ -1,0 +1,20 @@
+@model IEnumerable<NeuralPlay.Models.NotificacionViewModel>
+
+<h2>Notificaciones</h2>
+<table class="table">
+    <thead><tr><th>Texto</th><th>Fecha</th><th>Leído</th><th></th></tr></thead>
+    <tbody>
+    @foreach(var n in Model)
+    {
+        <tr>
+            <td>@n.Texto</td>
+            <td>@n.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(n.Leido ? "Sí" : "No")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@n.Id">Details</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<a asp-action="Create" class="btn btn-primary">Crear notificación</a>

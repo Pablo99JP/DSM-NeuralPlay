@@ -1,0 +1,9 @@
+@model NeuralPlay.Models.NotificacionViewModel
+
+<h2>Detalle Notificación</h2>
+<dl class="row">
+    <dt class="col-sm-2">Texto</dt><dd class="col-sm-10">@Model.Texto</dd>
+    <dt class="col-sm-2">Fecha</dt><dd class="col-sm-10">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+    <dt class="col-sm-2">Leído</dt><dd class="col-sm-10">@(Model.Leido ? "Sí" : "No")</dd>
+</dl>
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

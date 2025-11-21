@@ -102,5 +102,26 @@ namespace NeuralPlay.Tests
             Assert.NotNull(model);
             Assert.Equal((int)id, model!.Id);
         }
+
+        [Fact]
+        public void Register_ShouldStoreHashedPassword()
+        {
+            var repo = new InMemoryUsuarioRepository();
+            var cen = new UsuarioCEN(repo);
+            var controller = new UsuarioController(cen, repo);
+
+            var vm = new UsuarioViewModel { Nombre = "HashTest", Email = "hash@t.com", Password = "secretpwd" };
+
+            var result = controller.Create(vm) as RedirectToActionResult;
+            Assert.NotNull(result);
+
+            var all = repo.ReadAll().ToList();
+            Assert.Single(all);
+            var stored = all[0];
+
+            // Verificar que la contraseña no se almacena en claro y que el PBKDF2 la verifica correctamente
+            Assert.NotEqual(vm.Password, stored.ContrasenaHash);
+            Assert.True(ApplicationCore.Domain.CEN.PasswordHasher.Verify(vm.Password, stored.ContrasenaHash));
+        }
     }
 }

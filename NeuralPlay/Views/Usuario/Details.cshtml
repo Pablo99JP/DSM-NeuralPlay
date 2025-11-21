@@ -1,0 +1,9 @@
+@model NeuralPlay.Models.UsuarioViewModel
+
+<h2>Detalle de usuario</h2>
+<dl class="row">
+    <dt class="col-sm-2">Nombre</dt><dd class="col-sm-10">@Model.Nombre</dd>
+    <dt class="col-sm-2">Email</dt><dd class="col-sm-10">@Model.Email</dd>
+    <dt class="col-sm-2">Fecha</dt><dd class="col-sm-10">@Model.FechaRegistro.ToString("dd/MM/yyyy")</dd>
+</dl>
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

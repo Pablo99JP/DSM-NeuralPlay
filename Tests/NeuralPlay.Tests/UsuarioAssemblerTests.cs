@@ -12,41 +12,40 @@ namespace NeuralPlay.Tests
         [Fact]
         public void ConvertENToViewModel_MapsAllProperties()
         {
-            var en = new UsuarioEN
+            var en = new ApplicationCore.Domain.EN.Usuario
             {
-                Id = 1,
-                Email = "a@b.com",
-                Password = "pwd",
-                Nombre = "Nombre",
-                Apellidos = "Apellidos",
+                IdUsuario = 1,
+                CorreoElectronico = "a@b.com",
+                ContrasenaHash = "pwdhash",
+                Nick = "Nombre",
                 FechaRegistro = new DateTime(2020, 1, 1)
             };
 
             var vm = UsuarioAssembler.ConvertENToViewModel(en);
 
             Assert.NotNull(vm);
-            Assert.Equal(en.Id, vm.Id);
-            Assert.Equal(en.Email, vm.Email);
-            Assert.Equal(en.Password, vm.Password);
-            Assert.Equal(en.Nombre, vm.Nombre);
-            Assert.Equal(en.Apellidos, vm.Apellidos);
+            Assert.Equal((int)en.IdUsuario, vm.Id);
+            Assert.Equal(en.CorreoElectronico, vm.Email);
+            Assert.Equal(en.ContrasenaHash, vm.Password);
+            Assert.Equal(en.Nick, vm.Nombre);
+            Assert.Equal(string.Empty, vm.Apellidos);
             Assert.Equal(en.FechaRegistro, vm.FechaRegistro);
         }
 
         [Fact]
         public void ConvertListENToModel_ReturnsSameCountAndMapped()
         {
-            var list = new List<UsuarioEN>
+            var list = new List<ApplicationCore.Domain.EN.Usuario>
             {
-                new UsuarioEN { Id = 1, Email = "x@x.com", Password = "p", Nombre = "n", Apellidos = "a", FechaRegistro = DateTime.Now },
-                new UsuarioEN { Id = 2, Email = "y@y.com", Password = "q", Nombre = "m", Apellidos = "b", FechaRegistro = DateTime.Now }
+                new ApplicationCore.Domain.EN.Usuario { IdUsuario = 1, CorreoElectronico = "x@x.com", ContrasenaHash = "p", Nick = "n", FechaRegistro = DateTime.Now },
+                new ApplicationCore.Domain.EN.Usuario { IdUsuario = 2, CorreoElectronico = "y@y.com", ContrasenaHash = "q", Nick = "m", FechaRegistro = DateTime.Now }
             };
 
             var result = UsuarioAssembler.ConvertListENToModel(list);
 
             Assert.Equal(list.Count, result.Count);
-            Assert.Equal(list[0].Email, result[0].Email);
-            Assert.Equal(list[1].Email, result[1].Email);
+            Assert.Equal(list[0].CorreoElectronico, result[0].Email);
+            Assert.Equal(list[1].CorreoElectronico, result[1].Email);
         }
     }
 }

@@ -1,0 +1,9 @@
+@model NeuralPlay.Models.NotificacionViewModel
+
+<h2>Eliminar Notificación</h2>
+<p>¿Desea eliminar la notificación <strong>@Model.Texto</strong>?</p>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -1,0 +1,20 @@
+@model NeuralPlay.Models.NotificacionViewModel
+
+<h2>Editar Notificación</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="Texto" class="form-label"></label>
+        <input asp-for="Texto" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Fecha" class="form-label"></label>
+        <input asp-for="Fecha" class="form-control" />
+    </div>
+    <div class="mb-3 form-check">
+        <input asp-for="Leido" class="form-check-input" />
+        <label asp-for="Leido" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -1,5 +1,4 @@
 using System;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ApplicationCore.Domain.EN;
@@ -10,36 +9,8 @@ namespace NeuralPlay.Assemblers
     public static class UsuarioAssembler
     {
         /// <summary>
-        /// Convierte una entidad UsuarioEN (la entidad simple creada para el módulo) a UsuarioViewModel mapeando propiedad por propiedad.
-        /// </summary>
-        public static UsuarioViewModel ConvertENToViewModel(UsuarioEN en)
-        {
-            if (en == null) throw new ArgumentNullException(nameof(en)); // Fail fast si se pasa null
-
-            return new UsuarioViewModel
-            {
-                Id = en.Id,
-                Email = en.Email ?? string.Empty,
-                Password = en.Password ?? string.Empty,
-                Nombre = en.Nombre ?? string.Empty,
-                Apellidos = en.Apellidos ?? string.Empty,
-                FechaRegistro = en.FechaRegistro
-            };
-        }
-
-        /// <summary>
-        /// Convierte una lista de UsuarioEN a una lista de UsuarioViewModel (mapeo manual).
-        /// </summary>
-        public static IList<UsuarioViewModel> ConvertListENToModel(IList<UsuarioEN> ens)
-        {
-            if (ens == null) return new List<UsuarioViewModel>();
-
-            return ens.Select(ConvertENToViewModel).ToList();
-        }
-
-        /// <summary>
-        /// Sobrecarga: convierte la entidad de dominio existente `ApplicationCore.Domain.EN.Usuario` a `UsuarioViewModel`.
-        /// Esto permite integrar el Assembler con la CEN y Repositorios ya existentes en la solución.
+        /// Convierte la entidad de dominio `ApplicationCore.Domain.EN.Usuario` a `UsuarioViewModel`.
+        /// Se eliminó la clase legacy `UsuarioEN` y este assembler trabaja con la entidad de dominio actual.
         /// </summary>
         public static UsuarioViewModel ConvertENToViewModel(ApplicationCore.Domain.EN.Usuario en)
         {
