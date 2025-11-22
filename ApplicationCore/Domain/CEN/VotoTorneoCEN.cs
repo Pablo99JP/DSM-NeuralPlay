@@ -13,6 +13,7 @@ namespace ApplicationCore.Domain.CEN
         private readonly IUsuarioRepository _usuarioRepo;
         private readonly ParticipacionTorneoCEN _participacionCEN;
         private readonly NotificacionCEN _notificacionCEN;
+        private readonly IUnitOfWork _unitOfWork;
 
         public VotoTorneoCEN(
             IRepository<VotoTorneo> repo,
@@ -20,7 +21,8 @@ namespace ApplicationCore.Domain.CEN
             IMiembroEquipoRepository miembroEquipoRepo,
             IUsuarioRepository usuarioRepo,
             ParticipacionTorneoCEN participacionCEN,
-            NotificacionCEN notificacionCEN)
+            NotificacionCEN notificacionCEN,
+            IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _propuestaRepo = propuestaRepo;
@@ -28,6 +30,7 @@ namespace ApplicationCore.Domain.CEN
             _usuarioRepo = usuarioRepo;
             _participacionCEN = participacionCEN;
             _notificacionCEN = notificacionCEN;
+            _unitOfWork = unitOfWork;
         }
 
         public VotoTorneo NewVotoTorneo(bool valor, Usuario votante, PropuestaTorneo propuesta)
@@ -46,26 +49,61 @@ namespace ApplicationCore.Domain.CEN
             var usuario = _usuarioRepo.ReadById(usuarioId);
             if (usuario == null) throw new System.ArgumentException("Usuario no encontrado", nameof(usuarioId));
 
-            // Evitar doble voto del mismo usuario: si ya votó, actualizar; si no, crear nuevo
-            // Intentamos buscar voto existente en la propuesta
-            var votoExistente = propuesta.Votos?.FirstOrDefault(v => v.Votante != null && v.Votante.IdUsuario == usuarioId);
-            if (votoExistente != null)
+            // Evitar doble voto del mismo usuario: buscar en repositorio por propuesta + usuario
+            // (No confiamos solo en la colección por posibles estados previos o lazy loading)
+            var votoExistente = _repo.ReadAll().FirstOrDefault(v =>
+                v.Propuesta != null && v.Propuesta.IdPropuesta == propuestaId &&
+                v.Votante != null && v.Votante.IdUsuario == usuarioId);
+
+            if (votoExistente == null)
             {
+                var nuevoVoto = new VotoTorneo
+                {
+                    Valor = decision,
+                    FechaVoto = System.DateTime.UtcNow,
+                    Votante = usuario,
+                    Propuesta = propuesta
+                };
+                _repo.New(nuevoVoto);
+            }
+            else
+            {
+                // Si ya existe y la decisión es la misma, no hacemos nada
+                if (votoExistente.Valor == decision)
+                {
+                    // Early return: no recalcular lógica si no cambia la decisión
+                    _unitOfWork.SaveChanges();
+                    return;
+                }
+                // Actualizamos el voto existente (permite cambiar de opinión antes de unanimidad)
                 votoExistente.Valor = decision;
                 votoExistente.FechaVoto = System.DateTime.UtcNow;
                 _repo.Modify(votoExistente);
             }
-            else
+
+            // Guardar el voto inmediatamente
+            _unitOfWork.SaveChanges();
+
+            // Limpiar duplicados legados (si existían de antes de la corrección)
+            var eliminados = LimpiarDuplicados(propuestaId);
+            if (eliminados > 0)
             {
-                var voto = new VotoTorneo { Valor = decision, FechaVoto = System.DateTime.UtcNow, Votante = usuario, Propuesta = propuesta };
-                _repo.New(voto);
+                System.Console.WriteLine($"[DEBUG] LimpiarDuplicados: eliminados {eliminados} votos duplicados en propuesta {propuestaId}");
             }
 
             // Recuperar miembros del equipo proponente
             var equipo = propuesta.EquipoProponente;
             if (equipo == null) return; // nothing to do
 
-            var miembros = _miembroEquipoRepo.GetUsuariosByEquipo(equipo.IdEquipo).ToList();
+            // Validar que el usuario que intenta votar pertenece al equipo proponente
+            var miembrosEquipo = _miembroEquipoRepo.GetUsuariosByEquipo(equipo.IdEquipo).ToList();
+            var esMiembro = miembrosEquipo.Any(m => m.IdUsuario == usuarioId);
+            if (!esMiembro)
+            {
+                throw new System.InvalidOperationException("Solo los miembros del equipo proponente pueden votar esta propuesta.");
+            }
+
+            var miembros = miembrosEquipo; // reutilizamos la lista ya obtenida
 
             // Recuperar votos actuales para la propuesta (recargar propuesta desde repo por si acaso)
             propuesta = _propuestaRepo.ReadById(propuestaId) ?? propuesta;
@@ -94,6 +132,9 @@ namespace ApplicationCore.Domain.CEN
                 {
                     _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.UNION_TORNEO, $"¡El equipo se ha unido al torneo {torneoNombre}!", m);
                 }
+
+                // Guardar todos los cambios
+                _unitOfWork.SaveChanges();
             }
             else if (anyFalse)
             {
@@ -105,6 +146,9 @@ namespace ApplicationCore.Domain.CEN
                 {
                     _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.PROPUESTA_TORNEO, $"Propuesta rechazada para el torneo {torneoNombre}", m);
                 }
+
+                // Guardar todos los cambios
+                _unitOfWork.SaveChanges();
             }
             else
             {
@@ -122,6 +166,7 @@ namespace ApplicationCore.Domain.CEN
                         {
                             _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.PROPUESTA_TORNEO, $"Propuesta rechazada para el torneo {torneoNombre}", m);
                         }
+                        _unitOfWork.SaveChanges();
                     }
                 }
             }
@@ -142,6 +187,33 @@ namespace ApplicationCore.Domain.CEN
                 if (res is IEnumerable<VotoTorneo> list) return list;
             }
             return _repo.ReadFilter(filtro);
+        }
+
+        // Limpieza opcional de duplicados (mantiene el primero por fecha)
+        public int LimpiarDuplicados(long propuestaId)
+        {
+            var votos = _repo.ReadAll()
+                .Where(v => v.Propuesta != null && v.Propuesta.IdPropuesta == propuestaId)
+                .OrderBy(v => v.FechaVoto)
+                .ToList();
+            var eliminados = 0;
+            var vistos = new HashSet<long>();
+            foreach (var v in votos)
+            {
+                var userId = v.Votante?.IdUsuario ?? -1;
+                if (userId == -1) continue;
+                if (vistos.Contains(userId))
+                {
+                    _repo.Destroy(v.IdVoto);
+                    eliminados++;
+                }
+                else
+                {
+                    vistos.Add(userId);
+                }
+            }
+            if (eliminados > 0) _unitOfWork.SaveChanges();
+            return eliminados;
         }
     }
 }

@@ -1,19 +1,39 @@
 @model NeuralPlay.Models.PropuestaTorneoDetailsViewModel
 
 @{
-    var votosCount = Model.Propuesta.Votos?.Count() ?? 0;
+    var votosTotales = Model.Propuesta.Votos?.Count() ?? 0;
+    var votosDistinct = Model.Propuesta.Votos?
+        .Where(v => v.Votante != null)
+        .GroupBy(v => v.Votante!.IdUsuario)
+        .Count() ?? 0;
     var miembrosCount = Model.MiembrosEquipo.Count();
-    var porcentaje = miembrosCount == 0 ? 0 : (int)((votosCount * 100) / miembrosCount);
+    var porcentaje = miembrosCount == 0 ? 0 : (int)((votosDistinct * 100) / miembrosCount);
     long? currentUserId = ViewData["CurrentUserId"] as long?;
     var yaVoto = currentUserId.HasValue && Model.Propuesta.Votos?.Any(v => v.Votante != null && v.Votante.IdUsuario == currentUserId.Value) == true;
+    var esMiembro = currentUserId.HasValue && Model.MiembrosEquipo.Any(m => m.IdUsuario == currentUserId.Value);
+    var hayDuplicados = votosTotales != votosDistinct;
 }
 
 <h2>Propuesta para @Model.Propuesta.Torneo?.Nombre</h2>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div>
     <p><strong>Equipo proponente:</strong> @Model.Propuesta.EquipoProponente?.Nombre</p>
     <p><strong>Estado:</strong> @Model.Propuesta.Estado</p>
-    <p><strong>Votos:</strong> @votosCount / @miembrosCount</p>
+    <p><strong>Votos (únicos):</strong> @votosDistinct / @miembrosCount</p>
+    @if (hayDuplicados)
+    {
+        <p class="text-warning"><strong>Advertencia:</strong> Se encontraron @votosTotales votos, hay @(@votosTotales - votosDistinct) duplicados que serán limpiados al siguiente voto.</p>
+    }
+    <p><strong>Usuario actual ID:</strong> @(currentUserId?.ToString() ?? "No hay sesión")</p>
 
     <div class="progress" style="height:24px; width:400px;">
         <div class="progress-bar" role="progressbar" style="width:@porcentaje%" aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100">@porcentaje% votos</div>
@@ -21,15 +41,22 @@
 </div>
 
 <div style="margin-top:12px;">
-    <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo">
-        <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
-        <button type="submit" name="decision" value="true" class="btn btn-success" @(yaVoto ? "disabled=\"disabled\"" : "")>✅ VOTAR SÍ</button>
-        <button type="submit" name="decision" value="false" class="btn btn-danger" @(yaVoto ? "disabled=\"disabled\"" : "")>❌ VOTAR NO</button>
-        @if (yaVoto)
-        {
-            <span class="text-muted" style="margin-left:10px;">Ya has votado</span>
-        }
-    </form>
+    @if (!esMiembro)
+    {
+        <div class="alert alert-info">Solo los miembros del equipo pueden votar esta propuesta.</div>
+    }
+    else
+    {
+        <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo">
+            <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
+            <button type="submit" name="decision" value="true" class="btn btn-success" @(yaVoto ? "disabled=\"disabled\"" : "")>✅ VOTAR SÍ</button>
+            <button type="submit" name="decision" value="false" class="btn btn-danger" @(yaVoto ? "disabled=\"disabled\"" : "")>❌ VOTAR NO</button>
+            @if (yaVoto)
+            {
+                <span class="text-muted" style="margin-left:10px;">Ya has votado</span>
+            }
+        </form>
+    }
 </div>
 
 <h3 style="margin-top:16px;">Miembros del equipo</h3>

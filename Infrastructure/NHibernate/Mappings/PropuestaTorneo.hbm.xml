@@ -14,6 +14,9 @@
     <many-to-one name="Torneo" class="ApplicationCore.Domain.EN.Torneo, ApplicationCore" column="TorneoId" />
     <many-to-one name="PropuestoPor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="PropuestoPorId" />
 
-    <!-- Votos collection omitted until VotoTorneo mapping is added -->
+    <bag name="Votos" cascade="all" inverse="true" lazy="false">
+      <key column="PropuestaId" />
+      <one-to-many class="ApplicationCore.Domain.EN.VotoTorneo, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>

@@ -42,7 +42,7 @@ namespace NeuralPlay.Controllers
             }
             else if (HttpContext.Session != null)
             {
-                currentUserId = HttpContext.Session.GetInt32("UserId");
+                currentUserId = HttpContext.Session.GetInt32("UsuarioId");
             }
 
             var model = new PropuestaTorneoDetailsViewModel { Propuesta = p, MiembrosEquipo = miembros };
@@ -63,15 +63,28 @@ namespace NeuralPlay.Controllers
             }
             if (usuarioId == null)
             {
-                usuarioId = HttpContext.Session.GetInt32("UserId");
+                usuarioId = HttpContext.Session.GetInt32("UsuarioId");
             }
+            
+            System.Console.WriteLine($"[DEBUG VOTAR] PropuestaId={propuestaId}, Decision={decision}, UsuarioId={usuarioId}");
+            
             if (!usuarioId.HasValue)
             {
-                TempData["Error"] = "Debes iniciar sesión o configurar un UserId en la sesión para poder votar.";
-                return RedirectToAction("Details", new { id = propuestaId });
+                TempData["Error"] = "Debes iniciar sesión para poder votar.";
+                return RedirectToAction("Login", "Usuario");
             }
 
-            _votoCEN.EmitirVoto(propuestaId, usuarioId.Value, decision);
+            try
+            {
+                _votoCEN.EmitirVoto(propuestaId, usuarioId.Value, decision);
+                TempData["Success"] = "Voto registrado correctamente";
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine($"[ERROR VOTAR] {ex.Message}");
+                TempData["Error"] = $"Error al votar: {ex.Message}";
+            }
+            
             return RedirectToAction("Details", new { id = propuestaId });
         }
     }
