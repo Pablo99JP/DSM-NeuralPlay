@@ -25,7 +25,8 @@ namespace ApplicationCore.Domain.CEN
                 EstadoCuenta = ApplicationCore.Domain.Enums.EstadoCuenta.ACTIVA
             };
             _usuarioRepository.New(u);
-            return u;
+            // Recuperar el usuario por email para obtener el ID asignado
+            return _usuarioRepository.ReadByEmail(correo)!;
         }
 
         public Usuario? ReadOID_Usuario(long id) => _usuarioRepository.ReadById(id);

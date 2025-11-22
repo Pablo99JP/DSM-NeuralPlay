@@ -5,7 +5,7 @@ using NeuralPlay.Models;
 using System.Diagnostics;
 using NHibernate;
 using ApplicationCore.Domain.CEN;
-using ApplicationCore.Domain.EN; // Aseg�rate de tener esta referencia si usas NHibernate
+using ApplicationCore.Domain.EN; // Aseg�rate de tener esta referencia si usas NHibernate
 
 namespace NeuralPlay.Controllers
 {
@@ -17,13 +17,15 @@ namespace NeuralPlay.Controllers
 
         public IActionResult Index()
         {
-            _session = NHibernateHelper.OpenSession();
-            var juegoRepository = new NHibernateJuegoRepository(_session);
-            JuegoCEN juegoCEN = new JuegoCEN(juegoRepository);
-            IList<Juego> listaJuegos = juegoCEN.ReadAll_Juego().ToList();
-            _session.Close();
+            // Deshabilitado: conexión SQL y NHibernate
+            // _session = NHibernateHelper.OpenSession();
+            // var juegoRepository = new NHibernateJuegoRepository(_session);
+            // JuegoCEN juegoCEN = new JuegoCEN(juegoRepository);
+            // IList<Juego> listaJuegos = juegoCEN.ReadAll_Juego().ToList();
+            // _session.Close();
 
-            return View(listaJuegos);
+            // Si la vista espera una lista, pasar una lista vacía
+            return View(System.Linq.Enumerable.Empty<object>());
         }
 
         public IActionResult Privacy()

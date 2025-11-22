@@ -10,8 +10,8 @@ namespace ApplicationCore.Infrastructure.Memory
     // Generic in-memory repository using reflection to find Id property.
     public class InMemoryRepository<T> : IRepository<T> where T : class
     {
-        private readonly ConcurrentDictionary<long, T> _store = new();
-        private long _seq = 0;
+    private static readonly ConcurrentDictionary<long, T> _store = new();
+    private static long _seq = 0;
         private readonly PropertyInfo? _idProp;
 
         public InMemoryRepository()

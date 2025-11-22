@@ -80,7 +80,7 @@ namespace NeuralPlay.Controllers
             HttpContext.Session.SetInt32("UsuarioId", (int)usuario.IdUsuario);
             HttpContext.Session.SetString("UsuarioNombre", usuario.Nick ?? string.Empty);
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Usuario");
         }
 
         // Logout: limpia session y redirige al Login
