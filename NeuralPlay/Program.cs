@@ -13,6 +13,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<UsuarioCEN>();
 // Registrar CENs mínimos necesarios
 builder.Services.AddScoped<NotificacionCEN>();
+// Registrar CEN para juegos (usado en Home)
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.JuegoCEN>();
 builder.Services.AddScoped<IUsuarioAuth, UsuarioAuthService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession();

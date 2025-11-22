@@ -10,5 +10,8 @@
         <label asp-for="Password" class="form-label"></label>
         <input asp-for="Password" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary">Entrar</button>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Entrar</button>
+        <a class="btn btn-outline-secondary" asp-controller="Usuario" asp-action="Create">Registrar</a>
+    </div>
 </form>

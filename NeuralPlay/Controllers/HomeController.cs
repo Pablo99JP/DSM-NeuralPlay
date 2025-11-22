@@ -12,20 +12,32 @@ namespace NeuralPlay.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private NHibernate.ISession _session; // Agrega este campo si tienes acceso a ISession
+        private readonly ApplicationCore.Domain.CEN.JuegoCEN _juegoCEN;
 
+        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.CEN.JuegoCEN juegoCEN)
+        {
+            _logger = logger;
+            _juegoCEN = juegoCEN;
+        }
 
         public IActionResult Index()
         {
-            // Deshabilitado: conexión SQL y NHibernate (diagnóstico removido)
-            // _session = NHibernateHelper.OpenSession();
-            // var juegoRepository = new NHibernateJuegoRepository(_session);
-            // JuegoCEN juegoCEN = new JuegoCEN(juegoRepository);
-            // IList<Juego> listaJuegos = juegoCEN.ReadAll_Juego().ToList();
-            // _session.Close();
-
-            // Si la vista espera una lista, pasar una lista vacía
-            return View(System.Linq.Enumerable.Empty<object>());
+            try
+            {
+                // Obtener lista de juegos mediante el CEN (usa el repositorio NHibernate inyectado por DI)
+                var listaJuegos = _juegoCEN.ReadAll_Juego();
+                // Log the concrete runtime type to help debug model type issues
+                var runtimeType = listaJuegos?.GetType().FullName ?? "(null)";
+                _logger?.LogDebug("Home.Index: juego collection runtime type = {Type}", runtimeType);
+                System.Console.WriteLine($"DEBUG: Home.Index juego collection runtime type = {runtimeType}");
+                return View(listaJuegos);
+            }
+            catch (System.Exception ex)
+            {
+                // Si hay cualquier problema, logueamos y devolvemos una lista vacía del tipo esperado
+                _logger?.LogWarning(ex, "Fallo al cargar juegos para la vista Home: {Message}", ex.Message);
+                return View(System.Linq.Enumerable.Empty<ApplicationCore.Domain.EN.Juego>());
+            }
         }
 
         public IActionResult Privacy()
