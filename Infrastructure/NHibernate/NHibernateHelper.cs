@@ -89,6 +89,31 @@ namespace Infrastructure.NHibernate
                 }
             }
 
+            // If InitializeDb previously fell back to SQLite, prefer that local file for easier developer runs.
+            try
+            {
+                // Try a couple of relative locations from the app base where InitializeDb may have written the DB
+                var candidates = new[]
+                {
+                    Path.Combine(baseDir, "..", "..", "..", "InitializeDb", "Data", "project.db"),
+                    Path.Combine(baseDir, "..", "..", "..", "..", "InitializeDb", "Data", "project.db"),
+                    Path.Combine(baseDir, "..", "..", "..", "..", "..", "InitializeDb", "Data", "project.db")
+                };
+
+                foreach (var cand in candidates)
+                {
+                    var full = Path.GetFullPath(cand);
+                    if (File.Exists(full))
+                    {
+                        cfg.SetProperty("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
+                        cfg.SetProperty("dialect", "NHibernate.Dialect.SQLiteDialect");
+                        cfg.SetProperty("connection.connection_string", $"Data Source={full}");
+                        break;
+                    }
+                }
+            }
+            catch { }
+
             return cfg;
         }
 

@@ -69,7 +69,7 @@ namespace NeuralPlay.Controllers
 
             var n = _notificacionCEN.ReadOID_Notificacion(id);
             if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return Forbid();
+            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
 
             _notificacionCEN.DestroyNotificacion(id);
             return RedirectToAction(nameof(Index));
@@ -83,7 +83,7 @@ namespace NeuralPlay.Controllers
 
             var n = _notificacionCEN.ReadOID_Notificacion(id);
             if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return Forbid();
+            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
 
             var vm = NotificacionAssembler.ConvertENToViewModel(n);
             return View(vm);
@@ -97,7 +97,7 @@ namespace NeuralPlay.Controllers
 
             var n = _notificacionCEN.ReadOID_Notificacion(id);
             if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return Forbid();
+            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
 
             var vm = NotificacionAssembler.ConvertENToViewModel(n);
             return View(vm);
@@ -115,7 +115,7 @@ namespace NeuralPlay.Controllers
 
             var n = _notificacionCEN.ReadOID_Notificacion(model.Id);
             if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return Forbid();
+            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
 
             // Update allowed fields
             n.Mensaje = model.Texto ?? string.Empty;
