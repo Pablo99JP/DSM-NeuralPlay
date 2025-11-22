@@ -1,6 +1,8 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+@using System.Linq
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+@inject ApplicationCore.Domain.CEN.NotificacionCEN NotificacionCEN
 
 <head>
     <meta charset="utf-8" />
@@ -39,6 +41,42 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                    </ul>
+
+                    @* Right side: notificaciones y usuario *@
+                    <ul class="navbar-nav">
+                        @if (UsuarioAuth?.GetUsuarioActual() != null)
+                        {
+                            var current = UsuarioAuth.GetUsuarioActual();
+                            var unread = 0;
+                            try
+                            {
+                                // ReadAll and compute unread count (idempotent, small dataset in demo)
+                                unread = NotificacionCEN.ReadAll_Notificacion().Count(n => n != null && n.Destinatario != null && n.Destinatario.IdUsuario == current.IdUsuario && !n.Leida);
+                            }
+                            catch { unread = 0; }
+
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" asp-controller="Notificacion" asp-action="Index" title="Notificaciones">
+                                    @* Bell SVG icon (inline so no external dependency needed) *@
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16" aria-hidden="true">
+                                        <path d="M8 16a2 2 0 0 0 1.985-1.75H6.015A2 2 0 0 0 8 16z"/>
+                                        <path d="M8 1a4 4 0 0 0-4 4v2.086c0 .39-.168.765-.45 1.03L2 10v1h12v-1l-.55-1.884A1.986 1.986 0 0 1 13 7.086V5a4 4 0 0 0-4-4z"/>
+                                    </svg>
+                                    @if (unread > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">@unread</span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Usuario" asp-action="Login">Login</a>
+                            </li>
+                        }
+                    </ul>
                     </ul>
                 </div>
             </div>
