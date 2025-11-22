@@ -24,8 +24,8 @@ namespace NeuralPlay.Controllers
             // IList<Juego> listaJuegos = juegoCEN.ReadAll_Juego().ToList();
             // _session.Close();
 
-            // Si la vista espera una lista, pasar una lista vacía
-            return View(System.Linq.Enumerable.Empty<object>());
+            // Si la vista espera una lista de `Juego`, pasar una lista vacía del tipo correcto
+            return View(System.Linq.Enumerable.Empty<Juego>());
         }
 
         public IActionResult Privacy()

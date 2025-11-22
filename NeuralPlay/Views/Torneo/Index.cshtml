@@ -1,0 +1,24 @@
+@model IEnumerable<ApplicationCore.Domain.EN.Torneo>
+
+<h2>Torneos disponibles</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Fecha Inicio</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var t in Model)
+    {
+        <tr>
+            <td>@t.Nombre</td>
+            <td>@(t.FechaInicio == default ? "-" : t.FechaInicio.ToString("yyyy-MM-dd"))</td>
+            <td>@t.Estado</td>
+            <td><a class="btn btn-primary" asp-action="Details" asp-route-id="@t.IdTorneo">Ver</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

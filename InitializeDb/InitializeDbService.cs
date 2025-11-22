@@ -781,6 +781,43 @@ END
                             var prop2 = propuestaCEN.NewPropuestaTorneo(eq2, torneo1, u2);
                             Console.WriteLine($"✓ Created {2} PropuestaTorneo");
 
+                            // === Escenario solicitado: Copa Invierno LoL y Tigres Arkham ===
+                            // Crear juego específico si no existe
+                            var lol = juegoCEN.NewJuego("League of Legends", ApplicationCore.Domain.Enums.GeneroJuego.ESTRATEGIA);
+                            // Crear torneo "Copa Invierno LoL" si no existe
+                            var copaInvierno = torneoRepo.ReadFilter("Copa Invierno LoL").FirstOrDefault();
+                            if (copaInvierno == null)
+                            {
+                                copaInvierno = new Torneo { Nombre = "Copa Invierno LoL", FechaInicio = DateTime.UtcNow.AddDays(15), Estado = "ABIERTO", Reglas = "Formato eliminatorio", ComunidadOrganizadora = com1 };
+                                torneoRepo.New(copaInvierno);
+                                Console.WriteLine("✓ Created Torneo: Copa Invierno LoL");
+                            }
+
+                            // Crear equipo "Tigres Arkham"
+                            var tigres = equipoRepo.ReadFilter("Tigres Arkham").FirstOrDefault();
+                            if (tigres == null)
+                            {
+                                tigres = equipoCEN.NewEquipo("Tigres Arkham", "Equipo de prueba Tigres Arkham");
+                                Console.WriteLine("✓ Created Equipo: Tigres Arkham");
+                            }
+
+                            // Crear 3 usuarios y añadirlos al equipo
+                            var uA = usuarioRepo.ReadByNick("user1");
+                            if (uA == null) uA = usuarioCEN.NewUsuario("user1", "user1@example.com", PasswordHasher.Hash("password1"));
+                            var uB = usuarioRepo.ReadByNick("user2");
+                            if (uB == null) uB = usuarioCEN.NewUsuario("user2", "user2@example.com", PasswordHasher.Hash("password2"));
+                            var uC = usuarioRepo.ReadByNick("user3");
+                            if (uC == null) uC = usuarioCEN.NewUsuario("user3", "user3@example.com", PasswordHasher.Hash("password3"));
+
+                            // Añadir miembros al equipo (si no existen ya)
+                            miembroEquipoCEN.NewMiembroEquipo(uA, tigres, ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO);
+                            miembroEquipoCEN.NewMiembroEquipo(uB, tigres, ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO);
+                            miembroEquipoCEN.NewMiembroEquipo(uC, tigres, ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO);
+
+                            // Crear propuesta de Tigres Arkham para la Copa Invierno LoL
+                            var propTigres = propuestaCEN.NewPropuestaTorneo(tigres, copaInvierno, uA);
+                            Console.WriteLine("✓ Created PropuestaTorneo: Tigres Arkham -> Copa Invierno LoL");
+
                             // 15. VOTOS PARA TORNEOS (votación para aprobar propuestas)
                             var voto1 = votoCEN.NewVotoTorneo(true, u1, prop1);
                             var voto2 = votoCEN.NewVotoTorneo(true, u2, prop1);

@@ -1,0 +1,42 @@
+@model NeuralPlay.Models.PropuestaTorneoDetailsViewModel
+
+@{
+    var votosCount = Model.Propuesta.Votos?.Count() ?? 0;
+    var miembrosCount = Model.MiembrosEquipo.Count();
+    var porcentaje = miembrosCount == 0 ? 0 : (int)((votosCount * 100) / miembrosCount);
+    long? currentUserId = ViewData["CurrentUserId"] as long?;
+    var yaVoto = currentUserId.HasValue && Model.Propuesta.Votos?.Any(v => v.Votante != null && v.Votante.IdUsuario == currentUserId.Value) == true;
+}
+
+<h2>Propuesta para @Model.Propuesta.Torneo?.Nombre</h2>
+
+<div>
+    <p><strong>Equipo proponente:</strong> @Model.Propuesta.EquipoProponente?.Nombre</p>
+    <p><strong>Estado:</strong> @Model.Propuesta.Estado</p>
+    <p><strong>Votos:</strong> @votosCount / @miembrosCount</p>
+
+    <div class="progress" style="height:24px; width:400px;">
+        <div class="progress-bar" role="progressbar" style="width:@porcentaje%" aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100">@porcentaje% votos</div>
+    </div>
+</div>
+
+<div style="margin-top:12px;">
+    <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo">
+        <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
+        <button type="submit" name="decision" value="true" class="btn btn-success" @(yaVoto ? "disabled=\"disabled\"" : "")>✅ VOTAR SÍ</button>
+        <button type="submit" name="decision" value="false" class="btn btn-danger" @(yaVoto ? "disabled=\"disabled\"" : "")>❌ VOTAR NO</button>
+        @if (yaVoto)
+        {
+            <span class="text-muted" style="margin-left:10px;">Ya has votado</span>
+        }
+    </form>
+</div>
+
+<h3 style="margin-top:16px;">Miembros del equipo</h3>
+<ul>
+    @foreach (var m in Model.MiembrosEquipo)
+    {
+        var voto = Model.Propuesta.Votos?.FirstOrDefault(v => v.Votante != null && v.Votante.IdUsuario == m.IdUsuario);
+        <li>@m.Nick (@m.IdUsuario) @if (voto != null) { <span>- @(voto.Valor ? "Sí" : "No")</span> }</li>
+    }
+</ul>

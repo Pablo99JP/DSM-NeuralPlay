@@ -13,6 +13,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<UsuarioCEN>();
 // Registrar CENs mínimos necesarios
 builder.Services.AddScoped<NotificacionCEN>();
+// Registrar CENs relacionados con Torneos y Votación
+builder.Services.AddScoped<PropuestaTorneoCEN>();
+builder.Services.AddScoped<ParticipacionTorneoCEN>();
+builder.Services.AddScoped<VotoTorneoCEN>();
+builder.Services.AddScoped<MiembroEquipoCEN>();
 builder.Services.AddScoped<IUsuarioAuth, UsuarioAuthService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession();
