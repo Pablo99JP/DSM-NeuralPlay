@@ -12,12 +12,12 @@ namespace NeuralPlay.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationCore.Domain.CEN.JuegoCEN _juegoCEN;
+        private readonly ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Juego> _juegoRepo;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.CEN.JuegoCEN juegoCEN)
+        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Juego> juegoRepo)
         {
             _logger = logger;
-            _juegoCEN = juegoCEN;
+            _juegoRepo = juegoRepo;
         }
 
         public IActionResult Index()
@@ -25,7 +25,7 @@ namespace NeuralPlay.Controllers
             try
             {
                 // Obtener lista de juegos mediante el CEN (usa el repositorio NHibernate inyectado por DI)
-                var listaJuegos = _juegoCEN.ReadAll_Juego();
+                var listaJuegos = _juegoRepo.ReadAll();
                 // Log the concrete runtime type to help debug model type issues
                 var runtimeType = listaJuegos?.GetType().FullName ?? "(null)";
                 _logger?.LogDebug("Home.Index: juego collection runtime type = {Type}", runtimeType);
