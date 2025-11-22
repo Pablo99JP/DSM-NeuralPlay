@@ -118,6 +118,18 @@ namespace NeuralPlay.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: /Usuario/Delete/5
+        [HttpGet]
+        [ActionName("Delete")]
+        public IActionResult DeleteConfirm(long id)
+        {
+            var en = _usuarioCEN.ReadOID_Usuario(id);
+            if (en == null) return NotFound();
+
+            var vm = UsuarioAssembler.ConvertENToViewModel(en);
+            return View(vm); // Renderiza Delete.cshtml con el ViewModel
+        }
+
         // GET: /Usuario/Details/5
         public IActionResult Details(long id)
         {

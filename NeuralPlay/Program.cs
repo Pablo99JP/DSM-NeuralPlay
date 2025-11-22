@@ -1,6 +1,7 @@
 using ApplicationCore.Domain.Repositories;
 using ApplicationCore.Infrastructure.Memory;
 using ApplicationCore.Domain.CEN;
+using ApplicationCore.Domain.EN;
 using NeuralPlay.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,9 @@ builder.Services.AddScoped<UsuarioCEN>();
 builder.Services.AddScoped<IUsuarioAuth, UsuarioAuthService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession();
+// Registrar repositorio y CEN para Notificacion (in-memory)
+builder.Services.AddScoped<ApplicationCore.Domain.Repositories.IRepository<Notificacion>, ApplicationCore.Infrastructure.Memory.InMemoryRepository<Notificacion>>();
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.NotificacionCEN>();
 
 var app = builder.Build();
 
