@@ -4,6 +4,8 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
+using Microsoft.Data.SqlClient;
+using System.Data.Common;
 
 namespace Infrastructure.NHibernate
 {
@@ -93,6 +95,55 @@ namespace Infrastructure.NHibernate
         private static ISessionFactory BuildSessionFactory()
         {
             var cfg = BuildConfiguration();
+            // Ensure the target database exists (helpful for local dev). If the DB specified in the
+            // connection string does not exist, attempt to create it using a connection to the server's
+            // master database. This avoids "Cannot open database ... requested by the login" errors
+            // on fresh environments.
+            try
+            {
+                if (cfg.Properties != null && cfg.Properties.TryGetValue("connection.connection_string", out var connStr))
+                {
+                    var builder = new DbConnectionStringBuilder();
+                    builder.ConnectionString = connStr;
+
+                    // Determine database name (Initial Catalog or Database)
+                    string? database = null;
+                    if (builder.ContainsKey("Initial Catalog")) database = builder["Initial Catalog"]?.ToString();
+                    if (string.IsNullOrEmpty(database) && builder.ContainsKey("Database")) database = builder["Database"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(database))
+                    {
+                        // Try to connect to the specified DB briefly to see if it exists
+                        try
+                        {
+                            using var testConn = new SqlConnection(connStr);
+                            testConn.Open();
+                            testConn.Close();
+                        }
+                        catch (SqlException ex) when (ex.Number == 4060 || ex.Message.Contains("Cannot open database"))
+                        {
+                            // Database does not exist or cannot be opened. Attempt to create it by connecting to master.
+                            var masterBuilder = new DbConnectionStringBuilder();
+                            masterBuilder.ConnectionString = connStr;
+                            if (masterBuilder.ContainsKey("Initial Catalog")) masterBuilder["Initial Catalog"] = "master";
+                            else if (masterBuilder.ContainsKey("Database")) masterBuilder["Database"] = "master";
+                            else masterBuilder.Add("Initial Catalog", "master");
+
+                            using var masterConn = new SqlConnection(masterBuilder.ConnectionString);
+                            masterConn.Open();
+                            using var cmd = masterConn.CreateCommand();
+                            cmd.CommandText = $"IF DB_ID(N'{database.Replace("'", "''")}') IS NULL CREATE DATABASE [{database}]";
+                            cmd.ExecuteNonQuery();
+                            masterConn.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // If anything fails here, do not block session factory creation; let NHibernate surface the error.
+            }
+
             return cfg.BuildSessionFactory();
         }
 

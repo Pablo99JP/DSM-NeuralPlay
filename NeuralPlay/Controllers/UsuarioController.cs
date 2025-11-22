@@ -14,9 +14,12 @@ namespace NeuralPlay.Controllers
 {
     public class UsuarioController : BasicController
     {
-        public UsuarioController(UsuarioCEN usuarioCEN, IUsuarioRepository usuarioRepository)
+        private readonly ApplicationCore.Domain.Repositories.IUnitOfWork _unitOfWork;
+
+        public UsuarioController(UsuarioCEN usuarioCEN, IUsuarioRepository usuarioRepository, ApplicationCore.Domain.Repositories.IUnitOfWork unitOfWork)
             : base(usuarioCEN, usuarioRepository)
         {
+            _unitOfWork = unitOfWork;
         }
 
         // GET: /Usuario
@@ -42,6 +45,8 @@ namespace NeuralPlay.Controllers
 
             // Simulamos creación: la CEN acepta (nick, correo, hash)
             _usuarioCEN.NewUsuario(model.Nombre ?? string.Empty, model.Email ?? string.Empty, model.Password ?? string.Empty);
+            // Persistir cambios via UnitOfWork cuando se usa NHibernate
+            try { _unitOfWork?.SaveChanges(); } catch { }
             return RedirectToAction(nameof(Index));
         }
 
@@ -106,6 +111,7 @@ namespace NeuralPlay.Controllers
             en.ContrasenaHash = model.Password; // En un caso real, hashearíamos
 
             _usuarioCEN.ModifyUsuario(en);
+            try { _unitOfWork?.SaveChanges(); } catch { }
             return RedirectToAction(nameof(Index));
         }
 
@@ -115,6 +121,7 @@ namespace NeuralPlay.Controllers
         public IActionResult Delete(long id)
         {
             _usuarioCEN.DestroyUsuario(id);
+            try { _unitOfWork?.SaveChanges(); } catch { }
             return RedirectToAction(nameof(Index));
         }
 

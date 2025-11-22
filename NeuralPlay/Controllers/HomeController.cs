@@ -17,7 +17,7 @@ namespace NeuralPlay.Controllers
 
         public IActionResult Index()
         {
-            // Deshabilitado: conexión SQL y NHibernate
+            // Deshabilitado: conexión SQL y NHibernate (diagnóstico removido)
             // _session = NHibernateHelper.OpenSession();
             // var juegoRepository = new NHibernateJuegoRepository(_session);
             // JuegoCEN juegoCEN = new JuegoCEN(juegoRepository);
