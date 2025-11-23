@@ -22,9 +22,11 @@ namespace NeuralPlay.Controllers
 
         public IActionResult Index()
         {
-            // Mostrar propuestas pendientes de mis equipos (este ejemplo devuelve todas pendientes)
-            var todas = _propuestaCEN.ReadAll_PropuestaTorneo().Where(p => p.Estado == ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE);
-            return View(todas.ToList());
+            // Mostrar todas las propuestas con sus distintos estados para trazabilidad
+            var propuestas = _propuestaCEN.ReadAll_PropuestaTorneo()
+                .OrderByDescending(p => p.FechaPropuesta)
+                .ToList();
+            return View(propuestas);
         }
 
         public IActionResult Details(long id)

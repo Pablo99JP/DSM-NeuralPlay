@@ -1,6 +1,7 @@
 @model IEnumerable<ApplicationCore.Domain.EN.PropuestaTorneo>
 
-<h2>Propuestas pendientes</h2>
+<h2>Propuestas de Torneo</h2>
+<p class="text-muted">Incluye pendientes, aceptadas y rechazadas. Un estado ACEPTADA implica creación automática de participación.</p>
 <table class="table">
     <thead>
         <tr>
@@ -14,12 +15,18 @@
     <tbody>
     @foreach (var p in Model)
     {
+        var badge = p.Estado switch {
+            ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA => "badge bg-success",
+            ApplicationCore.Domain.Enums.EstadoSolicitud.RECHAZADA => "badge bg-danger",
+            ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE => "badge bg-warning text-dark",
+            _ => "badge bg-secondary"
+        };
         <tr>
             <td>@p.EquipoProponente?.Nombre</td>
             <td>@p.Torneo?.Nombre</td>
             <td>@p.FechaPropuesta.ToString("yyyy-MM-dd")</td>
-            <td>@p.Estado</td>
-            <td><a class="btn btn-primary" asp-action="Details" asp-route-id="@p.IdPropuesta">Ver</a></td>
+            <td><span class="@badge">@p.Estado</span></td>
+            <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@p.IdPropuesta">Ver</a></td>
         </tr>
     }
     </tbody>

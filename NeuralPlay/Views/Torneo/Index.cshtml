@@ -1,6 +1,10 @@
 @model IEnumerable<ApplicationCore.Domain.EN.Torneo>
 
-<h2>Torneos disponibles</h2>
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <h2 class="m-0">Torneos disponibles</h2>
+    <a class="btn btn-outline-secondary" asp-controller="PropuestaTorneo" asp-action="Index">Ver propuestas</a>
+</div>
+
 <table class="table">
     <thead>
         <tr>

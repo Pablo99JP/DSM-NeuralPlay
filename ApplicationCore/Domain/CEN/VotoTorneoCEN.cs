@@ -81,15 +81,18 @@ namespace ApplicationCore.Domain.CEN
                 _repo.Modify(votoExistente);
             }
 
-            // Guardar el voto inmediatamente
-            _unitOfWork.SaveChanges();
-
+            // POSPONER commit hasta después de procesar unanimidad/rechazo.
             // Limpiar duplicados legados (si existían de antes de la corrección)
             var eliminados = LimpiarDuplicados(propuestaId);
             if (eliminados > 0)
             {
                 System.Console.WriteLine($"[DEBUG] LimpiarDuplicados: eliminados {eliminados} votos duplicados en propuesta {propuestaId}");
             }
+            // Recargar propuesta y votos tras limpieza para asegurar conteo correcto
+            propuesta = _propuestaRepo.ReadById(propuestaId) ?? propuesta;
+            var votosActualizados = _repo.ReadAll()
+                .Where(v => v.Propuesta != null && v.Propuesta.IdPropuesta == propuestaId)
+                .ToList();
 
             // Recuperar miembros del equipo proponente
             var equipo = propuesta.EquipoProponente;
@@ -107,24 +110,34 @@ namespace ApplicationCore.Domain.CEN
 
             // Recuperar votos actuales para la propuesta (recargar propuesta desde repo por si acaso)
             propuesta = _propuestaRepo.ReadById(propuestaId) ?? propuesta;
-            var votos = propuesta.Votos ?? new System.Collections.Generic.List<VotoTorneo>();
+            // Usar lista actualizada (post limpieza) y votos únicos por usuario
+            var votosDistinct = votosActualizados
+                .Where(v => v.Votante != null)
+                .GroupBy(v => v.Votante!.IdUsuario)
+                .Select(g => g.First())
+                .ToList();
 
             int totalMiembros = miembros.Count;
-            int totalVotos = votos.Count;
+            int totalVotos = votosDistinct.Count;
 
             // Condición de rechazo: al menos un voto negativo
-            var anyFalse = votos.Any(v => v.Valor == false);
+            var anyFalse = votosDistinct.Any(v => v.Valor == false);
 
-            // Condición de aprobación: unanimidad y todos true
-            var allTrue = totalVotos > 0 && votos.All(v => v.Valor == true) && totalVotos == totalMiembros;
+            // Condición de aprobación: unanimidad y todos true con votos únicos
+            var allTrue = totalVotos > 0 && totalVotos == totalMiembros && votosDistinct.All(v => v.Valor);
 
             if (allTrue)
             {
                 propuesta.Estado = ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA;
                 _propuestaRepo.Modify(propuesta);
 
-                // Inscribir automáticamente al equipo en el torneo
-                _participacionCEN.NewParticipacionTorneo(equipo, propuesta.Torneo!);
+                // Inscribir automáticamente al equipo en el torneo y marcar participación aceptada
+                var nuevaPart = _participacionCEN.NewParticipacionTorneo(equipo, propuesta.Torneo!);
+                if (nuevaPart != null)
+                {
+                    nuevaPart.Estado = ApplicationCore.Domain.Enums.EstadoParticipacion.ACEPTADA.ToString();
+                    _participacionCEN.ModifyParticipacionTorneo(nuevaPart);
+                }
 
                 // Notificar a todos los miembros
                 var torneoNombre = propuesta.Torneo?.Nombre ?? "(torneo)";
@@ -133,7 +146,7 @@ namespace ApplicationCore.Domain.CEN
                     _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.UNION_TORNEO, $"¡El equipo se ha unido al torneo {torneoNombre}!", m);
                 }
 
-                // Guardar todos los cambios
+                // Guardar todos los cambios (voto + estado + participación + notificaciones)
                 _unitOfWork.SaveChanges();
             }
             else if (anyFalse)
@@ -147,7 +160,6 @@ namespace ApplicationCore.Domain.CEN
                     _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.PROPUESTA_TORNEO, $"Propuesta rechazada para el torneo {torneoNombre}", m);
                 }
 
-                // Guardar todos los cambios
                 _unitOfWork.SaveChanges();
             }
             else
@@ -168,6 +180,11 @@ namespace ApplicationCore.Domain.CEN
                         }
                         _unitOfWork.SaveChanges();
                     }
+                }
+                // Guardar únicamente el voto en progreso si no se aceptó/rechazó
+                if (propuesta.Estado == ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE)
+                {
+                    _unitOfWork.SaveChanges();
                 }
             }
 

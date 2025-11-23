@@ -19,8 +19,11 @@ namespace Infrastructure.NHibernate
 
         public void SaveChanges()
         {
-            if (_tx == null) return;
-            if (!_tx.IsActive) return;
+            // Allow multiple SaveChanges calls: if transaction consumed, start a new one.
+            if (_tx == null || !_tx.IsActive)
+            {
+                _tx = _session.BeginTransaction();
+            }
             _session.Flush();
             _tx.Commit();
             _tx.Dispose();
