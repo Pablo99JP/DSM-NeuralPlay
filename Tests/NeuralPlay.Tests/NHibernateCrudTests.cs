@@ -21,7 +21,7 @@ namespace NeuralPlay.Tests
                 CorreoElectronico = email,
                 ContrasenaHash = "initialhash",
                 FechaRegistro = DateTime.UtcNow,
-                EstadoCuenta = ApplicationCore.Domain.Enums.EstadoCuenta.ACTIVO
+                EstadoCuenta = ApplicationCore.Domain.Enums.EstadoCuenta.ACTIVA
             };
 
             // Act & Assert

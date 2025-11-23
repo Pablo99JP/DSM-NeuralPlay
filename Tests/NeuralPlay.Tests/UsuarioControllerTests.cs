@@ -5,6 +5,7 @@ using ApplicationCore.Infrastructure.Memory;
 using ApplicationCore.Domain.CEN;
 using NeuralPlay.Controllers;
 using NeuralPlay.Models;
+using Moq;
 
 namespace NeuralPlay.Tests
 {
@@ -15,7 +16,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             var result = controller.Index() as ViewResult;
             Assert.NotNull(result);
@@ -30,7 +32,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             var vm = new UsuarioViewModel { Nombre = "Test", Email = "t@t.com", Password = "pwd" };
 
@@ -49,7 +52,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             // create initial
             var created = cen.NewUsuario("OldName", "old@e.com", "pwd");
@@ -72,7 +76,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             var created = cen.NewUsuario("ToDelete", "d@d.com", "pwd");
             var id = created.IdUsuario;
@@ -90,7 +95,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             var created = cen.NewUsuario("DetailName", "z@z.com", "pwd");
             var id = created.IdUsuario;
@@ -108,7 +114,8 @@ namespace NeuralPlay.Tests
         {
             var repo = new InMemoryUsuarioRepository();
             var cen = new UsuarioCEN(repo);
-            var controller = new UsuarioController(cen, repo);
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var controller = new UsuarioController(cen, repo, unitOfWorkMock.Object);
 
             var vm = new UsuarioViewModel { Nombre = "HashTest", Email = "hash@t.com", Password = "secretpwd" };
 

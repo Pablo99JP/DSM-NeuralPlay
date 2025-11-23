@@ -41,11 +41,13 @@ namespace NeuralPlay.Tests
 
             var context = new DefaultHttpContext();
             var sessionMock = new Moq.Mock<ISession>();
+#pragma warning disable CS8601
             sessionMock.Setup(s => s.TryGetValue("UsuarioId", out It.Ref<byte[]>.IsAny))
                 .Callback((string key, out byte[] value) => {
                     value = BitConverter.GetBytes((int)usuario.IdUsuario);
                 })
                 .Returns(true);
+#pragma warning restore CS8601
             context.Session = sessionMock.Object;
             controller.ControllerContext = new ControllerContext { HttpContext = context };
 

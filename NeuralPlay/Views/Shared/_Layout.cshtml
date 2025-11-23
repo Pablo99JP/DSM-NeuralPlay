@@ -53,7 +53,7 @@
                             var unread = 0;
                             try
                             {
-                                unread = NotificacionCEN.ReadAll_Notificacion().Count(n => n != null && n.Destinatario != null && n.Destinatario.IdUsuario == current.IdUsuario && !n.Leida);
+                                unread = NotificacionCEN.ReadAll_Notificacion().Count(n => n != null && n.Destinatario != null && n.Destinatario.IdUsuario == current!.IdUsuario && !n.Leida);
                             }
                             catch { unread = 0; }
 
