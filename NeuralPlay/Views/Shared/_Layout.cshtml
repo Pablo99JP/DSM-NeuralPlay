@@ -30,17 +30,14 @@
                             <a class="nav-link text-dark" asp-controller="Torneo" asp-action="Index">Torneos</a>
                         </li>
                         <li class="nav-item">
-                            @if (UsuarioAuth?.GetUsuarioActual() == null)
-                            {
-                                <a class="nav-link text-dark" asp-controller="Usuario" asp-action="Login">Login</a>
-                            }
-                            else
-                            {
-                                <form method="post" asp-controller="Usuario" asp-action="Logout" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Logout</button>
-                                </form>
-                            }
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Perfiles" asp-action="Index">Usuarios</a>
                         </li>
+                        @if (UsuarioAuth?.GetUsuarioActual() != null && UsuarioAuth.GetUsuarioActual().Perfil != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Perfiles" asp-action="Details" asp-route-id="@UsuarioAuth.GetUsuarioActual().Perfil.IdPerfil">Perfil</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
@@ -68,6 +65,11 @@
                                         <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">@unread</span>
                                     }
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post" asp-controller="Usuario" asp-action="Logout" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                                </form>
                             </li>
                         }
                         else

@@ -743,14 +743,24 @@ END
                             var reac2 = reaccionCEN.NewReaccion(ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA, u2, pub2);
                             Console.WriteLine($"✓ Created {2} Reaccion");
 
+                            // --- INICIO DE LA CORRECCIÓN ---
                             // 10. PERFILES (información adicional del usuario: bio, avatar, etc.)
-                            var perfil1 = perfilCEN.NewPerfil(u1);
-                            perfil1.Descripcion = "Pro gamer and streamer";
-                            perfilCEN.ModifyPerfil(perfil1);
-                            var perfil2 = perfilCEN.NewPerfil(u2);
-                            perfil2.Descripcion = "Casual player";
-                            perfilCEN.ModifyPerfil(perfil2);
-                            Console.WriteLine($"✓ Created {2} Perfil");
+                            // No creamos un nuevo perfil. Obtenemos el que ya se creó con el usuario.
+                            var perfil1 = u1.Perfil;
+                            if (perfil1 != null)
+                            {
+                                perfil1.Descripcion = "Pro gamer and streamer";
+                                perfilCEN.ModifyPerfil(perfil1);
+                            }
+
+                            var perfil2 = u2.Perfil;
+                            if (perfil2 != null)
+                            {
+                                perfil2.Descripcion = "Casual player";
+                                perfilCEN.ModifyPerfil(perfil2);
+                            }
+                            Console.WriteLine($"✓ Modified {2} Perfil");
+                            // --- FIN DE LA CORRECCIÓN ---
 
                             // 11. JUEGOS (catálogo de videojuegos disponibles en la plataforma)
                             var juego1 = juegoCEN.NewJuego("League of Legends", ApplicationCore.Domain.Enums.GeneroJuego.ESTRATEGIA);

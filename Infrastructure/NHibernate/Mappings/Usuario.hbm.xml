@@ -1,21 +1,29 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE hibernate-mapping PUBLIC
-        "-//NHibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
-  <class name="ApplicationCore.Domain.EN.Usuario, ApplicationCore" table="Usuario">
-    <id name="IdUsuario" column="IdUsuario" type="long">
-      <generator class="hilo">
-        <param name="table">NHibernateUniqueKey</param>
-        <param name="column">NextHigh</param>
-        <param name="max_lo">100</param>
-      </generator>
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping assembly="ApplicationCore" namespace="ApplicationCore.Domain.EN" xmlns="urn:nhibernate-mapping-2.2">
+  <class name="Usuario" table="Usuario" >
+    <id name="IdUsuario" type="Int64">
+      <generator class="identity" />
     </id>
-    <property name="Nick" column="Nick" />
-    <property name="CorreoElectronico" column="CorreoElectronico" />
-    <property name="ContrasenaHash" column="ContrasenaHash" />
-    <property name="Telefono" column="Telefono" />
-    <property name="FechaRegistro" column="FechaRegistro" />
-    <property name="EstadoCuenta" column="EstadoCuenta" />
+    <property name="Nick" type="String" length="50" not-null="true" unique="true" />
+    <property name="CorreoElectronico" type="String" length="100" not-null="true" unique="true" />
+    <property name="ContrasenaHash" type="String" length="255" not-null="true" />
+    <property name="Telefono" type="String" length="20" />
+    <property name="FechaRegistro" type="DateTime" not-null="true" />
+    <property name="EstadoCuenta" type="ApplicationCore.Domain.Enums.EstadoCuenta, ApplicationCore" not-null="true" />
+
+    <one-to-one name="Perfil" class="Perfil" cascade="all" />
+
+    <bag name="MiembrosComunidad" table="MiembroComunidad" inverse="true" cascade="all-delete-orphan">
+      <key column="IdUsuario" />
+      <one-to-many class="MiembroComunidad" />
+    </bag>
+    <bag name="MiembrosEquipo" table="MiembroEquipo" inverse="true" cascade="all-delete-orphan">
+      <key column="IdUsuario" />
+      <one-to-many class="MiembroEquipo" />
+    </bag>
+    <bag name="Sesiones" table="Sesion" inverse="true" cascade="all-delete-orphan">
+      <key column="IdUsuario" />
+      <one-to-many class="Sesion" />
+    </bag>
   </class>
 </hibernate-mapping>

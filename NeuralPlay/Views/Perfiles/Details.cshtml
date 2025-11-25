@@ -1,0 +1,72 @@
+@model NeuralPlay.Models.PerfilViewModel
+@using System.Security.Claims
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+
+@{
+    ViewData["Title"] = $"Perfil de {Model.NickUsuario}";
+    var currentUser = UsuarioAuth.GetUsuarioActual();
+}
+
+<div>
+    <h1>Perfil de @Html.DisplayFor(model => model.NickUsuario)</h1>
+
+    @* --- INICIO DE LA CORRECCIÓN --- *@
+    @* Comprobar si el usuario actual (obtenido del servicio de sesión) es el dueño del perfil. *@
+    @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
+    {
+        <p>
+            <a asp-action="Edit" asp-route-id="@Model.IdPerfil" class="btn btn-primary">Editar Perfil</a>
+        </p>
+    }
+    @* --- FIN DE LA CORRECCIÓN --- *@
+
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Avatar
+        </dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.Avatar))
+            {
+                <img src="@Model.Avatar" alt="Avatar" style="max-width: 150px; border-radius: 50%;" />
+            }
+            else
+            {
+                <span>(Sin avatar)</span>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NickUsuario)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NickUsuario)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+    </dl>
+    
+    <h4>Juegos</h4>
+    @if (Model.Juegos != null && Model.Juegos.Any())
+    {
+        <ul>
+            @foreach (var juego in Model.Juegos)
+            {
+                <li>@juego.NombreJuego (@juego.Genero)</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Este perfil no tiene juegos añadidos.</p>
+    }
+    <p>
+        <a asp-action="AnadirJuego" asp-route-idPerfil="@Model.IdPerfil">Añadir Juego</a>
+    </p>
+</div>
+<div>
+    <a asp-action="Index">Volver a la lista</a>
+</div>
