@@ -30,6 +30,12 @@
                             <a class="nav-link text-dark" asp-controller="Torneo" asp-action="Index">Torneos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Comunidad" asp-action="Index">Comunidades</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Equipo" asp-action="Index">Equipos</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Perfiles" asp-action="Index">Usuarios</a>
                         </li>
                         @if (UsuarioAuth?.GetUsuarioActual() != null && UsuarioAuth.GetUsuarioActual().Perfil != null)

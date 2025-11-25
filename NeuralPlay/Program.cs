@@ -14,6 +14,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<UsuarioCEN>();
 builder.Services.AddScoped<PerfilCEN>();
 builder.Services.AddScoped<NotificacionCEN>();
+builder.Services.AddScoped<ComunidadCEN>();
+builder.Services.AddScoped<MiembroComunidadCEN>();
 // Registrar CENs relacionados con torneos y votación
 builder.Services.AddScoped<PropuestaTorneoCEN>();
 builder.Services.AddScoped<VotoTorneoCEN>();

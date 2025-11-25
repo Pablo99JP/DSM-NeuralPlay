@@ -1,0 +1,36 @@
+@model NeuralPlay.Models.MiembroEquipoViewModel
+
+@{
+    ViewData["Title"] = "Eliminar Miembro del Equipo";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="alert alert-warning">
+    ¿Seguro que quieres expulsar a este usuario del equipo?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Equipo</dt>
+    <dd class="col-sm-9">@Model.NombreEquipo</dd>
+
+    <dt class="col-sm-3">Usuario</dt>
+    <dd class="col-sm-9">@Model.NombreUsuario</dd>
+
+    <dt class="col-sm-3">Rol</dt>
+    <dd class="col-sm-9">@Model.Rol</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+
+    <dt class="col-sm-3">Fecha de Alta</dt>
+    <dd class="col-sm-9">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="IdMiembroEquipo" />
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>

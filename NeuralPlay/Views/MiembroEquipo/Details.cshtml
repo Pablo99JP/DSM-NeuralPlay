@@ -1,0 +1,41 @@
+@model NeuralPlay.Models.MiembroEquipoViewModel
+
+@{
+    ViewData["Title"] = "Detalles del Miembro de Equipo";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Equipo</dt>
+    <dd class="col-sm-9">@Model.NombreEquipo</dd>
+
+    <dt class="col-sm-3">Usuario</dt>
+    <dd class="col-sm-9">@Model.NombreUsuario</dd>
+
+    <dt class="col-sm-3">Rol</dt>
+    <dd class="col-sm-9">@Model.Rol</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+
+    <dt class="col-sm-3">Fecha de Alta</dt>
+    <dd class="col-sm-9">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    @if (Model.FechaAccion.HasValue)
+    {
+        <dt class="col-sm-3">Fecha de Acción</dt>
+        <dd class="col-sm-9">@Model.FechaAccion.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+    }
+
+    @if (Model.FechaBaja.HasValue)
+    {
+        <dt class="col-sm-3">Fecha de Baja</dt>
+        <dd class="col-sm-9">@Model.FechaBaja.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+    }
+</dl>
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.IdMiembroEquipo" class="btn btn-primary">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+</div>
