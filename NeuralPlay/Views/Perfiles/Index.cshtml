@@ -1,0 +1,42 @@
+@model IEnumerable<NeuralPlay.Models.PerfilViewModel>
+
+@{
+    ViewData["Title"] = "Perfiles de Usuario";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdPerfil)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NickUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdPerfil)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NickUsuario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.IdPerfil">Detalles</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

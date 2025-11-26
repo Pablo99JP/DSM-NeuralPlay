@@ -1,9 +1,49 @@
 @model IEnumerable<ApplicationCore.Domain.EN.Torneo>
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+@inject ApplicationCore.Domain.CEN.MiembroComunidadCEN MiembroComunidadCEN
+
+@{
+    var currentUser = UsuarioAuth?.GetUsuarioActual();
+    var esLider = false;
+    if (currentUser != null)
+    {
+        var miembrosComunidad = MiembroComunidadCEN.ReadAll_MiembroComunidad()
+            .Where(m => m.Usuario != null && m.Usuario.IdUsuario == currentUser.IdUsuario)
+            .ToList();
+        esLider = miembrosComunidad.Any(mc => 
+            mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+            mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+    }
+}
 
 <div class="mb-3 d-flex justify-content-between align-items-center">
     <h2 class="m-0">Torneos disponibles</h2>
-    <a class="btn btn-outline-secondary" asp-controller="PropuestaTorneo" asp-action="Index">Ver propuestas</a>
+    <div class="d-flex gap-2">
+        @if (esLider)
+        {
+            <a class="btn btn-success" asp-action="Create">
+                <i class="bi bi-plus-circle"></i> Crear Torneo
+            </a>
+        }
+        <a class="btn btn-outline-secondary" asp-controller="PropuestaTorneo" asp-action="Index">Ver propuestas</a>
+    </div>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <table class="table">
     <thead>
@@ -17,11 +57,34 @@
     <tbody>
     @foreach (var t in Model)
     {
+        var esCreador = currentUser != null && t.Creador != null && t.Creador.IdUsuario == currentUser.IdUsuario;
         <tr>
             <td>@t.Nombre</td>
             <td>@(t.FechaInicio == default ? "-" : t.FechaInicio.ToString("yyyy-MM-dd"))</td>
-            <td>@t.Estado</td>
-            <td><a class="btn btn-primary" asp-action="Details" asp-route-id="@t.IdTorneo">Ver</a></td>
+            <td>
+                @if (t.Estado == "PENDIENTE")
+                {
+                    <span class="badge bg-warning text-dark">@t.Estado</span>
+                }
+                else if (t.Estado == "ABIERTO")
+                {
+                    <span class="badge bg-success">@t.Estado</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">@t.Estado</span>
+                }
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@t.IdTorneo">Ver</a>
+                    @if (esCreador)
+                    {
+                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@t.IdTorneo">Editar</a>
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@t.IdTorneo">Eliminar</a>
+                    }
+                </div>
+            </td>
         </tr>
     }
     </tbody>

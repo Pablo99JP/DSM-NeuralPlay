@@ -12,5 +12,10 @@
     <property name="FechaCreacion" column="FechaCreacion" />
 
     <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
+
+    <bag name="Miembros" inverse="true" lazy="false">
+      <key column="EquipoId" />
+      <one-to-many class="ApplicationCore.Domain.EN.MiembroEquipo, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>

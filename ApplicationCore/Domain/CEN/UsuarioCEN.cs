@@ -1,10 +1,14 @@
 using ApplicationCore.Domain.EN;
+using ApplicationCore.Domain.Enums;
 using ApplicationCore.Domain.Repositories;
- 
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ApplicationCore.Domain.CEN
 {
-    // Stateless component that groups CRUD operations for Usuario
+    // Componente sin estado que agrupa operaciones CRUD para Usuario
     public class UsuarioCEN
     {
         private readonly IUsuarioRepository _usuarioRepository;
@@ -24,6 +28,22 @@ namespace ApplicationCore.Domain.CEN
                 FechaRegistro = System.DateTime.UtcNow,
                 EstadoCuenta = ApplicationCore.Domain.Enums.EstadoCuenta.ACTIVA
             };
+
+            // --- INICIO DE LA CORRECCIÓN ---
+            // 1. Crear el perfil asociado
+            var perfil = new Perfil
+            {
+                Usuario = u, // Establecer la relación bidireccional
+                Descripcion = $"Perfil de {nick}.",
+                FotoPerfilUrl = "/images/avatar_default.png", // Asignar una imagen por defecto
+                VisibilidadPerfil = Visibilidad.PUBLICO,
+                VisibilidadActividad = Visibilidad.PRIVADO
+            };
+
+            // 2. Asignar el perfil al usuario
+            u.Perfil = perfil;
+            // --- FIN DE LA CORRECCIÓN ---
+
             _usuarioRepository.New(u);
             // Recuperar el usuario por email para obtener el ID asignado
             return _usuarioRepository.ReadByEmail(correo)!;

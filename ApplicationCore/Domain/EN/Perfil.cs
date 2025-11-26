@@ -11,9 +11,16 @@ namespace ApplicationCore.Domain.EN
         public virtual string? Descripcion { get; set; }
         public virtual Visibilidad VisibilidadPerfil { get; set; }
         public virtual Visibilidad VisibilidadActividad { get; set; }
-        public virtual long? JuegoFavoritoId { get; set; }
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se añade la propiedad de navegación para el juego favorito.
+        // Esto no afecta a la lista 'PerfilJuegos'.
+        public virtual Juego? JuegoFavorito { get; set; }
+        // --- FIN DE LA CORRECCIÓN ---
 
         public virtual Usuario Usuario { get; set; } = null!;
+        
+        // La lista de juegos del perfil se mantiene intacta.
         public virtual IList<PerfilJuego> PerfilJuegos { get; set; } = new List<PerfilJuego>();
     }
 }

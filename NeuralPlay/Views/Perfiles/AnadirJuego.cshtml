@@ -1,0 +1,38 @@
+@model NeuralPlay.Models.AnadirJuegoViewModel
+
+@{
+    ViewData["Title"] = "Añadir Juego a la Biblioteca";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Añadir juego al perfil</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AnadirJuego">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdPerfil" />
+            
+            <div class="form-group">
+                <label asp-for="IdJuegoSeleccionado" class="control-label"></label>
+                <select asp-for="IdJuegoSeleccionado" class="form-control" asp-items="@Model.ListaDeJuegos">
+                    <option value="">-- Selecciona un juego --</option>
+                </select>
+                <span asp-validation-for="IdJuegoSeleccionado" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mt-3">
+                <input type="submit" value="Añadir" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Details" asp-route-id="@Model.IdPerfil">Cancelar</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

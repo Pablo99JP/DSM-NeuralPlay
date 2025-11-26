@@ -1,0 +1,43 @@
+@model NeuralPlay.Models.PerfilEditViewModel
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<h1>Editar Perfil</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdPerfil" />
+
+            <div class="form-group mb-3">
+                <label asp-for="NickUsuario" class="control-label"></label>
+                <input asp-for="NickUsuario" class="form-control" />
+                <span asp-validation-for="NickUsuario" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Descripcion" class="control-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FotoPerfilUrl" class="control-label"></label>
+                <input asp-for="FotoPerfilUrl" class="form-control" />
+                <span asp-validation-for="FotoPerfilUrl" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

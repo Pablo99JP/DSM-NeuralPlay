@@ -46,8 +46,8 @@ alter table ParticipacionTorneo  drop constraint FK_CB5ABC08
 if exists (select 1 from sys.objects where object_id = OBJECT_ID(N'[FK_D61144E]') and parent_object_id = OBJECT_ID(N'ParticipacionTorneo'))
 alter table ParticipacionTorneo  drop constraint FK_D61144E
 
-if exists (select 1 from sys.objects where object_id = OBJECT_ID(N'[FK_1503F34C]') and parent_object_id = OBJECT_ID(N'Perfil'))
-alter table Perfil  drop constraint FK_1503F34C
+if exists (select 1 from sys.objects where object_id = OBJECT_ID(N'[FK_Perfil_Usuario]') and parent_object_id = OBJECT_ID(N'Perfil'))
+alter table Perfil  drop constraint FK_Perfil_Usuario
 
 if exists (select 1 from sys.objects where object_id = OBJECT_ID(N'[FK_C590C1B4]') and parent_object_id = OBJECT_ID(N'PerfilJuego'))
 alter table PerfilJuego  drop constraint FK_C590C1B4
@@ -133,7 +133,7 @@ create table MiembroComunidad (IdMiembroComunidad BIGINT IDENTITY NOT NULL, Rol 
 create table MiembroEquipo (IdMiembroEquipo BIGINT IDENTITY NOT NULL, Rol INT null, Estado INT null, FechaAlta DATETIME2 null, FechaAccion DATETIME2 null, FechaBaja DATETIME2 null, UsuarioId BIGINT null, EquipoId BIGINT null, primary key (IdMiembroEquipo))
 create table Notificacion (IdNotificacion BIGINT IDENTITY NOT NULL, Tipo INT null, Mensaje NVARCHAR(255) null, Leida BIT null, FechaCreacion DATETIME2 null, DestinatarioId BIGINT null, primary key (IdNotificacion))
 create table ParticipacionTorneo (IdParticipacion BIGINT IDENTITY NOT NULL, FechaAlta DATETIME2 null, Estado NVARCHAR(255) null, EquipoId BIGINT null, TorneoId BIGINT null, primary key (IdParticipacion))
-create table Perfil (IdPerfil BIGINT IDENTITY NOT NULL, FotoPerfilUrl NVARCHAR(255) null, Descripcion NVARCHAR(255) null, VisibilidadPerfil INT null, VisibilidadActividad INT null, JuegoFavoritoId BIGINT null, UsuarioId BIGINT null unique, primary key (IdPerfil))
+create table Perfil (IdPerfil BIGINT NOT NULL, FotoPerfilUrl NVARCHAR(255) null, Descripcion NVARCHAR(255) null, VisibilidadPerfil INT null, VisibilidadActividad INT null, JuegoFavoritoId BIGINT null, primary key (IdPerfil))
 create table PerfilJuego (IdPerfilJuego BIGINT IDENTITY NOT NULL, FechaAdicion DATETIME2 null, PerfilId BIGINT null, JuegoId BIGINT null, primary key (IdPerfilJuego))
 create table PropuestaTorneo (IdPropuesta BIGINT IDENTITY NOT NULL, FechaPropuesta DATETIME2 null, Estado INT null, EquipoId BIGINT null, TorneoId BIGINT null, PropuestoPorId BIGINT null, primary key (IdPropuesta))
 create table Publicacion (IdPublicacion BIGINT IDENTITY NOT NULL, Contenido NVARCHAR(255) null, FechaCreacion DATETIME2 null, FechaEdicion DATETIME2 null, ComunidadId BIGINT null, AutorId BIGINT null, primary key (IdPublicacion))
@@ -141,7 +141,7 @@ create table Reaccion (IdReaccion BIGINT IDENTITY NOT NULL, Tipo INT null, Fecha
 create table Sesion (IdSesion BIGINT IDENTITY NOT NULL, FechaInicio DATETIME2 null, FechaFin DATETIME2 null, Token NVARCHAR(255) null, UsuarioId BIGINT null, primary key (IdSesion))
 create table SolicitudIngreso (IdSolicitud BIGINT IDENTITY NOT NULL, Tipo INT null, Estado INT null, FechaSolicitud DATETIME2 null, FechaResolucion DATETIME2 null, SolicitanteId BIGINT null, ComunidadId BIGINT null, EquipoId BIGINT null, primary key (IdSolicitud))
 create table Torneo (IdTorneo BIGINT IDENTITY NOT NULL, Nombre NVARCHAR(255) null, FechaInicio DATETIME2 null, Reglas NVARCHAR(255) null, Estado NVARCHAR(255) null, ComunidadId BIGINT null, primary key (IdTorneo))
-create table Usuario (IdUsuario BIGINT not null, Nick NVARCHAR(255) null, CorreoElectronico NVARCHAR(255) null, ContrasenaHash NVARCHAR(255) null, Telefono NVARCHAR(255) null, FechaRegistro DATETIME2 null, EstadoCuenta INT null, primary key (IdUsuario))
+create table Usuario (IdUsuario BIGINT IDENTITY NOT NULL, Nick NVARCHAR(255) null, CorreoElectronico NVARCHAR(255) null, ContrasenaHash NVARCHAR(255) null, Telefono NVARCHAR(255) null, FechaRegistro DATETIME2 null, EstadoCuenta INT null, primary key (IdUsuario))
 create table VotoTorneo (IdVoto BIGINT IDENTITY NOT NULL, Valor BIT null, FechaVoto DATETIME2 null, UsuarioId BIGINT null, PropuestaId BIGINT null, primary key (IdVoto))
 alter table Comentario add constraint FK_98C3C5C0 foreign key (AutorId) references Usuario
 alter table Comentario add constraint FK_4956C47E foreign key (PublicacionId) references Publicacion
@@ -152,6 +152,7 @@ alter table Invitacion add constraint FK_47B7F244 foreign key (ComunidadId) refe
 alter table Invitacion add constraint FK_BD9226F9 foreign key (EquipoId) references Equipo
 alter table MensajeChat add constraint FK_3EC3241E foreign key (ChatId) references ChatEquipo
 alter table MensajeChat add constraint FK_F6E66199 foreign key (AutorId) references Usuario
+alter table MensajeChat add constraint FK_F6E66199 foreign key (AutorId) references Usuario
 alter table MiembroComunidad add constraint FK_F0CE6A4F foreign key (UsuarioId) references Usuario
 alter table MiembroComunidad add constraint FK_648E734F foreign key (ComunidadId) references Comunidad
 alter table MiembroEquipo add constraint FK_92569281 foreign key (UsuarioId) references Usuario
@@ -159,7 +160,7 @@ alter table MiembroEquipo add constraint FK_327CEBF3 foreign key (EquipoId) refe
 alter table Notificacion add constraint FK_9BA3D3D4 foreign key (DestinatarioId) references Usuario
 alter table ParticipacionTorneo add constraint FK_CB5ABC08 foreign key (EquipoId) references Equipo
 alter table ParticipacionTorneo add constraint FK_D61144E foreign key (TorneoId) references Torneo
-alter table Perfil add constraint FK_1503F34C foreign key (UsuarioId) references Usuario
+alter table Perfil add constraint FK_1503F34C foreign key (IdPerfil) references Usuario
 alter table PerfilJuego add constraint FK_C590C1B4 foreign key (PerfilId) references Perfil
 alter table PerfilJuego add constraint FK_3A792974 foreign key (JuegoId) references Juego
 alter table PropuestaTorneo add constraint FK_249F0BAF foreign key (EquipoId) references Equipo

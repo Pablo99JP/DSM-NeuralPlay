@@ -1,0 +1,64 @@
+@model IEnumerable<NeuralPlay.Models.MiembroComunidadViewModel>
+
+@{
+    ViewData["Title"] = "Miembros de Comunidad";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Agregar Miembro</a>
+</p>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreComunidad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rol)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaAlta)
+            </th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model ?? Enumerable.Empty<NeuralPlay.Models.MiembroComunidadViewModel>()) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreUsuario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreComunidad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rol)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @item.FechaAlta.ToString("dd/MM/yyyy")
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdMiembroComunidad" class="btn btn-sm btn-outline-secondary">Editar</a> |
+                <a asp-action="Details" asp-route-id="@item.IdMiembroComunidad" class="btn btn-sm btn-outline-info">Detalles</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdMiembroComunidad" class="btn btn-sm btn-outline-danger">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
