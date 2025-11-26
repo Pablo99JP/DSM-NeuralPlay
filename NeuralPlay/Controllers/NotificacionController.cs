@@ -59,6 +59,22 @@ namespace NeuralPlay.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: /Notificacion/Delete/5
+        [HttpGet]
+        [ActionName("Delete")]
+        public IActionResult DeleteConfirm(long id)
+        {
+            var userId = HttpContext?.Session?.GetInt32("UsuarioId");
+            if (!userId.HasValue) return RedirectToAction("Login", "Usuario");
+
+            var n = _notificacionCEN.ReadOID_Notificacion(id);
+            if (n == null) return NotFound();
+            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
+
+            var vm = NotificacionAssembler.ConvertENToViewModel(n);
+            return View(vm);
+        }
+
         // POST: /Notificacion/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]

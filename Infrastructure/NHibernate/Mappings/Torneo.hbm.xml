@@ -12,6 +12,7 @@
     <property name="Reglas" column="Reglas" />
     <property name="Estado" column="Estado" />
 
+    <many-to-one name="Creador" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="CreadorId" />
     <many-to-one name="ComunidadOrganizadora" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
 
     <!-- Collections (Propuestas, Participaciones) are omitted here and will be added when those entities are mapped -->

@@ -11,6 +11,7 @@ namespace ApplicationCore.Domain.EN
         public virtual string? Reglas { get; set; }
         public virtual string Estado { get; set; } = null!;
 
+        public virtual Usuario? Creador { get; set; }
         public virtual Comunidad? ComunidadOrganizadora { get; set; }
         public virtual IList<PropuestaTorneo> Propuestas { get; set; } = new List<PropuestaTorneo>();
         public virtual IList<ParticipacionTorneo> Participaciones { get; set; } = new List<ParticipacionTorneo>();
