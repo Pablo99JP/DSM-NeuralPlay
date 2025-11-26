@@ -14,6 +14,7 @@ namespace ApplicationCore.Domain.CEN
         private readonly ParticipacionTorneoCEN _participacionCEN;
         private readonly NotificacionCEN _notificacionCEN;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly TorneoCEN _torneoCEN;
 
         public VotoTorneoCEN(
             IRepository<VotoTorneo> repo,
@@ -22,7 +23,8 @@ namespace ApplicationCore.Domain.CEN
             IUsuarioRepository usuarioRepo,
             ParticipacionTorneoCEN participacionCEN,
             NotificacionCEN notificacionCEN,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            TorneoCEN torneoCEN)
         {
             _repo = repo;
             _propuestaRepo = propuestaRepo;
@@ -31,6 +33,7 @@ namespace ApplicationCore.Domain.CEN
             _participacionCEN = participacionCEN;
             _notificacionCEN = notificacionCEN;
             _unitOfWork = unitOfWork;
+            _torneoCEN = torneoCEN;
         }
 
         public VotoTorneo NewVotoTorneo(bool valor, Usuario votante, PropuestaTorneo propuesta)
@@ -148,6 +151,12 @@ namespace ApplicationCore.Domain.CEN
 
                 // Guardar todos los cambios (voto + estado + participación + notificaciones)
                 _unitOfWork.SaveChanges();
+
+                // Validar y abrir torneo si tiene al menos 2 participaciones aceptadas
+                if (propuesta.Torneo != null)
+                {
+                    _torneoCEN.ValidarYAbrirTorneo(propuesta.Torneo.IdTorneo);
+                }
             }
             else if (anyFalse)
             {

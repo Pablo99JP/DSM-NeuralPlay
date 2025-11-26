@@ -573,6 +573,7 @@ END
                             services.AddScoped<PropuestaTorneoCEN>();
                             services.AddScoped<ParticipacionTorneoCEN>();
                             services.AddScoped<VotoTorneoCEN>();
+                            services.AddScoped<TorneoCEN>();
                             services.AddScoped<MiembroComunidadCEN>();
                             services.AddScoped<MiembroEquipoCEN>();
                             services.AddScoped<ChatEquipoCEN>();
