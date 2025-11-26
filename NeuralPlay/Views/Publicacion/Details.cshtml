@@ -39,6 +39,16 @@
 </div>
 
 <hr />
+<h3>Interacciones</h3>
+<div>
+    <button id="like-publicacion-btn" data-publicacion-id="@Model.idPublicacion" class="@(Model.LikedByUser ? "btn btn-primary" : "btn btn-outline-primary")">
+        <span id="like-publicacion-icon">👍</span>
+        <span id="like-publicacion-text">Me gusta</span>
+        <span id="like-publicacion-count">(@Model.LikeCount)</span>
+    </button>
+</div>
+
+<hr />
 <h3>Comentarios</h3>
 @if (userId.HasValue)
 {
@@ -55,6 +65,7 @@
                 <th>Autor</th>
                 <th>Contenido</th>
                 <th>Fecha</th>
+                <th>Likes</th>
                 <th></th>
             </tr>
         </thead>
@@ -65,6 +76,9 @@
                     <td>@(c.autorNick ?? "-")</td>
                     <td>@(c.contenido)</td>
                     <td>@c.fechaCreacion</td>
+                    <td>
+                        <button class="btn btn-sm toggle-like-comentario @(c.LikedByUser ? "btn-primary" : "btn-outline-primary")" data-comentario-id="@c.idComentario">👍 <span class="like-count">(@c.LikeCount)</span></button>
+                    </td>
                     <td>
                         @if (userId.HasValue && c.autorId == userId.Value)
                         {
@@ -81,4 +95,69 @@
 else
 {
     <p>No hay comentarios todavía.</p>
+}
+
+@section Scripts {
+    <script>
+        // Build route URLs server-side to avoid incorrect paths
+        const togglePublicacionUrl = '@Url.Action("TogglePublicacionLike","Reaccion")';
+        const toggleComentarioUrl = '@Url.Action("ToggleComentarioLike","Reaccion")';
+
+        const postJson = (url, data) => fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(async response => {
+            if (!response.ok) {
+                const text = await response.text().catch(() => null);
+                console.error('Request failed', response.status, response.statusText, text);
+                throw new Error('Request failed: ' + response.status);
+            }
+            const ct = response.headers.get('content-type') || '';
+            if (ct.indexOf('application/json') === -1) {
+                const text = await response.text().catch(() => null);
+                try { return JSON.parse(text); } catch { return null; }
+            }
+            return response.json().catch(() => null);
+        });
+
+        const pubBtn = document.getElementById('like-publicacion-btn');
+        if (pubBtn) {
+            pubBtn.addEventListener('click', function (e) {
+                const btn = e.currentTarget;
+                const pubId = parseInt(btn.getAttribute('data-publicacion-id'));
+                postJson(togglePublicacionUrl, { publicacionId: pubId }).then(j => {
+                    if (!j) return;
+                    if (j.liked) {
+                        btn.classList.remove('btn-outline-primary');
+                        btn.classList.add('btn-primary');
+                    } else {
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    }
+                    const countSpan = document.getElementById('like-publicacion-count');
+                    if (countSpan) countSpan.textContent = '(' + (j.count ??0) + ')';
+                }).catch(err => console.error('Like toggle error:', err));
+            });
+        }
+
+        document.querySelectorAll('.toggle-like-comentario').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const b = e.currentTarget;
+                const comentarioId = parseInt(b.getAttribute('data-comentario-id'));
+                postJson(toggleComentarioUrl, { comentarioId: comentarioId }).then(j => {
+                    if (!j) return;
+                    if (j.liked) {
+                        b.classList.remove('btn-outline-primary');
+                        b.classList.add('btn-primary');
+                    } else {
+                        b.classList.remove('btn-primary');
+                        b.classList.add('btn-outline-primary');
+                    }
+                    const span = b.querySelector('.like-count');
+                    if (span) span.textContent = '(' + (j.count ??0) + ')';
+                }).catch(err => console.error('Comentario like toggle error:', err));
+            });
+        });
+    </script>
 }

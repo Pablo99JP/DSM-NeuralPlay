@@ -20,5 +20,9 @@ namespace NeuralPlay.Models
 
         // Comentarios asociados a la publicación
         public IEnumerable<ComentarioViewModel> comentarios { get; set; } = new List<ComentarioViewModel>();
+
+        // Likes
+        public int LikeCount { get; set; }
+        public bool LikedByUser { get; set; }
     }
 }

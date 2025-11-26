@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using NeuralPlay.Assemblers;
 using NeuralPlay.Models;
 using NHibernate;
+using System.Linq;
 
 namespace NeuralPlay.Controllers
 {
@@ -16,16 +17,19 @@ namespace NeuralPlay.Controllers
         private readonly PublicacionCEN _PublicacionCEN;
         private readonly IRepository<Publicacion> _PublicacionRepository;
         private readonly NHibernate.ISession _session;
+        private readonly IReaccionRepository _reaccionRepository;
 
         public PublicacionController(
             UsuarioCEN usuarioCEN,
             IUsuarioRepository usuarioRepository,
             IRepository<Publicacion> publicacionRepository,
-            NHibernate.ISession session)
+            NHibernate.ISession session,
+            IReaccionRepository reaccionRepository)
             : base(usuarioCEN, usuarioRepository)
         {
             _PublicacionRepository = publicacionRepository;
             _session = session;
+            _reaccionRepository = reaccionRepository;
 
             // Instantiate the CEN here using the injected repository so DI container doesn't need a registration for PublicacionCEN
             _PublicacionCEN = new PublicacionCEN(publicacionRepository);
@@ -55,11 +59,49 @@ namespace NeuralPlay.Controllers
                 // Populate comentarios using assembler helper to ensure non-null list
                 vm.comentarios = ComentarioAssembler.ConvertListENToViewModel(en.Comentarios);
 
+                // Set Like count for publication
+                vm.LikeCount = _reaccionRepository.CountByPublicacion(en.IdPublicacion);
+
+                // Determine if current user liked it
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (uid.HasValue)
+                {
+                    var existing = _reaccionRepository.GetByPublicacionAndAutor(en.IdPublicacion, uid.Value);
+                    vm.LikedByUser = existing != null;
+                }
+
+                // Populate like counts and liked status for each comment
+                if (vm.comentarios != null)
+                {
+                    foreach (var c in vm.comentarios)
+                    {
+                        c.LikeCount = _reaccionRepository.CountByComentario(c.idComentario);
+                        if (uid.HasValue)
+                        {
+                            var existingC = _reaccion_repository_GetByComentarioAndAutor_safe(c.idComentario, uid.Value);
+                            c.LikedByUser = existingC != null;
+                        }
+                    }
+                }
+
                 return View(vm);
             }
             catch (System.Exception ex)
             {
                 return Problem(ex.Message);
+            }
+        }
+
+        // Helper to avoid naming conflict in generated code - call repository method via interface
+        private Reaccion? _reaccion_repository_GetByComentarioAndAutor_safe(long comentarioId, int usuarioId)
+        {
+            try
+            {
+                return _reaccionRepository.GetByComentarioAndAutor(comentarioId, usuarioId);
+            }
+            catch
+            {
+                return null;
             }
         }
 

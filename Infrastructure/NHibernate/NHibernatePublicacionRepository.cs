@@ -16,23 +16,36 @@ namespace Infrastructure.NHibernate
             _session = session;
         }
 
-        // Use LINQ with FetchMany to ensure Comentarios (and their Autor) are loaded eagerly
+        // Ensure collections are initialized to avoid lazy-loading issues in views
         public Publicacion? ReadById(long id)
         {
             try
             {
-                var q = _session.Query<Publicacion>()
-                    .FetchMany(p => p.Comentarios)
-                    .ThenFetch(c => c.Autor)
-                    .Where(p => p.IdPublicacion == id)
-                    .ToFutureValue();
+                var en = _session.Get<Publicacion>(id);
+                if (en == null) return null;
 
-                // ToFutureValue returns an IFutureValue<Publicacion>; Value triggers execution
-                return q.Value;
+                // Initialize collections and related entities
+                try
+                {
+                    NHibernateUtil.Initialize(en.Comentarios);
+                    NHibernateUtil.Initialize(en.Reacciones);
+
+                    // Ensure comment authors and comment reactions are initialized
+                    foreach (var c in en.Comentarios ?? System.Array.Empty<Comentario>())
+                    {
+                        NHibernateUtil.Initialize(c.Autor);
+                        NHibernateUtil.Initialize(c.Reacciones);
+                    }
+                }
+                catch
+                {
+                    // Ignore initialization errors; fall back to returning the entity as-is
+                }
+
+                return en;
             }
             catch
             {
-                // Fallback to simple Get if LINQ fetch fails for any reason
                 return _session.Get<Publicacion>(id);
             }
         }

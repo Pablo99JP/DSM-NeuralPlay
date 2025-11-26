@@ -26,5 +26,9 @@ namespace NeuralPlay.Models
 
  // Id del autor para comprobaciones de permisos
  public long autorId { get; set; }
+
+ // Likes
+ public int LikeCount { get; set; }
+ public bool LikedByUser { get; set; }
  }
 }

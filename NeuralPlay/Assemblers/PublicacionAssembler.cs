@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Domain.EN;
 using NeuralPlay.Models;
+using System.Linq;
 
 namespace NeuralPlay.Assemblers
 {
@@ -13,7 +14,9 @@ namespace NeuralPlay.Assemblers
                 idPublicacion = en.IdPublicacion,
                 contenido = en.Contenido,
                 fechaCreacion = en.FechaCreacion,
-                fechaEdicion = en.FechaEdicion ?? DateTime.MinValue
+                fechaEdicion = en.FechaEdicion ?? DateTime.MinValue,
+                LikeCount = en.Reacciones?.Count(r => r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA) ??0,
+                LikedByUser = false // controller will set this based on session
             };
         }
 

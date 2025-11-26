@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ApplicationCore.Domain.EN
 {
@@ -11,5 +12,6 @@ namespace ApplicationCore.Domain.EN
 
         public virtual Usuario? Autor { get; set; }
         public virtual Publicacion? Publicacion { get; set; }
+        public virtual IList<Reaccion> Reacciones { get; set; } = new List<Reaccion>();
     }
 }

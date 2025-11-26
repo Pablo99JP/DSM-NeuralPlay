@@ -20,6 +20,10 @@
       <one-to-many class="ApplicationCore.Domain.EN.Comentario, ApplicationCore" />
     </bag>
 
-    <!-- Reacciones omitted for now -->
+    <!-- Collection of reacciones -->
+    <bag name="Reacciones" inverse="true" cascade="all-delete-orphan" lazy="false">
+      <key column="PublicacionId" />
+      <one-to-many class="ApplicationCore.Domain.EN.Reaccion, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>
