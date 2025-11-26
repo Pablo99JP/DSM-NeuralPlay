@@ -27,6 +27,13 @@ builder.Services.AddScoped<MiembroEquipoCEN>();
 builder.Services.AddScoped<JuegoCEN>();
 builder.Services.AddScoped<EquipoCEN>();
 
+// Register invitation/solicitud CENs used by controllers
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.InvitacionCEN>();
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.SolicitudIngresoCEN>();
+
+// Register CPs
+builder.Services.AddScoped<ApplicationCore.Domain.CP.AceptarInvitacionCP>();
+
 // --- INICIO DE LA CORRECCIÓN ---
 // Registrar el servicio de autenticación que faltaba
 builder.Services.AddScoped<IUsuarioAuth, UsuarioAuthService>();

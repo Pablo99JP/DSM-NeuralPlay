@@ -1,0 +1,38 @@
+@model NeuralPlay.Models.SolicitudIngresoViewModel
+
+@{
+ ViewData["Title"] = "Solicitud Details";
+}
+
+<h1>Solicitud @Model.IdSolicitud</h1>
+<dl class="row">
+ <dt class="col-sm-2">Tipo</dt>
+ <dd class="col-sm-10">@Model.Tipo</dd>
+ <dt class="col-sm-2">Estado</dt>
+ <dd class="col-sm-10">@Model.Estado</dd>
+ <dt class="col-sm-2">Solicitante</dt>
+ <dd class="col-sm-10">@Model.SolicitanteNick</dd>
+ <dt class="col-sm-2">Objetivo</dt>
+ <dd class="col-sm-10">@(Model.ComunidadNombre ?? Model.EquipoNombre)</dd>
+</dl>
+
+@{
+ var uid = Context.Session.GetInt32("UsuarioId");
+ bool canResolve = uid.HasValue; // placeholder: replace with role check
+}
+
+@if (Model.Estado.ToString() == "PENDIENTE" && canResolve)
+{
+ <form asp-action="Accept" method="post" class="d-inline">
+ <input type="hidden" name="id" value="@Model.IdSolicitud" />
+ <button type="submit" class="btn btn-success">Aceptar</button>
+ </form>
+ <form asp-action="Reject" method="post" class="d-inline ms-2">
+ <input type="hidden" name="id" value="@Model.IdSolicitud" />
+ <button type="submit" class="btn btn-danger">Rechazar</button>
+ </form>
+}
+
+<p>
+ <a asp-action="Index" class="btn btn-secondary">Back</a>
+</p>

@@ -1,0 +1,42 @@
+@model IEnumerable<NeuralPlay.Models.InvitacionViewModel>
+
+@{
+ ViewData["Title"] = "Invitaciones";
+}
+
+<h1>Invitaciones</h1>
+
+<p>
+ <a asp-action="Create" class="btn btn-primary">Nueva invitación</a>
+</p>
+
+<table class="table">
+ <thead>
+ <tr>
+ <th>Id</th>
+ <th>Tipo</th>
+ <th>Emisor</th>
+ <th>Destinatario</th>
+ <th>Estado</th>
+ <th>FechaEnvio</th>
+ <th></th>
+ </tr>
+ </thead>
+ <tbody>
+ @foreach(var i in Model)
+ {
+ <tr>
+ <td>@i.IdInvitacion</td>
+ <td>@i.Tipo</td>
+ <td>@i.EmisorNick</td>
+ <td>@i.DestinatarioNick</td>
+ <td>@i.Estado</td>
+ <td>@i.FechaEnvio</td>
+ <td>
+ <a asp-action="Details" asp-route-id="@i.IdInvitacion">Details</a> |
+ <a asp-action="Delete" asp-route-id="@i.IdInvitacion">Delete</a>
+ </td>
+ </tr>
+ }
+ </tbody>
+</table>

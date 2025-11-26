@@ -1,0 +1,21 @@
+@model NeuralPlay.Models.SolicitudIngresoViewModel
+
+@{
+ ViewData["Title"] = "Eliminar Solicitud";
+}
+
+<h1>Eliminar Solicitud</h1>
+<div>
+ <h4>Confirmar eliminación de solicitud @Model.IdSolicitud</h4>
+ <dl class="row">
+ <dt class="col-sm-2">Solicitante</dt>
+ <dd class="col-sm-10">@Model.SolicitanteNick</dd>
+ <dt class="col-sm-2">Objetivo</dt>
+ <dd class="col-sm-10">@(Model.ComunidadNombre ?? Model.EquipoNombre)</dd>
+ </dl>
+ <form asp-action="Delete" method="post">
+ <input type="hidden" name="id" value="@Model.IdSolicitud" />
+ <button type="submit" class="btn btn-danger">Eliminar</button>
+ <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+ </form>
+</div>
