@@ -9,14 +9,23 @@ namespace ApplicationCore.Domain.CEN
     {
         private readonly IRepository<Torneo> _repo;
         private readonly IRepository<ParticipacionTorneo> _participacionRepo;
-        private readonly IRepository<PropuestaTorneo> _propuestaRepo;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepository<PropuestaTorneo>? _propuestaRepo; // puede ser null en tests antiguos
+        private readonly IUnitOfWork? _unitOfWork; // puede ser null en tests
 
         public TorneoCEN(IRepository<Torneo> repo, IRepository<ParticipacionTorneo> participacionRepo, IRepository<PropuestaTorneo> propuestaRepo, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _participacionRepo = participacionRepo;
             _propuestaRepo = propuestaRepo;
+            _unitOfWork = unitOfWork;
+        }
+
+        // Compatibilidad con tests que usan3 parámetros: (repo, participacionRepo, unitOfWork)
+        public TorneoCEN(IRepository<Torneo> repo, IRepository<ParticipacionTorneo> participacionRepo, IUnitOfWork unitOfWork)
+        {
+            _repo = repo;
+            _participacionRepo = participacionRepo;
+            _propuestaRepo = null;
             _unitOfWork = unitOfWork;
         }
 
@@ -53,19 +62,22 @@ namespace ApplicationCore.Domain.CEN
                 _participacionRepo.Destroy(p.IdParticipacion);
             }
 
-            // Eliminar todas las propuestas asociadas
-            var propuestas = _propuestaRepo.ReadAll()
-                .Where(p => p.Torneo != null && p.Torneo.IdTorneo == id)
-                .ToList();
-            
-            foreach (var p in propuestas)
+            // Eliminar todas las propuestas asociadas (si el repo está disponible)
+            if (_propuestaRepo != null)
             {
-                _propuestaRepo.Destroy(p.IdPropuesta);
+                var propuestas = _propuestaRepo.ReadAll()
+                    .Where(p => p.Torneo != null && p.Torneo.IdTorneo == id)
+                    .ToList();
+                
+                foreach (var p in propuestas)
+                {
+                    _propuestaRepo.Destroy(p.IdPropuesta);
+                }
             }
 
             // Finalmente eliminar el torneo
             _repo.Destroy(id);
-            _unitOfWork.SaveChanges();
+            _unitOfWork?.SaveChanges();
         }
         
         public IEnumerable<Torneo> BuscarTorneosPorNombre(string filtro) => _repo.ReadFilter(filtro);
@@ -91,7 +103,7 @@ namespace ApplicationCore.Domain.CEN
             {
                 torneo.Estado = "ABIERTO";
                 _repo.Modify(torneo);
-                _unitOfWork.SaveChanges();
+                _unitOfWork?.SaveChanges();
                 return true;
             }
 
