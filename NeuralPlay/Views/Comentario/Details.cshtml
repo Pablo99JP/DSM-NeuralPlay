@@ -1,0 +1,26 @@
+@model NeuralPlay.Models.ComentarioViewModel
+
+@{
+    ViewData["Title"] = "Detalle Comentario";
+}
+
+<h1>Detalle Comentario</h1>
+
+<div>
+    <h4>Contenido</h4>
+    <p>@Model.Contenido</p>
+</div>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Fecha creación</dt>
+        <dd class="col-sm-10">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+        <dt class="col-sm-2">Fecha edición</dt>
+        <dd class="col-sm-10">@(Model.FechaEdicion.HasValue ? Model.FechaEdicion.Value.ToString("dd/MM/yyyy HH:mm") : "-")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</p>

@@ -13,6 +13,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<UsuarioCEN>();
 // Registrar CENs mínimos necesarios
 builder.Services.AddScoped<NotificacionCEN>();
+// Registrar CEN para Publicacion y otras entidades que usamos en los controladores
+builder.Services.AddScoped<PublicacionCEN>();
+builder.Services.AddScoped<ComentarioCEN>();
+builder.Services.AddScoped<ReaccionCEN>();
+builder.Services.AddScoped<InvitacionCEN>();
+builder.Services.AddScoped<SolicitudIngresoCEN>();
 // Registrar CENs relacionados con torneos y votación
 builder.Services.AddScoped<PropuestaTorneoCEN>();
 builder.Services.AddScoped<VotoTorneoCEN>();

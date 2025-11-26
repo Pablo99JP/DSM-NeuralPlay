@@ -1,0 +1,21 @@
+@model NeuralPlay.Models.ReaccionViewModel
+
+@{
+    ViewData["Title"] = "Detalle Reacción";
+}
+
+<h1>Detalle Reacción</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Tipo</dt>
+        <dd class="col-sm-10">@Model.Tipo</dd>
+        <dt class="col-sm-2">Fecha creación</dt>
+        <dd class="col-sm-10">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</p>

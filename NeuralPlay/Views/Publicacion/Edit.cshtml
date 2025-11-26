@@ -1,0 +1,22 @@
+@model NeuralPlay.Models.PublicacionViewModel
+
+@{
+    ViewData["Title"] = "Editar Publicación";
+}
+
+<h1>Editar Publicación</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Contenido"></label>
+        <textarea asp-for="Contenido" class="form-control"></textarea>
+        <span asp-validation-for="Contenido" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

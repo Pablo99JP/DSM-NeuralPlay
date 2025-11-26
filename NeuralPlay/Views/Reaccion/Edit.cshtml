@@ -1,0 +1,19 @@
+@model NeuralPlay.Models.ReaccionViewModel
+
+@using ApplicationCore.Domain.Enums
+
+@{
+    ViewData["Title"] = "Editar Reacción";
+}
+
+<h1>Editar Reacción</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Tipo"></label>
+        <select asp-for="Tipo" class="form-control" asp-items="Html.GetEnumSelectList<TipoReaccion>()"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

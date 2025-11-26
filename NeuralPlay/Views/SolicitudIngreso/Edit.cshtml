@@ -1,0 +1,23 @@
+@model NeuralPlay.Models.SolicitudIngresoViewModel
+
+@using ApplicationCore.Domain.Enums
+
+@{
+    ViewData["Title"] = "Editar Solicitud de ingreso";
+}
+
+<h1>Editar Solicitud de ingreso</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Estado"></label>
+        <select asp-for="Estado" class="form-control" asp-items="Html.GetEnumSelectList<EstadoSolicitud>()"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="FechaResolucion"></label>
+        <input asp-for="FechaResolucion" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

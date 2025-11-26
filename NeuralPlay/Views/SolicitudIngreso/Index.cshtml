@@ -1,0 +1,36 @@
+@model IEnumerable<NeuralPlay.Models.SolicitudIngresoViewModel>
+
+@{
+    ViewData["Title"] = "Solicitudes de ingreso";
+}
+
+<h1>Solicitudes de ingreso</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear solicitud</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Fecha solicitud</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Tipo</td>
+            <td>@item.Estado</td>
+            <td>@item.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

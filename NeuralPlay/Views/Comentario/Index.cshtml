@@ -1,0 +1,30 @@
+@model IEnumerable<NeuralPlay.Models.ComentarioViewModel>
+
+@{
+    ViewData["Title"] = "Comentarios";
+}
+
+<h1>Comentarios</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Contenido</th>
+            <th>Fecha creación</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Contenido</td>
+            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

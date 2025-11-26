@@ -1,0 +1,39 @@
+@model IEnumerable<NeuralPlay.Models.PublicacionViewModel>
+
+@{
+    ViewData["Title"] = "Publicaciones";
+}
+
+<h1>Publicaciones</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear nueva publicación</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Contenido</th>
+            <th>Fecha creación</th>
+            <th>Fecha edición</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Contenido</td>
+            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(item.FechaEdicion.HasValue ? item.FechaEdicion.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline">
+                    <button type="submit" class="btn btn-link">Borrar</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
