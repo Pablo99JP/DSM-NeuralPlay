@@ -20,6 +20,7 @@ builder.Services.AddScoped<MiembroComunidadCEN>();
 builder.Services.AddScoped<PropuestaTorneoCEN>();
 builder.Services.AddScoped<VotoTorneoCEN>();
 builder.Services.AddScoped<ParticipacionTorneoCEN>();
+builder.Services.AddScoped<TorneoCEN>();
 builder.Services.AddScoped<MiembroEquipoCEN>();
 builder.Services.AddScoped<JuegoCEN>();
 builder.Services.AddScoped<EquipoCEN>();

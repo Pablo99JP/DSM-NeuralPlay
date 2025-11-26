@@ -11,22 +11,28 @@ namespace NeuralPlay.Controllers
         private readonly PropuestaTorneoCEN _propuestaCEN;
         private readonly NeuralPlay.Services.IUsuarioAuth _usuarioAuth;
         private readonly ApplicationCore.Domain.CEN.MiembroEquipoCEN _miembroEquipoCEN;
+        private readonly ApplicationCore.Domain.CEN.MiembroComunidadCEN _miembroComunidadCEN;
         private readonly ApplicationCore.Domain.CEN.EquipoCEN _equipoCEN;
         private readonly ApplicationCore.Domain.CEN.ParticipacionTorneoCEN _participacionTorneoCEN;
+        private readonly ApplicationCore.Domain.CEN.TorneoCEN _torneoCEN;
 
         public TorneoController(ApplicationCore.Domain.Repositories.IRepository<Torneo> torneoRepo,
             PropuestaTorneoCEN propuestaCEN,
             NeuralPlay.Services.IUsuarioAuth usuarioAuth,
             ApplicationCore.Domain.CEN.MiembroEquipoCEN miembroEquipoCEN,
+            ApplicationCore.Domain.CEN.MiembroComunidadCEN miembroComunidadCEN,
             ApplicationCore.Domain.CEN.EquipoCEN equipoCEN,
-            ApplicationCore.Domain.CEN.ParticipacionTorneoCEN participacionTorneoCEN)
+            ApplicationCore.Domain.CEN.ParticipacionTorneoCEN participacionTorneoCEN,
+            ApplicationCore.Domain.CEN.TorneoCEN torneoCEN)
         {
             _torneoRepo = torneoRepo;
             _propuestaCEN = propuestaCEN;
             _usuarioAuth = usuarioAuth;
             _miembroEquipoCEN = miembroEquipoCEN;
+            _miembroComunidadCEN = miembroComunidadCEN;
             _equipoCEN = equipoCEN;
             _participacionTorneoCEN = participacionTorneoCEN;
+            _torneoCEN = torneoCEN;
         }
 
         public IActionResult Index()
@@ -97,19 +103,20 @@ namespace NeuralPlay.Controllers
             var equipo = _equipoCEN.ReadOID_Equipo(model.SelectedEquipoId);
             if (equipo == null) return BadRequest("Equipo no válido");
 
-            // 1) Validar que el torneo esté abierto
-            if (!string.Equals(torneo.Estado, "ABIERTO", System.StringComparison.OrdinalIgnoreCase))
+            // 1) Validar que el torneo esté PENDIENTE o ABIERTO
+            if (!string.Equals(torneo.Estado, "PENDIENTE", System.StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(torneo.Estado, "ABIERTO", System.StringComparison.OrdinalIgnoreCase))
             {
-                TempData["ErrorMessage"] = "No se pueden crear propuestas en un torneo que no está abierto.";
+                TempData["ErrorMessage"] = "No se pueden crear propuestas en un torneo que no está pendiente o abierto.";
                 return RedirectToAction(nameof(ProponerParticipacion), new { id = torneo.IdTorneo });
             }
 
-            // 2) Validar que el usuario pertenezca al equipo y tenga rol ADMIN
+            // 2) Validar que el usuario pertenezca al equipo (cualquier rol, estado ACTIVO)
             var miembrosUsuario = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
             var miembroProp = miembrosUsuario.FirstOrDefault(m => m.Equipo != null && m.Equipo.IdEquipo == equipo.IdEquipo);
-            if (miembroProp == null || miembroProp.Rol != ApplicationCore.Domain.Enums.RolEquipo.ADMIN || miembroProp.Estado != ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+            if (miembroProp == null || miembroProp.Estado != ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
             {
-                TempData["ErrorMessage"] = "Solo administradores de equipo activos pueden proponer participación.";
+                TempData["ErrorMessage"] = "Solo miembros activos del equipo pueden proponer participación.";
                 return RedirectToAction(nameof(ProponerParticipacion), new { id = torneo.IdTorneo });
             }
 
@@ -127,6 +134,225 @@ namespace NeuralPlay.Controllers
 
             // Redirigir a detalles del torneo
             return RedirectToAction("Details", new { id = torneo.IdTorneo });
+        }
+
+        // GET: /Torneo/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión para crear torneos.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar si el usuario es LIDER de alguna comunidad
+            var miembrosComunidad = _miembroComunidadCEN.ReadAll_MiembroComunidad()
+                .Where(m => m.Usuario != null && m.Usuario.IdUsuario == usuario.IdUsuario)
+                .ToList();
+            
+            var esLider = miembrosComunidad.Any(mc => 
+                mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+                mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+
+            if (!esLider)
+            {
+                TempData["ErrorMessage"] = "Solo los líderes de comunidad pueden crear torneos.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(new NeuralPlay.Models.TorneoCreateViewModel());
+        }
+
+        // POST: /Torneo/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(NeuralPlay.Models.TorneoCreateViewModel model)
+        {
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión para crear torneos.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar si el usuario es LIDER de alguna comunidad
+            var miembrosComunidad = _miembroComunidadCEN.ReadAll_MiembroComunidad()
+                .Where(m => m.Usuario != null && m.Usuario.IdUsuario == usuario.IdUsuario)
+                .ToList();
+            
+            var esLider = miembrosComunidad.Any(mc => 
+                mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+                mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+
+            if (!esLider)
+            {
+                TempData["ErrorMessage"] = "Solo los líderes de comunidad pueden crear torneos.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // Crear el torneo con estado PENDIENTE
+                var torneo = _torneoCEN.NewTorneo(
+                    model.Nombre,
+                    model.FechaInicio,
+                    model.Reglas,
+                    null, // ComunidadOrganizadora puede ser null por ahora
+                    usuario // Creador del torneo
+                );
+
+                TempData["SuccessMessage"] = $"Torneo '{torneo.Nombre}' creado correctamente con estado PENDIENTE. Se abrirá automáticamente cuando tenga al menos 2 participaciones.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = $"Error al crear el torneo: {ex.Message}";
+                return View(model);
+            }
+        }
+
+        // GET: /Torneo/Edit/5
+        [HttpGet]
+        public IActionResult Edit(long id)
+        {
+            var torneo = _torneoRepo.ReadById(id);
+            if (torneo == null) return NotFound();
+
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar que el usuario sea el creador
+            if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
+            {
+                TempData["ErrorMessage"] = "Solo el creador del torneo puede editarlo.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = new NeuralPlay.Models.TorneoCreateViewModel
+            {
+                Nombre = torneo.Nombre,
+                FechaInicio = torneo.FechaInicio,
+                Reglas = torneo.Reglas
+            };
+
+            ViewBag.IdTorneo = id;
+            return View(model);
+        }
+
+        // POST: /Torneo/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(long id, NeuralPlay.Models.TorneoCreateViewModel model)
+        {
+            var torneo = _torneoRepo.ReadById(id);
+            if (torneo == null) return NotFound();
+
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar que el usuario sea el creador
+            if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
+            {
+                TempData["ErrorMessage"] = "Solo el creador del torneo puede editarlo.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.IdTorneo = id;
+                return View(model);
+            }
+
+            try
+            {
+                torneo.Nombre = model.Nombre;
+                torneo.FechaInicio = model.FechaInicio;
+                torneo.Reglas = model.Reglas;
+
+                _torneoCEN.ModifyTorneo(torneo);
+                TempData["SuccessMessage"] = "Torneo actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = $"Error al actualizar el torneo: {ex.Message}";
+                ViewBag.IdTorneo = id;
+                return View(model);
+            }
+        }
+
+        // GET: /Torneo/Delete/5
+        [HttpGet]
+        public IActionResult Delete(long id)
+        {
+            var torneo = _torneoRepo.ReadById(id);
+            if (torneo == null) return NotFound();
+
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar que el usuario sea el creador
+            if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
+            {
+                TempData["ErrorMessage"] = "Solo el creador del torneo puede eliminarlo.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(torneo);
+        }
+
+        // POST: /Torneo/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(long id)
+        {
+            var torneo = _torneoRepo.ReadById(id);
+            if (torneo == null) return NotFound();
+
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            // Verificar que el usuario sea el creador
+            if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
+            {
+                TempData["ErrorMessage"] = "Solo el creador del torneo puede eliminarlo.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                _torneoCEN.DestroyTorneo(id);
+                TempData["SuccessMessage"] = "Torneo eliminado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (System.Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al eliminar el torneo: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

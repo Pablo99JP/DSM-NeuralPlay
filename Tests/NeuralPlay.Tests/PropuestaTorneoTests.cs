@@ -39,13 +39,18 @@ namespace NeuralPlay.Tests
             votoRepoMock.Setup(v => v.New(It.IsAny<VotoTorneo>())).Callback<VotoTorneo>(v => propuesta.Votos.Add(v));
 
             var participacionRepoMock = new Mock<ApplicationCore.Domain.Repositories.IParticipacionTorneoRepository>();
-            var participacionCEN = new ParticipacionTorneoCEN(participacionRepoMock.Object);
+            var torneoRepoMockForParticipacion = new Mock<IRepository<Torneo>>();
+            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
+            var participacionCEN = new ParticipacionTorneoCEN(participacionRepoMock.Object, torneoRepoMockForParticipacion.Object, unitOfWorkMock.Object);
 
             var notRepoMock = new Mock<IRepository<Notificacion>>();
             var notificacionCEN = new NotificacionCEN(notRepoMock.Object);
-
-            var unitOfWorkMock = new Mock<ApplicationCore.Domain.Repositories.IUnitOfWork>();
-            var votoCEN = new VotoTorneoCEN(votoRepoMock.Object, propuestaRepoMock.Object, miembroRepoMock.Object, usuarioRepoMock.Object, participacionCEN, notificacionCEN, unitOfWorkMock.Object);
+            
+            var torneoRepoMock = new Mock<IRepository<Torneo>>();
+            var participacionRepoMockForTorneo = new Mock<IRepository<ParticipacionTorneo>>();
+            var torneoCEN = new ApplicationCore.Domain.CEN.TorneoCEN(torneoRepoMock.Object, participacionRepoMockForTorneo.Object, unitOfWorkMock.Object);
+            
+            var votoCEN = new VotoTorneoCEN(votoRepoMock.Object, propuestaRepoMock.Object, miembroRepoMock.Object, usuarioRepoMock.Object, participacionCEN, notificacionCEN, unitOfWorkMock.Object, torneoCEN);
 
             // Act: emitir 3 votos positivos
             votoCEN.EmitirVoto(propuesta.IdPropuesta, u1.IdUsuario, true);
