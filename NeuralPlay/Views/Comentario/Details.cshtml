@@ -1,0 +1,24 @@
+@model NeuralPlay.Models.ComentarioViewModel
+
+@{
+ ViewData["Title"] = "Detalle Comentario";
+}
+
+<h1>Detalle Comentario</h1>
+
+<dl class="row">
+ <dt class="col-sm-2">Autor</dt>
+ <dd class="col-sm-10">@Model.autorNick</dd>
+ <dt class="col-sm-2">Contenido</dt>
+ <dd class="col-sm-10">@Model.contenido</dd>
+ <dt class="col-sm-2">Fecha creación</dt>
+ <dd class="col-sm-10">@Model.fechaCreacion</dd>
+ <dt class="col-sm-2">Fecha edición</dt>
+ <dd class="col-sm-10">@(Model.fechaEdicion == DateTime.MinValue ? "-" : Model.fechaEdicion.ToString())</dd>
+</dl>
+
+<div class="d-flex gap-2">
+ <a asp-action="Edit" asp-route-id="@Model.idComentario" class="btn btn-primary">Editar</a>
+ <a asp-action="Delete" asp-route-id="@Model.idComentario" class="btn btn-danger">Eliminar</a>
+ <a asp-controller="Publicacion" asp-action="Details" asp-route-id="@Model.publicacionId" class="btn btn-secondary">Volver</a>
+</div>

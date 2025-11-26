@@ -16,7 +16,26 @@ namespace Infrastructure.NHibernate
             _session = session;
         }
 
-        public Publicacion? ReadById(long id) => _session.Get<Publicacion>(id);
+        // Use LINQ with FetchMany to ensure Comentarios (and their Autor) are loaded eagerly
+        public Publicacion? ReadById(long id)
+        {
+            try
+            {
+                var q = _session.Query<Publicacion>()
+                    .FetchMany(p => p.Comentarios)
+                    .ThenFetch(c => c.Autor)
+                    .Where(p => p.IdPublicacion == id)
+                    .ToFutureValue();
+
+                // ToFutureValue returns an IFutureValue<Publicacion>; Value triggers execution
+                return q.Value;
+            }
+            catch
+            {
+                // Fallback to simple Get if LINQ fetch fails for any reason
+                return _session.Get<Publicacion>(id);
+            }
+        }
 
         public IEnumerable<Publicacion> ReadAll()
         {

@@ -17,5 +17,8 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Fecha de Edicion")]
         public DateTime fechaEdicion { get; set; } = DateTime.Now;
+
+        // Comentarios asociados a la publicación
+        public IEnumerable<ComentarioViewModel> comentarios { get; set; } = new List<ComentarioViewModel>();
     }
 }

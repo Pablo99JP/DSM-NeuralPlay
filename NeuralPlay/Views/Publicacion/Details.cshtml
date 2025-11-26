@@ -1,7 +1,10 @@
 ﻿@model NeuralPlay.Models.PublicacionViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Details";
+    var userId = HttpContextAccessor.HttpContext?.Session?.GetInt32("UsuarioId");
 }
 
 <h1>Details</h1>
@@ -31,6 +34,51 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Edit", "Edit", new { id = Model.idPublicacion }) <span>|</span>
     <a asp-action="Index">Back to List</a>
 </div>
+
+<hr />
+<h3>Comentarios</h3>
+@if (userId.HasValue)
+{
+    <p>
+        <a asp-controller="Comentario" asp-action="Create" asp-route-publicacionId="@Model.idPublicacion" class="btn btn-primary">Añadir comentario</a>
+    </p>
+}
+
+@if (Model.comentarios != null && Model.comentarios.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Autor</th>
+                <th>Contenido</th>
+                <th>Fecha</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.comentarios)
+            {
+                <tr>
+                    <td>@(c.autorNick ?? "-")</td>
+                    <td>@(c.contenido)</td>
+                    <td>@c.fechaCreacion</td>
+                    <td>
+                        @if (userId.HasValue && c.autorId == userId.Value)
+                        {
+                            @Html.ActionLink("Edit", "Edit", "Comentario", new { id = c.idComentario }, null)
+                            @:<span> | </span>
+                            @Html.ActionLink("Delete", "Delete", "Comentario", new { id = c.idComentario }, null)
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay comentarios todavía.</p>
+}

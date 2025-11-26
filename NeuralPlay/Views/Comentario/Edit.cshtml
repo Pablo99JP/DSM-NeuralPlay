@@ -1,0 +1,28 @@
+@model NeuralPlay.Models.ComentarioViewModel
+
+@{
+ ViewData["Title"] = "Editar Comentario";
+}
+
+<h1>Editar Comentario</h1>
+
+<form asp-action="Edit" method="post">
+ @Html.AntiForgeryToken()
+ <input type="hidden" asp-for="idComentario" />
+ <input type="hidden" asp-for="publicacionId" />
+
+ <div class="form-group mb-3">
+ <label asp-for="contenido" class="form-label"></label>
+ <textarea asp-for="contenido" class="form-control" rows="4"></textarea>
+ <span asp-validation-for="contenido" class="text-danger"></span>
+ </div>
+
+ <div class="d-flex gap-2">
+ <button type="submit" class="btn btn-primary">Guardar</button>
+ <a asp-controller="Publicacion" asp-action="Details" asp-route-id="@Model.publicacionId" class="btn btn-secondary">Cancelar</a>
+ </div>
+</form>
+
+@section Scripts {
+ @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

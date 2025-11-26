@@ -14,6 +14,12 @@
     <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
     <many-to-one name="Autor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="AutorId" />
 
-    <!-- Collections (Comentarios, Reacciones) omitted until those entities are mapped -->
+    <!-- Collection of comentarios -->
+    <bag name="Comentarios" inverse="true" cascade="all-delete-orphan" lazy="false">
+      <key column="PublicacionId" />
+      <one-to-many class="ApplicationCore.Domain.EN.Comentario, ApplicationCore" />
+    </bag>
+
+    <!-- Reacciones omitted for now -->
   </class>
 </hibernate-mapping>

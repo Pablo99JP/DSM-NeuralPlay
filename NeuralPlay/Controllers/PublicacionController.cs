@@ -52,6 +52,9 @@ namespace NeuralPlay.Controllers
                 if (en == null) return NotFound();
                 var vm = PublicacionAssembler.ConvertENToViewModel(en);
 
+                // Populate comentarios using assembler helper to ensure non-null list
+                vm.comentarios = ComentarioAssembler.ConvertListENToViewModel(en.Comentarios);
+
                 return View(vm);
             }
             catch (System.Exception ex)
@@ -138,29 +141,21 @@ namespace NeuralPlay.Controllers
         // GET: PublicacionController/Delete/5
         public ActionResult Delete(int id)
         {
-            try
-            {
-                _PublicacionCEN.DestroyPublicacion(id);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (System.Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+            return View();
         }
 
         // POST: PublicacionController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
                 return RedirectToAction(nameof(Index));
             }
-            catch (System.Exception ex)
+            catch
             {
-                return Problem(ex.Message);
+                return View();
             }
         }
     }

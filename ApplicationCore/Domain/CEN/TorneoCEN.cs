@@ -12,11 +12,21 @@ namespace ApplicationCore.Domain.CEN
         private readonly IRepository<PropuestaTorneo> _propuestaRepo;
         private readonly IUnitOfWork _unitOfWork;
 
+        // Existing constructor (full)
         public TorneoCEN(IRepository<Torneo> repo, IRepository<ParticipacionTorneo> participacionRepo, IRepository<PropuestaTorneo> propuestaRepo, IUnitOfWork unitOfWork)
         {
             _repo = repo;
             _participacionRepo = participacionRepo;
             _propuestaRepo = propuestaRepo;
+            _unitOfWork = unitOfWork;
+        }
+
+        // Compatibility overload used by some tests/legacy code that only passed three parameters
+        public TorneoCEN(IRepository<Torneo> repo, IRepository<ParticipacionTorneo> participacionRepo, IUnitOfWork unitOfWork)
+        {
+            _repo = repo;
+            _participacionRepo = participacionRepo;
+            _propuestaRepo = new NullRepository<PropuestaTorneo>();
             _unitOfWork = unitOfWork;
         }
 
@@ -96,6 +106,17 @@ namespace ApplicationCore.Domain.CEN
             }
 
             return false;
+        }
+
+        // Simple null-object repository to avoid null checks when a repository is not provided by callers/tests
+        private class NullRepository<T> : IRepository<T>
+        {
+            public T? ReadById(long id) => default;
+            public IEnumerable<T> ReadAll() => Enumerable.Empty<T>();
+            public IEnumerable<T> ReadFilter(string filter) => Enumerable.Empty<T>();
+            public void New(T entity) { }
+            public void Modify(T entity) { }
+            public void Destroy(long id) { }
         }
     }
 }
