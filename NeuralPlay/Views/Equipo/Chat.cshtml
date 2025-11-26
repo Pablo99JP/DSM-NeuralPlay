@@ -1,0 +1,46 @@
+@model NeuralPlay.Models.EquipoChatViewModel
+
+@{
+    ViewData["Title"] = "Chat del Equipo " + Model.NombreEquipo;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="chat-container border rounded p-3" style="height: 500px; overflow-y: scroll;">
+    @if (Model.Mensajes.Any())
+    {
+        @foreach (var mensaje in Model.Mensajes)
+        {
+            <div class="mb-2">
+                <strong>@mensaje.NickAutor</strong> <small class="text-muted">(@mensaje.FechaEnvio.ToShortTimeString())</small>
+                <p class="mb-0">@mensaje.Contenido</p>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Aún no hay mensajes en este chat.</p>
+    }
+</div>
+
+<div class="mt-3">
+    <div class="input-group">
+        <input type="text" id="messageInput" class="form-control" placeholder="Escribe un mensaje...">
+        <button id="sendButton" class="btn btn-primary">Enviar</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Aquí se podría añadir la lógica de SignalR para la comunicación en tiempo real
+        document.getElementById("sendButton").addEventListener("click", function () {
+            var message = document.getElementById("messageInput").value;
+            if (message) {
+                // Lógica para enviar el mensaje
+                console.log(`Enviando mensaje al equipo @Model.IdEquipo: ${message}`);
+                document.getElementById("messageInput").value = "";
+                // Aquí se llamaría al hub de SignalR para enviar el mensaje al servidor
+            }
+        });
+    </script>
+}

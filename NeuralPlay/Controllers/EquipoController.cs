@@ -67,6 +67,37 @@ namespace NeuralPlay.Controllers
             }
         }
 
+        // GET: /Equipo/Chat/5
+        public IActionResult Chat(long id)
+        {
+            try
+            {
+                var equipo = _equipoCEN.ReadOID_Equipo(id);
+                if (equipo == null)
+                {
+                    return NotFound();
+                }
+
+                var chatViewModel = new EquipoChatViewModel
+                {
+                    IdEquipo = equipo.IdEquipo,
+                    NombreEquipo = equipo.Nombre,
+                    Mensajes = equipo.Chat?.Mensajes.Select(m => new MensajeChatViewModel
+                    {
+                        Contenido = m.Contenido,
+                        NickAutor = m.Autor?.Nick ?? "Desconocido",
+                        FechaEnvio = m.FechaEnvio
+                    }).OrderBy(m => m.FechaEnvio).ToList() ?? new List<MensajeChatViewModel>()
+                };
+
+                return View(chatViewModel);
+            }
+            catch (System.Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
         // GET: /Equipo/Create
         public IActionResult Create()
         {

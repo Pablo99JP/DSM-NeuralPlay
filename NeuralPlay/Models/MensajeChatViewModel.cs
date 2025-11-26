@@ -4,8 +4,8 @@ namespace NeuralPlay.Models
 {
     public class MensajeChatViewModel
     {
-        public string Contenido { get; set; }
-        public DateTime FechaEnvio { get; set; }
-        public string NickAutor { get; set; }
+        public string Contenido { get; set; } = string.Empty;
+        public string NickAutor { get; set; } = string.Empty;
+        public System.DateTime FechaEnvio { get; set; }
     }
 }
