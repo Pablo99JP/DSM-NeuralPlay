@@ -11,7 +11,9 @@
             <td>@n.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
             <td>@(n.Leido ? "Sí" : "No")</td>
             <td>
-                <a asp-action="Details" asp-route-id="@n.Id">Details</a>
+                <a asp-action="Details" asp-route-id="@n.Id">Details</a> |
+                <a asp-action="Edit" asp-route-id="@n.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@n.Id">Delete</a>
             </td>
         </tr>
     }
