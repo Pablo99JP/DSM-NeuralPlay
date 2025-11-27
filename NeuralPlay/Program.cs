@@ -4,6 +4,8 @@ using ApplicationCore.Domain.EN;
 using NeuralPlay.Services;
 using Infrastructure.NHibernate;
 using ApplicationCore.Domain.CP; // Añadido para claridad
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,13 @@ builder.Services.AddScoped<MiembroEquipoCEN>();
 builder.Services.AddScoped<JuegoCEN>();
 builder.Services.AddScoped<EquipoCEN>();
 
+// Register invitation/solicitud CENs used by controllers
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.InvitacionCEN>();
+builder.Services.AddScoped<ApplicationCore.Domain.CEN.SolicitudIngresoCEN>();
+
+// Register CPs
+builder.Services.AddScoped<ApplicationCore.Domain.CP.AceptarInvitacionCP>();
+
 // --- INICIO DE LA CORRECCIÓN ---
 // Registrar el servicio de autenticación que faltaba
 builder.Services.AddScoped<IUsuarioAuth, UsuarioAuthService>();
@@ -49,7 +58,9 @@ builder.Services.AddScoped<IRepository<ChatEquipo>, NHibernateChatEquipoReposito
 builder.Services.AddScoped<IRepository<Juego>, NHibernateJuegoRepository>();
 builder.Services.AddScoped<IRepository<Invitacion>, NHibernateInvitacionRepository>();
 builder.Services.AddScoped<IRepository<Sesion>, NHibernateSesionRepository>();
+// Register both generic and specific interfaces for Reaccion repository
 builder.Services.AddScoped<IRepository<Reaccion>, NHibernateReaccionRepository>();
+builder.Services.AddScoped<IReaccionRepository, NHibernateReaccionRepository>();
 builder.Services.AddScoped<IRepository<Publicacion>, NHibernatePublicacionRepository>();
 builder.Services.AddScoped<IRepository<PropuestaTorneo>, NHibernatePropuestaTorneoRepository>();
 builder.Services.AddScoped<IRepository<Perfil>, NHibernatePerfilRepository>();
@@ -94,5 +105,91 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Re-add minimal API endpoints to ensure AJAX routes exist for likes
+app.MapPost("/Reaccion/TogglePublicacionLike", async (HttpContext http, IReaccionRepository reaccionRepo, IRepository<Publicacion> publicacionRepo, IUsuarioRepository usuarioRepo) =>
+{
+    try
+    {
+        var uid = http.Session.GetInt32("UsuarioId");
+        if (!uid.HasValue) return Results.StatusCode(403);
+
+        var json = await System.Text.Json.JsonSerializer.DeserializeAsync<System.Text.Json.JsonElement>(http.Request.Body);
+        if (!json.TryGetProperty("publicacionId", out var pubIdEl) && !json.TryGetProperty("PublicacionId", out pubIdEl))
+            return Results.BadRequest();
+        var pubId = pubIdEl.GetInt64();
+
+        var pub = publicacionRepo.ReadById(pubId);
+        if (pub == null) return Results.NotFound();
+
+        var user = usuarioRepo.ReadById(uid.Value);
+        if (user == null) return Results.StatusCode(403);
+
+        var existing = reaccionRepo.GetByPublicacionAndAutor(pubId, uid.Value);
+        bool liked;
+        if (existing != null)
+        {
+            reaccionRepo.Destroy(existing.IdReaccion);
+            liked = false;
+        }
+        else
+        {
+            var r = new Reaccion { Tipo = ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA, FechaCreacion = DateTime.UtcNow, Autor = user, Publicacion = pub };
+            reaccionRepo.New(r);
+            liked = true;
+        }
+
+        var count = reaccionRepo.CountByPublicacion(pubId);
+        return Results.Json(new { liked = liked, count = count });
+    }
+    catch (Exception ex)
+    {
+        // Log minimally to console
+        try { Console.WriteLine($"TogglePublicacionLike error: {ex}"); } catch { }
+        return Results.StatusCode(500);
+    }
+});
+
+app.MapPost("/Reaccion/ToggleComentarioLike", async (HttpContext http, IReaccionRepository reaccionRepo, IRepository<Comentario> comentarioRepo, IUsuarioRepository usuarioRepo) =>
+{
+    try
+    {
+        var uid = http.Session.GetInt32("UsuarioId");
+        if (!uid.HasValue) return Results.StatusCode(403);
+
+        var json = await System.Text.Json.JsonSerializer.DeserializeAsync<System.Text.Json.JsonElement>(http.Request.Body);
+        if (!json.TryGetProperty("comentarioId", out var comIdEl) && !json.TryGetProperty("ComentarioId", out comIdEl))
+            return Results.BadRequest();
+        var comId = comIdEl.GetInt64();
+
+        var com = comentarioRepo.ReadById(comId);
+        if (com == null) return Results.NotFound();
+
+        var user = usuarioRepo.ReadById(uid.Value);
+        if (user == null) return Results.StatusCode(403);
+
+        var existing = reaccionRepo.GetByComentarioAndAutor(comId, uid.Value);
+        bool liked;
+        if (existing != null)
+        {
+            reaccionRepo.Destroy(existing.IdReaccion);
+            liked = false;
+        }
+        else
+        {
+            var r = new Reaccion { Tipo = ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA, FechaCreacion = DateTime.UtcNow, Autor = user, Comentario = com };
+            reaccionRepo.New(r);
+            liked = true;
+        }
+
+        var count = reaccionRepo.CountByComentario(comId);
+        return Results.Json(new { liked = liked, count = count });
+    }
+    catch (Exception ex)
+    {
+        try { Console.WriteLine($"ToggleComentarioLike error: {ex}"); } catch { }
+        return Results.StatusCode(500);
+    }
+});
 
 app.Run();

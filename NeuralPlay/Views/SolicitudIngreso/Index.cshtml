@@ -1,0 +1,42 @@
+@model IEnumerable<NeuralPlay.Models.SolicitudIngresoViewModel>
+
+@{
+ ViewData["Title"] = "Solicitudes";
+}
+
+<h1>Solicitudes de Ingreso</h1>
+
+<p>
+ <a asp-action="Create" class="btn btn-primary">Nueva solicitud</a>
+</p>
+
+<table class="table">
+ <thead>
+ <tr>
+ <th>Id</th>
+ <th>Tipo</th>
+ <th>Solicitante</th>
+ <th>Objetivo</th>
+ <th>Estado</th>
+ <th>FechaSolicitud</th>
+ <th></th>
+ </tr>
+ </thead>
+ <tbody>
+ @foreach(var s in Model)
+ {
+ <tr>
+ <td>@s.IdSolicitud</td>
+ <td>@s.Tipo</td>
+ <td>@s.SolicitanteNick</td>
+ <td>@(s.ComunidadNombre ?? s.EquipoNombre)</td>
+ <td>@s.Estado</td>
+ <td>@s.FechaSolicitud</td>
+ <td>
+ <a asp-action="Details" asp-route-id="@s.IdSolicitud">Details</a> |
+ <a asp-action="Delete" asp-route-id="@s.IdSolicitud">Delete</a>
+ </td>
+ </tr>
+ }
+ </tbody>
+</table>

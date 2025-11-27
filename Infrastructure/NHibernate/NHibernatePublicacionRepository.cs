@@ -16,7 +16,39 @@ namespace Infrastructure.NHibernate
             _session = session;
         }
 
-        public Publicacion? ReadById(long id) => _session.Get<Publicacion>(id);
+        // Ensure collections are initialized to avoid lazy-loading issues in views
+        public Publicacion? ReadById(long id)
+        {
+            try
+            {
+                var en = _session.Get<Publicacion>(id);
+                if (en == null) return null;
+
+                // Initialize collections and related entities
+                try
+                {
+                    NHibernateUtil.Initialize(en.Comentarios);
+                    NHibernateUtil.Initialize(en.Reacciones);
+
+                    // Ensure comment authors and comment reactions are initialized
+                    foreach (var c in en.Comentarios ?? System.Array.Empty<Comentario>())
+                    {
+                        NHibernateUtil.Initialize(c.Autor);
+                        NHibernateUtil.Initialize(c.Reacciones);
+                    }
+                }
+                catch
+                {
+                    // Ignore initialization errors; fall back to returning the entity as-is
+                }
+
+                return en;
+            }
+            catch
+            {
+                return _session.Get<Publicacion>(id);
+            }
+        }
 
         public IEnumerable<Publicacion> ReadAll()
         {

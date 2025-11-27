@@ -7,7 +7,7 @@ using ApplicationCore.Domain.Repositories;
 
 namespace Infrastructure.NHibernate
 {
-    public class NHibernateReaccionRepository : IRepository<Reaccion>
+    public class NHibernateReaccionRepository : IRepository<Reaccion>, IReaccionRepository
     {
         private readonly ISession _session;
 
@@ -42,6 +42,33 @@ namespace Infrastructure.NHibernate
         {
             var e = ReadById(id);
             if (e != null) _session.Delete(e);
+        }
+
+        // Efficient helpers
+        public Reaccion? GetByPublicacionAndAutor(long publicacionId, long autorId)
+        {
+            return _session.Query<Reaccion>()
+                .Where(r => r.Publicacion != null && r.Publicacion.IdPublicacion == publicacionId && r.Autor != null && r.Autor.IdUsuario == autorId && r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA)
+                .FirstOrDefault();
+        }
+
+        public int CountByPublicacion(long publicacionId)
+        {
+            return _session.Query<Reaccion>()
+                .Count(r => r.Publicacion != null && r.Publicacion.IdPublicacion == publicacionId && r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA);
+        }
+
+        public Reaccion? GetByComentarioAndAutor(long comentarioId, long autorId)
+        {
+            return _session.Query<Reaccion>()
+                .Where(r => r.Comentario != null && r.Comentario.IdComentario == comentarioId && r.Autor != null && r.Autor.IdUsuario == autorId && r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA)
+                .FirstOrDefault();
+        }
+
+        public int CountByComentario(long comentarioId)
+        {
+            return _session.Query<Reaccion>()
+                .Count(r => r.Comentario != null && r.Comentario.IdComentario == comentarioId && r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA);
         }
     }
 }

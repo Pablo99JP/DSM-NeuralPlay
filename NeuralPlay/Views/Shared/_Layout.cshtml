@@ -47,6 +47,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Publicacion" asp-action="Index">Publicaciones</a>
+                        </li>
+                        @if (UsuarioAuth?.GetUsuarioActual() != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Invitacion" asp-action="Index">Invitaciones</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="SolicitudIngreso" asp-action="Index">Solicitudes</a>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav">

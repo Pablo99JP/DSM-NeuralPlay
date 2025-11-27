@@ -1,0 +1,35 @@
+@{
+ ViewData["Title"] = "Crear Solicitud";
+}
+
+<h1>Crear Solicitud</h1>
+<form asp-action="Create" method="post">
+ <div class="mb-3">
+ <label class="form-label">Solicitante</label>
+ <select name="solicitanteId" class="form-select">
+ @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) { <option value="@u.Id">@u.Name</option> }
+ </select>
+ </div>
+ <div class="mb-3">
+ <label class="form-label">Tipo</label>
+ <select name="tipo" class="form-select">
+ <option value="0">COMUNIDAD</option>
+ <option value="1">EQUIPO</option>
+ </select>
+ </div>
+ <div class="mb-3">
+ <label class="form-label">Comunidad (opcional)</label>
+ <select name="comunidadId" class="form-select">
+ <option value="">--</option>
+ @foreach(var c in (IEnumerable<dynamic>)ViewBag.Comunidades) { <option value="@c.Id">@c.Name</option> }
+ </select>
+ </div>
+ <div class="mb-3">
+ <label class="form-label">Equipo (opcional)</label>
+ <select name="equipoId" class="form-select">
+ <option value="">--</option>
+ @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) { <option value="@e.Id">@e.Name</option> }
+ </select>
+ </div>
+ <button type="submit" class="btn btn-primary">Crear</button>
+</form>

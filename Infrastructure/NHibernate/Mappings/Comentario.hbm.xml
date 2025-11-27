@@ -13,5 +13,10 @@
 
     <many-to-one name="Autor" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="AutorId" />
     <many-to-one name="Publicacion" class="ApplicationCore.Domain.EN.Publicacion, ApplicationCore" column="PublicacionId" />
+
+    <bag name="Reacciones" inverse="true" cascade="all-delete-orphan" lazy="false">
+      <key column="ComentarioId" />
+      <one-to-many class="ApplicationCore.Domain.EN.Reaccion, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>
