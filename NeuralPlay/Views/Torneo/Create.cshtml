@@ -24,6 +24,22 @@
                         @Html.AntiForgeryToken()
 
                         <div class="mb-3">
+                            <label asp-for="ComunidadId" class="form-label">Comunidad Organizadora</label>
+                            <select asp-for="ComunidadId" class="form-select">
+                                <option value="">-- Selecciona una comunidad --</option>
+                                @if (ViewBag.Comunidades != null)
+                                {
+                                    foreach (var comunidad in ViewBag.Comunidades)
+                                    {
+                                        <option value="@comunidad.IdComunidad">@comunidad.Nombre</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="ComunidadId" class="text-danger"></span>
+                            <small class="form-text text-muted">El torneo estará asociado a esta comunidad.</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="Nombre" class="form-label">Nombre del Torneo</label>
                             <input asp-for="Nombre" class="form-control" placeholder="Ej: Copa de Verano 2025" />
                             <span asp-validation-for="Nombre" class="text-danger"></span>

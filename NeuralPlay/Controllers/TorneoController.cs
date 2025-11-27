@@ -147,21 +147,26 @@ namespace NeuralPlay.Controllers
                 return RedirectToAction("Login", "Usuario");
             }
 
-            // Verificar si el usuario es LIDER de alguna comunidad
+            // Verificar si el usuario es LIDER o MODERADOR de alguna comunidad
             var miembrosComunidad = _miembroComunidadCEN.ReadAll_MiembroComunidad()
                 .Where(m => m.Usuario != null && m.Usuario.IdUsuario == usuario.IdUsuario)
                 .ToList();
             
-            var esLider = miembrosComunidad.Any(mc => 
-                mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
-                mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+            var comunidadesValidas = miembrosComunidad
+                .Where(mc => (mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER || 
+                             mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.MODERADOR) &&
+                            mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                .Select(mc => mc.Comunidad)
+                .Where(c => c != null)
+                .ToList();
 
-            if (!esLider)
+            if (!comunidadesValidas.Any())
             {
-                TempData["ErrorMessage"] = "Solo los líderes de comunidad pueden crear torneos.";
+                TempData["ErrorMessage"] = "Solo los líderes y moderadores de comunidad pueden crear torneos.";
                 return RedirectToAction(nameof(Index));
             }
 
+            ViewBag.Comunidades = comunidadesValidas;
             return View(new NeuralPlay.Models.TorneoCreateViewModel());
         }
 
@@ -177,34 +182,48 @@ namespace NeuralPlay.Controllers
                 return RedirectToAction("Login", "Usuario");
             }
 
-            // Verificar si el usuario es LIDER de alguna comunidad
+            // Verificar si el usuario es LIDER o MODERADOR de alguna comunidad
             var miembrosComunidad = _miembroComunidadCEN.ReadAll_MiembroComunidad()
                 .Where(m => m.Usuario != null && m.Usuario.IdUsuario == usuario.IdUsuario)
                 .ToList();
             
-            var esLider = miembrosComunidad.Any(mc => 
-                mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
-                mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+            var comunidadesValidas = miembrosComunidad
+                .Where(mc => (mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER || 
+                             mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.MODERADOR) &&
+                            mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                .Select(mc => mc.Comunidad)
+                .Where(c => c != null)
+                .ToList();
 
-            if (!esLider)
+            if (!comunidadesValidas.Any())
             {
-                TempData["ErrorMessage"] = "Solo los líderes de comunidad pueden crear torneos.";
+                TempData["ErrorMessage"] = "Solo los líderes y moderadores de comunidad pueden crear torneos.";
                 return RedirectToAction(nameof(Index));
             }
 
             if (!ModelState.IsValid)
             {
+                ViewBag.Comunidades = comunidadesValidas;
+                return View(model);
+            }
+
+            // Validar que la comunidad seleccionada sea válida
+            var comunidadSeleccionada = comunidadesValidas.FirstOrDefault(c => c!.IdComunidad == model.ComunidadId);
+            if (comunidadSeleccionada == null)
+            {
+                TempData["ErrorMessage"] = "Debes seleccionar una comunidad válida donde eres líder o moderador.";
+                ViewBag.Comunidades = comunidadesValidas;
                 return View(model);
             }
 
             try
             {
-                // Crear el torneo con estado PENDIENTE
+                // Crear el torneo asociado a la comunidad
                 var torneo = _torneoCEN.NewTorneo(
                     model.Nombre,
                     model.FechaInicio,
                     model.Reglas,
-                    null, // ComunidadOrganizadora puede ser null por ahora
+                    comunidadSeleccionada, // ComunidadOrganizadora
                     usuario // Creador del torneo
                 );
 
