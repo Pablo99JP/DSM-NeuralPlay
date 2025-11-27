@@ -15,7 +15,7 @@ namespace Infrastructure.NHibernate
         private static readonly Lazy<ISessionFactory> _sessionFactory = new(() => BuildSessionFactory());
 
         public static ISessionFactory SessionFactory => _sessionFactory.Value;
-
+        // ENTREGA DE LA PRACTICA
         // Build a reusable NHibernate Configuration. This can be used to build a SessionFactory
         // or to perform SchemaExport operations programmatically.
         public static Configuration BuildConfiguration()
