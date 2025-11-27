@@ -1,0 +1,62 @@
+@model NeuralPlay.Models.EquipoChatViewModel
+
+@{
+    ViewData["Title"] = "Chat del Equipo";
+}
+
+<h1>Chat - @Model.NombreEquipo</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card mb-3">
+    <div class="card-header">
+        Mensajes
+    </div>
+    <div class="card-body" style="max-height: 400px; overflow-y: auto;" id="chat-scroll">
+        @if (Model.Mensajes != null && Model.Mensajes.Any())
+        {
+            <ul class="list-unstyled mb-0">
+                @foreach (var m in Model.Mensajes)
+                {
+                    <li class="mb-2">
+                        <strong>@m.NickAutor</strong>
+                        <small class="text-muted">(@m.FechaEnvio.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</small>
+                        <div>@m.Contenido</div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="text-muted">No hay mensajes aún. ¡Escribe el primero!</div>
+        }
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Enviar mensaje
+    </div>
+    <div class="card-body">
+        <form asp-action="EnviarMensaje" asp-controller="Equipo" asp-route-id="@Model.IdEquipo" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <textarea name="contenido" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+            <a asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn btn-secondary ms-2">Volver</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var el = document.getElementById('chat-scroll');
+            if (el) el.scrollTop = el.scrollHeight;
+        })();
+    </script>
+}

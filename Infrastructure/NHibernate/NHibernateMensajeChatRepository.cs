@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
 using NHibernate;
-using NHibernate.Linq;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 
@@ -17,11 +15,13 @@ namespace Infrastructure.NHibernate
         }
 
         public MensajeChat? ReadById(long id) => _session.Get<MensajeChat>(id);
+
         public IEnumerable<MensajeChat> ReadAll()
         {
             var q = _session.CreateQuery("from MensajeChat");
             return q.List<MensajeChat>();
         }
+
         public IEnumerable<MensajeChat> ReadFilter(string filter)
         {
             if (string.IsNullOrWhiteSpace(filter)) return ReadAll();
@@ -40,6 +40,14 @@ namespace Infrastructure.NHibernate
         {
             var e = ReadById(id);
             if (e != null) _session.Delete(e);
+        }
+
+        // NUEVO: lectura directa por ChatId vía HQL
+        public IEnumerable<MensajeChat> ReadByChatId(long chatId)
+        {
+            var q = _session.CreateQuery("from MensajeChat m where m.Chat.IdChatEquipo = :id");
+            q.SetParameter("id", chatId);
+            return q.List<MensajeChat>();
         }
     }
 }

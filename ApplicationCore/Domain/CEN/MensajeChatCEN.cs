@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 
@@ -34,6 +35,20 @@ namespace ApplicationCore.Domain.CEN
                 if (res is IEnumerable<MensajeChat> list) return list;
             }
             return _repo.ReadFilter(filtro);
+        }
+
+        // NUEVO: lectura por ChatId utilizando el repositorio (si lo soporta)
+        public IEnumerable<MensajeChat> ReadByChatId(long chatId)
+        {
+            var repoObj = (object)_repo;
+            var mi = repoObj.GetType().GetMethod("ReadByChatId");
+            if (mi != null)
+            {
+                var res = mi.Invoke(repoObj, new object[] { chatId });
+                if (res is IEnumerable<MensajeChat> list) return list;
+            }
+            // Fallback: filtrar en memoria si la impl. no tiene HQL dedicado
+            return _repo.ReadAll().Where(m => m.Chat != null && m.Chat.IdChatEquipo == chatId);
         }
     }
 }

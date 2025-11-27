@@ -11,7 +11,8 @@
     <property name="Descripcion" column="Descripcion" />
     <property name="FechaCreacion" column="FechaCreacion" />
 
-    <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" />
+    <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" not-null="false" />
+    <many-to-one name="Chat" class="ApplicationCore.Domain.EN.ChatEquipo, ApplicationCore" column="ChatId" not-null="false" />
 
     <bag name="Miembros" inverse="true" lazy="false">
       <key column="EquipoId" />

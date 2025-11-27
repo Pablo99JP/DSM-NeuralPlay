@@ -8,6 +8,10 @@
       <generator class="native" />
     </id>
 
-    <!-- Mensajes collection will be left unmapped until MensajeChat mapping refers back -->
+    <!-- Mapear colección de mensajes -->
+    <bag name="Mensajes" inverse="true" lazy="true" cascade="all-delete-orphan">
+      <key column="ChatId" />
+      <one-to-many class="ApplicationCore.Domain.EN.MensajeChat, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>

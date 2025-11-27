@@ -6,6 +6,7 @@ using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using Microsoft.Data.SqlClient;
 using System.Data.Common;
+using Environment = System.Environment;
 
 namespace Infrastructure.NHibernate
 {
@@ -89,26 +90,33 @@ namespace Infrastructure.NHibernate
                 }
             }
 
-            // If InitializeDb previously fell back to SQLite, prefer that local file for easier developer runs.
+            // If InitializeDb previously fell back to SQLite, prefer that local file only when requested
             try
             {
-                // Try a couple of relative locations from the app base where InitializeDb may have written the DB
-                var candidates = new[]
-                {
-                    Path.Combine(baseDir, "..", "..", "..", "InitializeDb", "Data", "project.db"),
-                    Path.Combine(baseDir, "..", "..", "..", "..", "InitializeDb", "Data", "project.db"),
-                    Path.Combine(baseDir, "..", "..", "..", "..", "..", "InitializeDb", "Data", "project.db")
-                };
+                // Solo usar SQLite fallback si NP_USE_SQLITE=true/1
+                var useSqlite = Environment.GetEnvironmentVariable("NP_USE_SQLITE");
+                var useSqliteFallback = !string.IsNullOrEmpty(useSqlite) &&
+                                        (useSqlite == "1" || useSqlite.Equals("true", StringComparison.OrdinalIgnoreCase));
 
-                foreach (var cand in candidates)
+                if (useSqliteFallback)
                 {
-                    var full = Path.GetFullPath(cand);
-                    if (File.Exists(full))
+                    var candidates = new[]
                     {
-                        cfg.SetProperty("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
-                        cfg.SetProperty("dialect", "NHibernate.Dialect.SQLiteDialect");
-                        cfg.SetProperty("connection.connection_string", $"Data Source={full}");
-                        break;
+                        Path.Combine(baseDir, "..", "..", "..", "InitializeDb", "Data", "project.db"),
+                        Path.Combine(baseDir, "..", "..", "..", "..", "InitializeDb", "Data", "project.db"),
+                        Path.Combine(baseDir, "..", "..", "..", "..", "..", "InitializeDb", "Data", "project.db")
+                    };
+
+                    foreach (var cand in candidates)
+                    {
+                        var full = Path.GetFullPath(cand);
+                        if (File.Exists(full))
+                        {
+                            cfg.SetProperty("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
+                            cfg.SetProperty("dialect", "NHibernate.Dialect.SQLiteDialect");
+                            cfg.SetProperty("connection.connection_string", $"Data Source={full}");
+                            break;
+                        }
                     }
                 }
             }
