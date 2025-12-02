@@ -22,6 +22,15 @@
 
     <dt class="col-sm-3">Fecha de Creación</dt>
     <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Actividad</dt>
+    <dd class="col-sm-9">@Model.Actividad</dd>
+
+    <dt class="col-sm-3">País</dt>
+    <dd class="col-sm-9">@Model.Pais</dd>
+
+    <dt class="col-sm-3">Idioma</dt>
+    <dd class="col-sm-9">@Model.Idioma</dd>
 </dl>
 
 <form asp-action="Delete" method="post">

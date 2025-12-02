@@ -11,4 +11,5 @@ namespace ApplicationCore.Domain.Enums
     public enum EstadoCuenta { ACTIVA }
     public enum Visibilidad { PUBLICO, PRIVADO, AMIGOS }
     public enum GeneroJuego { ACCION, AVENTURA, ESTRATEGIA, RPG, DEPORTE, OTRO }
+    public enum Actividad { CASUAL, DIARIO, SEMANAL }
 }

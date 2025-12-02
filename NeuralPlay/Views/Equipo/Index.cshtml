@@ -29,6 +29,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.FechaCreacion)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Actividad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pais)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Idioma)
+            </th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -46,6 +55,15 @@
             </td>
             <td>
                 @item.FechaCreacion.ToString("dd/MM/yyyy")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Actividad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Pais)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Idioma)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.IdEquipo" class="btn btn-sm btn-outline-secondary">Editar</a> |

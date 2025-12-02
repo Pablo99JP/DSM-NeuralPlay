@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using ApplicationCore.Domain.Enums;
 
 namespace NeuralPlay.Models
 {
@@ -16,5 +17,15 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Fecha de creación")]
         public DateTime FechaCreacion { get; set; }
+
+        [Display(Name = "Actividad")]
+        [Required(ErrorMessage = "La actividad es obligatoria.")]
+        public Actividad Actividad { get; set; }
+
+        [Display(Name = "País")]
+        public string? Pais { get; set; }
+
+        [Display(Name = "Idioma")]
+        public string? Idioma { get; set; }
     }
 }

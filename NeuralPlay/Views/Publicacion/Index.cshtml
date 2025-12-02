@@ -13,13 +13,16 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.NombreComunidad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NickAutor)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.contenido)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.fechaCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.fechaEdicion)
             </th>
             <th></th>
         </tr>
@@ -28,13 +31,16 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.NombreComunidad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NickAutor)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.contenido)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.fechaCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.fechaEdicion)
             </td>
             <td>
                     <a asp-action="Edit" asp-route-id="@item.idPublicacion" class="btn btn-sm btn-outline-secondary">Editar</a> |

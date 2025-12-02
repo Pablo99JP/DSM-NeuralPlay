@@ -15,7 +15,10 @@ namespace NeuralPlay.Assemblers
                 IdEquipo = en.IdEquipo,
                 Nombre = en.Nombre,
                 Descripcion = en.Descripcion,
-                FechaCreacion = en.FechaCreacion
+                FechaCreacion = en.FechaCreacion,
+                Actividad = en.Actividad,
+                Pais = en.Pais,
+                Idioma = en.Idioma
             };
         }
 

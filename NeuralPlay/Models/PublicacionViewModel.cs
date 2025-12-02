@@ -18,6 +18,17 @@ namespace NeuralPlay.Models
         [Display(Name = "Fecha de Edicion")]
         public DateTime fechaEdicion { get; set; } = DateTime.Now;
 
+        // Comunidad y autor
+        public long? IdComunidad { get; set; }
+
+        [Display(Name = "Comunidad")]
+        public string? NombreComunidad { get; set; }
+
+        public long? IdAutor { get; set; }
+
+        [Display(Name = "Autor")]
+        public string? NickAutor { get; set; }
+
         // Comentarios asociados a la publicación
         public IEnumerable<ComentarioViewModel> comentarios { get; set; } = new List<ComentarioViewModel>();
 

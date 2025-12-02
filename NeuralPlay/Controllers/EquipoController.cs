@@ -95,7 +95,7 @@ namespace NeuralPlay.Controllers
                     try { _unitOfWork?.SaveChanges(); } catch { }
                 }
 
-                // Carga explícita de mensajes por chatId para evitar problemas de lazy/eager loading
+                // Carga explï¿½cita de mensajes por chatId para evitar problemas de lazy/eager loading
                 var mensajesVm = new List<MensajeChatViewModel>();
                 if (equipo.Chat != null)
                 {
@@ -136,7 +136,7 @@ namespace NeuralPlay.Controllers
             {
                 if (string.IsNullOrWhiteSpace(contenido))
                 {
-                    TempData["Error"] = "El mensaje no puede estar vacío.";
+                    TempData["Error"] = "El mensaje no puede estar vacï¿½o.";
                     return RedirectToAction(nameof(Chat), new { id });
                 }
 
@@ -189,7 +189,7 @@ namespace NeuralPlay.Controllers
             try
             {
                 var cen = new EquipoCEN(_equipoRepository);
-                cen.NewEquipo(model.Nombre ?? string.Empty, model.Descripcion);
+                cen.NewEquipo(model.Nombre ?? string.Empty, model.Descripcion, model.Actividad, model.Pais, model.Idioma);
                 try { _unitOfWork?.SaveChanges(); } catch { }
                 return RedirectToAction(nameof(Index));
             }
@@ -230,6 +230,9 @@ namespace NeuralPlay.Controllers
 
                 en.Nombre = model.Nombre ?? en.Nombre;
                 en.Descripcion = model.Descripcion;
+                en.Actividad = model.Actividad;
+                en.Pais = model.Pais;
+                en.Idioma = model.Idioma;
                 // FechaCreacion no se modifica normalmente
 
                 _equipoCEN.ModifyEquipo(en);

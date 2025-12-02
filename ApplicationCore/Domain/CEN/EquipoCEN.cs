@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
+using ApplicationCore.Domain.Enums;
 
 namespace ApplicationCore.Domain.CEN
 {
@@ -13,9 +14,17 @@ namespace ApplicationCore.Domain.CEN
             _repo = repo;
         }
 
-        public Equipo NewEquipo(string nombre, string? descripcion = null)
+        public Equipo NewEquipo(string nombre, string? descripcion = null, Actividad? actividad = null, string? pais = null, string? idioma = null)
         {
-            var e = new Equipo { Nombre = nombre, Descripcion = descripcion, FechaCreacion = System.DateTime.UtcNow };
+            var e = new Equipo
+            {
+                Nombre = nombre,
+                Descripcion = descripcion,
+                FechaCreacion = System.DateTime.UtcNow,
+                Actividad = actividad ?? Actividad.CASUAL,
+                Pais = pais,
+                Idioma = idioma
+            };
             _repo.New(e);
             return e;
         }

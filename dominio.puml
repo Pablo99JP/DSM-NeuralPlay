@@ -67,6 +67,11 @@ enum GeneroJuego {
   DEPORTE
   OTRO
 }
+enum Actividad {
+  CASUAL
+  DIARIO
+  SEMANAL
+}
 
 ' =================== Paquete: Social ===================
 package "Social" {
@@ -106,6 +111,9 @@ package "Social" {
     -nombre: String
     -descripcion: String
     -fechaCreacion: DateTime
+    -actividad: Actividad
+    -pais: String
+    -idioma: String
     --
     +newEquipo(nombre: String, descripcion: String): Equipo <<New>>
     +modifyEquipo(...): Void <<Modify>>
