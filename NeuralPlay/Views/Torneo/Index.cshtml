@@ -4,14 +4,15 @@
 
 @{
     var currentUser = UsuarioAuth?.GetUsuarioActual();
-    var esLider = false;
+    var puedeCrearTorneo = false;
     if (currentUser != null)
     {
         var miembrosComunidad = MiembroComunidadCEN.ReadAll_MiembroComunidad()
             .Where(m => m.Usuario != null && m.Usuario.IdUsuario == currentUser.IdUsuario)
             .ToList();
-        esLider = miembrosComunidad.Any(mc => 
-            mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+        puedeCrearTorneo = miembrosComunidad.Any(mc => 
+            (mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.LIDER || 
+             mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.MODERADOR) && 
             mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
     }
 }
@@ -19,7 +20,7 @@
 <div class="mb-3 d-flex justify-content-between align-items-center">
     <h2 class="m-0">Torneos disponibles</h2>
     <div class="d-flex gap-2">
-        @if (esLider)
+        @if (puedeCrearTorneo)
         {
             <a class="btn btn-success" asp-action="Create">
                 <i class="bi bi-plus-circle"></i> Crear Torneo
