@@ -89,6 +89,38 @@ namespace NeuralPlay.Controllers
             }
         }
 
+        // GET: Perfiles/Feed/5
+        public async Task<IActionResult> Feed(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                var perfilRepository = new NHibernatePerfilRepository(session);
+                var perfilCEN = new PerfilCEN(perfilRepository);
+                var perfil = await Task.Run(() => perfilCEN.ReadOID_Perfil(id.Value));
+
+                if (perfil == null)
+                {
+                    return NotFound();
+                }
+
+                var viewModel = new PerfilViewModel
+                {
+                    IdPerfil = perfil.IdPerfil,
+                    IdUsuario = perfil.Usuario.IdUsuario,
+                    NickUsuario = perfil.Usuario.Nick,
+                    Descripcion = perfil.Descripcion,
+                    Avatar = perfil.FotoPerfilUrl
+                };
+
+                return View(viewModel);
+            }
+        }
+
         // GET: Perfiles/AnadirJuego/5
         public async Task<IActionResult> AnadirJuego(long idPerfil)
         {
