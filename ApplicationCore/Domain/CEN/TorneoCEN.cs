@@ -37,6 +37,23 @@ namespace ApplicationCore.Domain.CEN
                 Nombre = nombre,
                 FechaInicio = fechaInicio,
                 Reglas = reglas,
+                Premios = null,
+                Estado = "PENDIENTE",
+                ComunidadOrganizadora = comunidadOrganizadora,
+                Creador = creador
+            };
+            _repo.New(t);
+            return t;
+        }
+
+        public Torneo NewTorneo(string nombre, System.DateTime fechaInicio, string? reglas, string? premios, Comunidad? comunidadOrganizadora, Usuario? creador)
+        {
+            var t = new Torneo
+            {
+                Nombre = nombre,
+                FechaInicio = fechaInicio,
+                Reglas = reglas,
+                Premios = premios,
                 Estado = "PENDIENTE",
                 ComunidadOrganizadora = comunidadOrganizadora,
                 Creador = creador

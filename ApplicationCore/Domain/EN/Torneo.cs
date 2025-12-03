@@ -9,6 +9,7 @@ namespace ApplicationCore.Domain.EN
         public virtual string Nombre { get; set; } = null!;
         public virtual DateTime FechaInicio { get; set; }
         public virtual string? Reglas { get; set; }
+        public virtual string? Premios { get; set; }
         public virtual string Estado { get; set; } = null!;
 
         public virtual Usuario? Creador { get; set; }

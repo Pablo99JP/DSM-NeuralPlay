@@ -19,6 +19,10 @@ namespace NeuralPlay.Models
         [Display(Name = "Reglas")]
         public string? Reglas { get; set; }
 
+        [StringLength(500, ErrorMessage = "Los premios no pueden exceder los 500 caracteres.")]
+        [Display(Name = "Premios")]
+        public string? Premios { get; set; }
+
         [Required(ErrorMessage = "Debes seleccionar una comunidad.")]
         [Display(Name = "Comunidad Organizadora")]
         public long ComunidadId { get; set; }

@@ -640,6 +640,8 @@ END
                         var comunidadRepo = scope.ServiceProvider.GetRequiredService<IRepository<Comunidad>>();
                         var equipoRepo = scope.ServiceProvider.GetRequiredService<IRepository<Equipo>>();
                         var torneoRepo = scope.ServiceProvider.GetRequiredService<IRepository<Torneo>>();
+                        var propuestaRepo = scope.ServiceProvider.GetRequiredService<IRepository<PropuestaTorneo>>();
+                        var participacionRepo = scope.ServiceProvider.GetRequiredService<IRepository<ParticipacionTorneo>>();
 
                         Console.WriteLine("Starting comprehensive seed...");
                         logger.LogInformation("Starting comprehensive seed for all entities");
@@ -842,7 +844,7 @@ END
                         {
                             Nombre = "Summer Championship 2025",
                             FechaInicio = DateTime.UtcNow.AddDays(30),
-                            Estado = "PENDIENTE",
+                            Estado = "FINALIZADO",
                             Reglas = "Standard tournament rules",
                             ComunidadOrganizadora = com1
                         };
@@ -852,6 +854,13 @@ END
                         // 14. PROPUESTAS DE TORNEO (equipos proponen participar en torneos)
                         var prop1 = propuestaCEN.NewPropuestaTorneo(eq1, torneo1, u1);
                         var prop2 = propuestaCEN.NewPropuestaTorneo(eq2, torneo1, u2);
+                        
+                        // Marcar propuestas como aceptadas
+                        prop1.Estado = ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA;
+                        propuestaRepo.Modify(prop1);
+                        prop2.Estado = ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA;
+                        propuestaRepo.Modify(prop2);
+                        
                         Console.WriteLine($"✓ Created {2} PropuestaTorneo");
 
                         // === Escenario solicitado: Copa Invierno LoL y Tigres Arkham ===
@@ -861,7 +870,7 @@ END
                         var copaInvierno = torneoRepo.ReadFilter("Copa Invierno LoL").FirstOrDefault();
                         if (copaInvierno == null)
                         {
-                            copaInvierno = new Torneo { Nombre = "Copa Invierno LoL", FechaInicio = DateTime.UtcNow.AddDays(15), Estado = "ABIERTO", Reglas = "Formato eliminatorio", ComunidadOrganizadora = com1 };
+                            copaInvierno = new Torneo { Nombre = "Copa Invierno LoL", FechaInicio = DateTime.UtcNow.AddDays(15), Estado = "PENDIENTE", Reglas = "Formato eliminatorio", ComunidadOrganizadora = com1 };
                             torneoRepo.New(copaInvierno);
                             Console.WriteLine("✓ Created Torneo: Copa Invierno LoL");
                         }
@@ -907,7 +916,15 @@ END
 
                         // 16. PARTICIPACIÓN EN TORNEO (equipos confirmados en torneos)
                         var part1 = participacionCEN.NewParticipacionTorneo(eq1, torneo1);
-                        Console.WriteLine($"✓ Created {1} ParticipacionTorneo");
+                        var part2 = participacionCEN.NewParticipacionTorneo(eq2, torneo1);
+                        
+                        // Marcar participaciones como aceptadas
+                        part1.Estado = ApplicationCore.Domain.Enums.EstadoParticipacion.ACEPTADA.ToString();
+                        participacionRepo.Modify(part1);
+                        part2.Estado = ApplicationCore.Domain.Enums.EstadoParticipacion.ACEPTADA.ToString();
+                        participacionRepo.Modify(part2);
+                        
+                        Console.WriteLine($"✓ Created {2} ParticipacionTorneo");
 
                         // Métodos de filtrado personalizados: consultar por torneo o por equipo
                         var equiposByTorneo = participacionCEN.ReadFilter_EquiposByTorneo(torneo1.IdTorneo);

@@ -57,6 +57,12 @@
                             <span asp-validation-for="Reglas" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="Premios" class="form-label">Premios (Opcional)</label>
+                            <textarea asp-for="Premios" class="form-control" rows="3" placeholder="Describe los premios del torneo..."></textarea>
+                            <span asp-validation-for="Premios" class="text-danger"></span>
+                        </div>
+
                         <div class="d-flex gap-2 justify-content-end">
                             <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
                             <button type="submit" class="btn btn-primary">Crear Torneo</button>

@@ -10,6 +10,7 @@
     <property name="Nombre" column="Nombre" />
     <property name="FechaInicio" column="FechaInicio" />
     <property name="Reglas" column="Reglas" />
+    <property name="Premios" column="Premios" />
     <property name="Estado" column="Estado" />
 
     <many-to-one name="Creador" class="ApplicationCore.Domain.EN.Usuario, ApplicationCore" column="CreadorId" />

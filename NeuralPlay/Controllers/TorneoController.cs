@@ -55,6 +55,30 @@ namespace NeuralPlay.Controllers
             vm.Propuestas = propuestas;
             vm.Participaciones = participaciones;
 
+            // Obtener equipos del usuario actual
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario != null)
+            {
+                var miembros = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
+                var equipos = new List<Equipo>();
+                foreach (var m in miembros)
+                {
+                    if (m.Equipo != null && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                    {
+                        equipos.Add(m.Equipo);
+                    }
+                }
+                vm.EquiposUsuario = equipos;
+            }
+
+            // Crear clasificación con 0 puntos por defecto para todos los equipos participantes
+            var clasificacion = new Dictionary<long, int>();
+            foreach (var p in participaciones.Where(p => p.Equipo != null))
+            {
+                clasificacion[p.Equipo!.IdEquipo] = 0; // Puntos por defecto
+            }
+            vm.Clasificacion = clasificacion;
+
             return View(vm);
         }
 
@@ -223,6 +247,7 @@ namespace NeuralPlay.Controllers
                     model.Nombre,
                     model.FechaInicio,
                     model.Reglas,
+                    model.Premios,
                     comunidadSeleccionada, // ComunidadOrganizadora
                     usuario // Creador del torneo
                 );
@@ -262,7 +287,8 @@ namespace NeuralPlay.Controllers
             {
                 Nombre = torneo.Nombre,
                 FechaInicio = torneo.FechaInicio,
-                Reglas = torneo.Reglas
+                Reglas = torneo.Reglas,
+                Premios = torneo.Premios
             };
 
             ViewBag.IdTorneo = id;
@@ -302,6 +328,7 @@ namespace NeuralPlay.Controllers
                 torneo.Nombre = model.Nombre;
                 torneo.FechaInicio = model.FechaInicio;
                 torneo.Reglas = model.Reglas;
+                torneo.Premios = model.Premios;
 
                 _torneoCEN.ModifyTorneo(torneo);
                 TempData["SuccessMessage"] = "Torneo actualizado correctamente.";
