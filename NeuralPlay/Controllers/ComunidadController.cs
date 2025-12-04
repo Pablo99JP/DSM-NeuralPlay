@@ -13,18 +13,23 @@ namespace NeuralPlay.Controllers
         private readonly ComunidadCEN _comunidadCEN;
         private readonly IRepository<Comunidad> _comunidadRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly PublicacionCEN _publicacionCEN;
+        private readonly IRepository<Publicacion> _publicacionRepository;
 
         public ComunidadController(
             UsuarioCEN usuarioCEN,
             IUsuarioRepository usuarioRepository,
             ComunidadCEN comunidadCEN,
             IRepository<Comunidad> comunidadRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IRepository<Publicacion> publicacionRepository)
             : base(usuarioCEN, usuarioRepository)
         {
             _comunidadCEN = comunidadCEN;
             _comunidadRepository = comunidadRepository;
             _unitOfWork = unitOfWork;
+            _publicacionRepository = publicacionRepository;
+            _publicacionCEN = new PublicacionCEN(publicacionRepository);
         }
 
         // GET: /Comunidad
@@ -57,7 +62,14 @@ namespace NeuralPlay.Controllers
                     .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
                     .ToList();
                 
+                // Cargar las publicaciones de la comunidad
+                var publicaciones = (en.Publicaciones ?? Enumerable.Empty<Publicacion>())
+                    .Select(p => PublicacionAssembler.ConvertENToViewModel(p))
+                    .OrderByDescending(p => p.fechaCreacion)
+                    .ToList();
+                
                 ViewBag.Miembros = (object?)miembros;
+                ViewBag.Publicaciones = (object?)publicaciones;
                 
                 return View(vm);
             }

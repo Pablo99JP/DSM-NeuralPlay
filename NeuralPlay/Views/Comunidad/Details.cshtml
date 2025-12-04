@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Detalles de la Comunidad";
     var miembros = ViewBag.Miembros as List<NeuralPlay.Models.MiembroComunidadViewModel> ?? new List<NeuralPlay.Models.MiembroComunidadViewModel>();
+    var publicaciones = ViewBag.Publicaciones as List<NeuralPlay.Models.PublicacionViewModel> ?? new List<NeuralPlay.Models.PublicacionViewModel>();
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -33,49 +34,121 @@
 
 <hr />
 
-<h2>Miembros de la Comunidad</h2>
+<!-- Pestañas de Miembros y Publicaciones -->
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="miembros-tab" data-bs-toggle="tab" data-bs-target="#miembros" type="button" role="tab" aria-controls="miembros" aria-selected="true">
+            Miembros
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="publicaciones-tab" data-bs-toggle="tab" data-bs-target="#publicaciones" type="button" role="tab" aria-controls="publicaciones" aria-selected="false">
+            Publicaciones
+        </button>
+    </li>
+</ul>
 
-@if (miembros.Any())
-{
-    <div class="mb-3">
-        <a asp-controller="MiembroComunidad" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
-            Añadir Miembro
-        </a>
-    </div>
-
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Fecha de Alta</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var miembro in miembros)
+<div class="tab-content" id="comunidadTabContent">
+    <!-- Pestaña Miembros -->
+    <div class="tab-pane fade show active" id="miembros" role="tabpanel" aria-labelledby="miembros-tab">
+        <div class="mt-3">
+            @if (miembros.Any())
             {
-                <tr>
-                    <td>@miembro.NombreUsuario</td>
-                    <td>@miembro.Rol</td>
-                    <td>@miembro.Estado</td>
-                    <td>@miembro.FechaAlta.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <a asp-controller="MiembroComunidad" asp-action="Edit" asp-route-id="@miembro.IdMiembroComunidad" class="btn btn-sm btn-outline-secondary">Editar</a>
-                        <a asp-controller="MiembroComunidad" asp-action="Delete" asp-route-id="@miembro.IdMiembroComunidad" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                    </td>
-                </tr>
+                <div class="mb-3">
+                    <a asp-controller="MiembroComunidad" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
+                        Añadir Miembro
+                    </a>
+                </div>
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha de Alta</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var miembro in miembros)
+                        {
+                            <tr>
+                                <td>@miembro.NombreUsuario</td>
+                                <td>@miembro.Rol</td>
+                                <td>@miembro.Estado</td>
+                                <td>@miembro.FechaAlta.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <a asp-controller="MiembroComunidad" asp-action="Edit" asp-route-id="@miembro.IdMiembroComunidad" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a asp-controller="MiembroComunidad" asp-action="Delete" asp-route-id="@miembro.IdMiembroComunidad" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <div class="alert alert-info">
-        <p>Esta comunidad aún no tiene miembros.</p>
-        <a asp-controller="MiembroComunidad" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
-            Añadir Primer Miembro
-        </a>
+            else
+            {
+                <div class="alert alert-info">
+                    <p>Esta comunidad aún no tiene miembros.</p>
+                    <a asp-controller="MiembroComunidad" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
+                        Añadir Primer Miembro
+                    </a>
+                </div>
+            }
+        </div>
     </div>
-}
+
+    <!-- Pestaña Publicaciones -->
+    <div class="tab-pane fade" id="publicaciones" role="tabpanel" aria-labelledby="publicaciones-tab">
+        <div class="mt-3">
+            @if (publicaciones.Any())
+            {
+                <div class="mb-3">
+                    <a asp-controller="Publicacion" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
+                        Nueva Publicación
+                    </a>
+                </div>
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Autor</th>
+                            <th>Contenido</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pub in publicaciones)
+                        {
+                            <tr>
+                                <td>@(pub.NickAutor ?? "-")</td>
+                                <td>
+                                    <div style="max-height: 100px; overflow: auto;">
+                                        @(pub.contenido.Length > 100 ? pub.contenido.Substring(0, 100) + "..." : pub.contenido)
+                                    </div>
+                                </td>
+                                <td>@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <a asp-controller="Publicacion" asp-action="Details" asp-route-id="@pub.idPublicacion" class="btn btn-sm btn-outline-info">Detalles</a>
+                                    <a asp-controller="Publicacion" asp-action="Edit" asp-route-id="@pub.idPublicacion" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a asp-controller="Publicacion" asp-action="Delete" asp-route-id="@pub.idPublicacion" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>Esta comunidad aún no tiene publicaciones.</p>
+                    <a asp-controller="Publicacion" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn btn-success">
+                        Crear Primera Publicación
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
