@@ -89,19 +89,21 @@
         font-family: 'Neue', sans-serif;
         color: var(--np-red);
         margin-bottom: 20px;
-        font-size: 1.5rem;
+        font-size: 2.2rem;
     }
 
     .profile-info dt {
         font-family: 'Neue', sans-serif;
         color: white;
         margin-bottom: 5px;
+        font-size: 1.4rem;
     }
 
     .profile-info dd {
         font-family: 'Lexend', sans-serif;
         color: white;
-        margin-bottom: 15px;
+        margin-bottom: 22px;
+        font-size: 1.3rem;
     }
 
     .avatar-container {
@@ -177,10 +179,10 @@
                 <article class="profile-card" style="height: 100%;">
                     <h3>Información del Perfil</h3>
                     <dl class="profile-info row">
-                        <dt class="col-sm-3">Nickname</dt>
-                        <dd class="col-sm-9">@Html.DisplayFor(model => model.NickUsuario)</dd>
-                        <dt class="col-sm-3">Descripción</dt>
-                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+                           <dt class="col-sm-4">Nickname</dt>
+                           <dd class="col-sm-8">@Html.DisplayFor(model => model.NickUsuario)</dd>
+                           <dt class="col-sm-4">Descripción</dt>
+                           <dd class="col-sm-8">@Html.DisplayFor(model => model.Descripcion)</dd>
                     </dl>
                     <h3 style="margin-top: 30px;">Juegos</h3>
                     @if (Model.Juegos != null && Model.Juegos.Any())

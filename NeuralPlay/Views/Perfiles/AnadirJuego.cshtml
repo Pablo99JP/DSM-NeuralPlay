@@ -1,36 +1,148 @@
 @model NeuralPlay.Models.AnadirJuegoViewModel
 
 @{
-    ViewData["Title"] = "Añadir Juego a la Biblioteca";
+    ViewData["Title"] = "Aï¿½adir Juego a la Biblioteca";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>@ViewData["Title"]</h1>
 
-<h4>Añadir juego al perfil</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="AnadirJuego">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        background-color: var(--np-grey);
+        font-family: 'Lexend', sans-serif;
+    }
+    .page-content {
+        padding-left: 6vw;
+        padding-right: 11vw;
+        display: flex;
+        justify-content: center;
+    }
+    .add-game-wrapper {
+        max-width: 600px;
+        width: 100%;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        background: var(--np-dark-grey);
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+        padding: 40px 32px;
+    }
+    .add-game-title {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 32px;
+        text-align: center;
+    }
+    .add-game-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    label {
+        color: #fff;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        font-family: 'Neue', sans-serif;
+    }
+    select, .form-control {
+        background: #fff;
+        color: var(--np-grey);
+        font-size: 1.3rem;
+        border-radius: 8px;
+        border: none;
+        padding: 12px 16px;
+        font-family: 'Lexend', sans-serif;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 4px rgba(229,10,70,0.08);
+        transition: box-shadow 0.2s;
+    }
+    select:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--np-red);
+    }
+    .btn-add-game {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: #fff;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.7rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        padding: 18px 0;
+        margin-top: 16px;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        letter-spacing: 1px;
+        width: 100%;
+    }
+    .btn-add-game:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        background: linear-gradient(90deg, #ff4b7d 0%, var(--np-red) 100%);
+    }
+    .validation-error {
+        color: var(--np-red);
+        font-size: 1rem;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        font-family: 'Lexend', sans-serif;
+    }
+    .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 24px;
+        color: var(--np-red);
+        font-family: 'Neue', sans-serif;
+        font-size: 1.2rem;
+        text-decoration: none;
+    }
+    .cancel-link:hover {
+        color: #ff4b7d;
+        text-decoration: underline;
+    }
+</style>
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<div class="page-content">
+    <main class="add-game-wrapper">
+        <h1 class="add-game-title">AÃ±adir juego al perfil</h1>
+        <form asp-action="AnadirJuego" class="add-game-form">
+            <div asp-validation-summary="ModelOnly" class="validation-error"></div>
             <input type="hidden" asp-for="IdPerfil" />
-            
-            <div class="form-group">
-                <label asp-for="IdJuegoSeleccionado" class="control-label"></label>
-                <select asp-for="IdJuegoSeleccionado" class="form-control" asp-items="@Model.ListaDeJuegos">
-                    <option value="">-- Selecciona un juego --</option>
-                </select>
-                <span asp-validation-for="IdJuegoSeleccionado" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group mt-3">
-                <input type="submit" value="Añadir" class="btn btn-primary" />
-            </div>
+            <label asp-for="IdJuegoSeleccionado"></label>
+            <select asp-for="IdJuegoSeleccionado" asp-items="@Model.ListaDeJuegos">
+                <option value="">-- Selecciona un juego --</option>
+            </select>
+            <span asp-validation-for="IdJuegoSeleccionado" class="validation-error"></span>
+            <button type="submit" class="btn-add-game">AÃ±adir</button>
         </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Details" asp-route-id="@Model.IdPerfil">Cancelar</a>
+        <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="cancel-link">Cancelar</a>
+    </main>
 </div>
 
 @section Scripts {
