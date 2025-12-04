@@ -3,84 +3,241 @@
 @{
     ViewData["Title"] = "Detalles del Equipo";
     var miembros = ViewBag.Miembros as List<NeuralPlay.Models.MiembroEquipoViewModel> ?? new List<NeuralPlay.Models.MiembroEquipoViewModel>();
+    var torneos = ViewBag.Torneos as List<ApplicationCore.Domain.EN.Torneo> ?? new List<ApplicationCore.Domain.EN.Torneo>();
+    var palmares = ViewBag.Palmares as Dictionary<ApplicationCore.Domain.EN.Torneo, int> ?? new Dictionary<ApplicationCore.Domain.EN.Torneo, int>();
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@Model.Nombre</h2>
+            <p class="mb-0"><small>@Model.Descripcion</small></p>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Fecha de Creación</dt>
+                <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
 
-<dl class="row">
-    <dt class="col-sm-3">ID</dt>
-    <dd class="col-sm-9">@Model.IdEquipo</dd>
+                <dt class="col-sm-3">País</dt>
+                <dd class="col-sm-9">@Model.Pais</dd>
 
-    <dt class="col-sm-3">Nombre</dt>
-    <dd class="col-sm-9">@Model.Nombre</dd>
+                <dt class="col-sm-3">Idioma</dt>
+                <dd class="col-sm-9">@Model.Idioma</dd>
 
-    <dt class="col-sm-3">Descripción</dt>
-    <dd class="col-sm-9">@Model.Descripcion</dd>
+                <dt class="col-sm-3">Actividad</dt>
+                <dd class="col-sm-9">@Model.Actividad</dd>
+            </dl>
 
-    <dt class="col-sm-3">Fecha de Creación</dt>
-    <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+            <div class="d-flex gap-2 mb-4">
+                <a asp-action="Edit" asp-route-id="@Model.IdEquipo" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a asp-action="Chat" asp-route-id="@Model.IdEquipo" class="btn btn-info">
+                    <i class="bi bi-chat-dots"></i> Chat del Equipo
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
 
-    <dt class="col-sm-3">Actividad</dt>
-    <dd class="col-sm-9">@Model.Actividad</dd>
+            <!-- Pestañas de navegación -->
+            <ul class="nav nav-tabs" id="equipoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="miembros-tab" data-bs-toggle="tab" data-bs-target="#miembros" type="button" role="tab">
+                        <i class="bi bi-people"></i> Miembros
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="torneos-tab" data-bs-toggle="tab" data-bs-target="#torneos" type="button" role="tab">
+                        <i class="bi bi-trophy"></i> Torneos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="palmares-tab" data-bs-toggle="tab" data-bs-target="#palmares" type="button" role="tab">
+                        <i class="bi bi-award"></i> Palmarés
+                    </button>
+                </li>
+            </ul>
 
-    <dt class="col-sm-3">País</dt>
-    <dd class="col-sm-9">@Model.Pais</dd>
+            <!-- Contenido de las pestañas -->
+            <div class="tab-content mt-3" id="equipoTabsContent">
+                <!-- Pestaña Miembros -->
+                <div class="tab-pane fade show active" id="miembros" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Miembros del Equipo</h5>
+                            @if (miembros.Any())
+                            {
+                                <div class="mb-3">
+                                    <a asp-controller="MiembroEquipo" asp-action="Create" asp-route-idEquipo="@Model.IdEquipo" class="btn btn-success btn-sm">
+                                        <i class="bi bi-plus-circle"></i> Añadir Miembro
+                                    </a>
+                                </div>
 
-    <dt class="col-sm-3">Idioma</dt>
-    <dd class="col-sm-9">@Model.Idioma</dd>
-</dl>
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Rol</th>
+                                            <th>Estado</th>
+                                            <th>Fecha de Alta</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var miembro in miembros)
+                                        {
+                                            <tr>
+                                                <td>@miembro.NombreUsuario</td>
+                                                <td>@miembro.Rol</td>
+                                                <td>@miembro.Estado</td>
+                                                <td>@miembro.FechaAlta.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <a asp-controller="MiembroEquipo" asp-action="Edit" asp-route-id="@miembro.IdMiembroEquipo" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                                    <a asp-controller="MiembroEquipo" asp-action="Delete" asp-route-id="@miembro.IdMiembroEquipo" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <p>Este equipo aún no tiene miembros.</p>
+                                    <a asp-controller="MiembroEquipo" asp-action="Create" asp-route-idEquipo="@Model.IdEquipo" class="btn btn-success btn-sm">
+                                        <i class="bi bi-plus-circle"></i> Añadir Primer Miembro
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
 
-<div class="d-flex gap-2 mb-4">
-    <a asp-action="Edit" asp-route-id="@Model.IdEquipo" class="btn btn-primary">Editar</a>
-    <a asp-action="Chat" asp-route-id="@Model.IdEquipo" class="btn btn-info">Chat del Equipo</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                <!-- Pestaña Torneos -->
+                <div class="tab-pane fade" id="torneos" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Torneos en los que Participa</h5>
+                            @if (torneos.Any())
+                            {
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre del Torneo</th>
+                                            <th>Comunidad</th>
+                                            <th>Fecha de Inicio</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var torneo in torneos)
+                                        {
+                                            <tr>
+                                                <td>@torneo.Nombre</td>
+                                                <td>@(torneo.ComunidadOrganizadora?.Nombre ?? "-")</td>
+                                                <td>@(torneo.FechaInicio == default ? "-" : torneo.FechaInicio.ToString("yyyy-MM-dd"))</td>
+                                                <td>
+                                                    @if (torneo.Estado == "PENDIENTE")
+                                                    {
+                                                        <span class="badge bg-warning text-dark">@torneo.Estado</span>
+                                                    }
+                                                    else if (torneo.Estado == "ABIERTO")
+                                                    {
+                                                        <span class="badge bg-success">@torneo.Estado</span>
+                                                    }
+                                                    else if (torneo.Estado == "FINALIZADO")
+                                                    {
+                                                        <span class="badge bg-secondary">@torneo.Estado</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-info">@torneo.Estado</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a asp-controller="Torneo" asp-action="Details" asp-route-id="@torneo.IdTorneo" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> Este equipo aún no participa en ningún torneo.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Palmarés -->
+                <div class="tab-pane fade" id="palmares" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Palmarés</h5>
+                            @if (palmares.Any())
+                            {
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Torneo</th>
+                                            <th>Comunidad</th>
+                                            <th>Posición</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in palmares.OrderBy(x => x.Value))
+                                        {
+                                            var torneo = item.Key;
+                                            var posicion = item.Value;
+                                            <tr>
+                                                <td>@torneo.Nombre</td>
+                                                <td>@(torneo.ComunidadOrganizadora?.Nombre ?? "-")</td>
+                                                <td>
+                                                    @if (posicion == 1)
+                                                    {
+                                                        <span class="badge bg-warning text-dark fs-6">🥇 1º</span>
+                                                    }
+                                                    else if (posicion == 2)
+                                                    {
+                                                        <span class="badge bg-secondary fs-6">🥈 2º</span>
+                                                    }
+                                                    else if (posicion == 3)
+                                                    {
+                                                        <span class="badge bg-danger fs-6">🥉 3º</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-light text-dark fs-6">@posicion.ToString()º</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a asp-controller="Torneo" asp-action="Details" asp-route-id="@torneo.IdTorneo" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> Este equipo no ha participado en ningún torneo finalizado aún.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<hr />
-
-<h2>Miembros del Equipo</h2>
-
-@if (miembros.Any())
-{
-    <div class="mb-3">
-        <a asp-controller="MiembroEquipo" asp-action="Create" asp-route-idEquipo="@Model.IdEquipo" class="btn btn-success">
-            Añadir Miembro
-        </a>
-    </div>
-
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Fecha de Alta</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var miembro in miembros)
-            {
-                <tr>
-                    <td>@miembro.NombreUsuario</td>
-                    <td>@miembro.Rol</td>
-                    <td>@miembro.Estado</td>
-                    <td>@miembro.FechaAlta.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <a asp-controller="MiembroEquipo" asp-action="Edit" asp-route-id="@miembro.IdMiembroEquipo" class="btn btn-sm btn-outline-secondary">Editar</a>
-                        <a asp-controller="MiembroEquipo" asp-action="Delete" asp-route-id="@miembro.IdMiembroEquipo" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <div class="alert alert-info">
-        <p>Este equipo aún no tiene miembros.</p>
-        <a asp-controller="MiembroEquipo" asp-action="Create" asp-route-idEquipo="@Model.IdEquipo" class="btn btn-success">
-            Añadir Primer Miembro
-        </a>
-    </div>
-}

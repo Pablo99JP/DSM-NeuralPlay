@@ -16,6 +16,7 @@ namespace NeuralPlay.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ChatEquipoCEN _chatEquipoCEN;      // NUEVO
         private readonly MensajeChatCEN _mensajeChatCEN;    // NUEVO
+        private readonly ParticipacionTorneoCEN _participacionTorneoCEN;
 
         public EquipoController(
             UsuarioCEN usuarioCEN,
@@ -24,7 +25,8 @@ namespace NeuralPlay.Controllers
             IRepository<Equipo> equipoRepository,
             IUnitOfWork unitOfWork,
             ChatEquipoCEN chatEquipoCEN,         // NUEVO
-            MensajeChatCEN mensajeChatCEN        // NUEVO
+            MensajeChatCEN mensajeChatCEN,       // NUEVO
+            ParticipacionTorneoCEN participacionTorneoCEN
         )
             : base(usuarioCEN, usuarioRepository)
         {
@@ -33,6 +35,7 @@ namespace NeuralPlay.Controllers
             _unitOfWork = unitOfWork;
             _chatEquipoCEN = chatEquipoCEN;          // NUEVO
             _mensajeChatCEN = mensajeChatCEN;        // NUEVO
+            _participacionTorneoCEN = participacionTorneoCEN;
         }
 
         // GET: /Equipo
@@ -66,6 +69,41 @@ namespace NeuralPlay.Controllers
                     .ToList();
                 
                 ViewBag.Miembros = (object?)miembros;
+
+                // Cargar los torneos en los que participa el equipo
+                var torneos = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
+                    .Where(p => p.Equipo != null && p.Equipo.IdEquipo == id)
+                    .Select(p => p.Torneo)
+                    .Where(t => t != null)
+                    .Distinct()
+                    .ToList();
+                
+                ViewBag.Torneos = (object?)torneos;
+
+                // Cargar el palmarés (torneos finalizados con su posición)
+                var palmares = new Dictionary<ApplicationCore.Domain.EN.Torneo, int>();
+                var torneosFinalizados = torneos.Where(t => t.Estado == "FINALIZADO").ToList();
+                
+                foreach (var torneo in torneosFinalizados)
+                {
+                    // Obtener todas las participaciones del torneo
+                    var participacionesTorneo = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
+                        .Where(p => p.Torneo != null && p.Torneo.IdTorneo == torneo.IdTorneo)
+                        .ToList();
+                    
+                    // Calcular la posición del equipo (todos tienen 0 puntos por defecto, así que es el orden de participación)
+                    var posicion = participacionesTorneo
+                        .OrderBy(p => p.IdParticipacion)
+                        .ToList()
+                        .FindIndex(p => p.Equipo != null && p.Equipo.IdEquipo == id) + 1;
+                    
+                    if (posicion > 0)
+                    {
+                        palmares[torneo] = posicion;
+                    }
+                }
+                
+                ViewBag.Palmares = (object?)palmares;
                 
                 return View(vm);
             }
