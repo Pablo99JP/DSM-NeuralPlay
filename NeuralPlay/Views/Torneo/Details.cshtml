@@ -99,7 +99,6 @@
                                         <tr>
                                             <th>Posición</th>
                                             <th>Equipo</th>
-                                            <th>Puntos</th>
                                             <th>Estado</th>
                                         </tr>
                                     </thead>
@@ -107,7 +106,7 @@
                                         @{
                                             var posicion = 1;
                                         }
-                                        @foreach (var p in Model.Participaciones.OrderByDescending(x => Model.Clasificacion.ContainsKey(x.Equipo?.IdEquipo ?? 0) ? Model.Clasificacion[x.Equipo.IdEquipo] : 0))
+                                        @foreach (var p in Model.Participaciones.OrderBy(x => x.IdParticipacion))
                                         {
                                             <tr>
                                                 <td>
@@ -129,7 +128,6 @@
                                                     }
                                                 </td>
                                                 <td>@(p.Equipo?.Nombre ?? "-")</td>
-                                                <td>@(Model.Clasificacion.ContainsKey(p.Equipo?.IdEquipo ?? 0) ? Model.Clasificacion[p.Equipo!.IdEquipo] : 0) pts</td>
                                                 <td>
                                                     @if (p.Estado == "ACEPTADA")
                                                     {
