@@ -11,14 +11,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApplicationCore.Domain.CP;
-using NeuralPlay.Services; // A馻dir el using para IUsuarioAuth
+using NeuralPlay.Services; // A帽adir el using para IUsuarioAuth
 
 namespace NeuralPlay.Controllers
 {
     public class PerfilesController : BasicController
     {
         private readonly ActualizarPerfilCP _actualizarPerfilCP;
-        private readonly IUsuarioAuth _usuarioAuth; // A馻dir el servicio de autenticaci髇
+        private readonly IUsuarioAuth _usuarioAuth; // A帽adir el servicio de autenticaci贸n
 
         public PerfilesController(
             UsuarioCEN usuarioCEN,
@@ -36,12 +36,12 @@ namespace NeuralPlay.Controllers
         {
             using (var session = NHibernateHelper.OpenSession())
             {
-                // --- INICIO DE LA CORRECCI覰 ---
+                // --- INICIO DE LA CORRECCI脫N ---
                 // Usamos Fetch para cargar el Usuario junto con cada Perfil
                 var perfiles = await session.Query<Perfil>()
                                             .Fetch(p => p.Usuario) // Carga ansiosa del usuario
                                             .ToListAsync();
-                // --- FIN DE LA CORRECCI覰 ---
+                // --- FIN DE LA CORRECCI脫N ---
 
                 var viewModels = perfiles.Select(p => new PerfilViewModel
                 {
@@ -187,27 +187,27 @@ namespace NeuralPlay.Controllers
         {
             if (id == null) return NotFound();
 
-            // --- INICIO DE LA CORRECCI覰 ---
-            // Usar el servicio de autenticaci髇 basado en sesi髇
+            // --- INICIO DE LA CORRECCI脫N ---
+            // Usar el servicio de autenticaci贸n basado en sesi贸n
             var currentUser = _usuarioAuth.GetUsuarioActual();
             if (currentUser == null)
             {
-                return Unauthorized("Debes iniciar sesi髇 para editar un perfil.");
+                return Unauthorized("Debes iniciar sesi贸n para editar un perfil.");
             }
-            // --- FIN DE LA CORRECCI覰 ---
+            // --- FIN DE LA CORRECCI脫N ---
 
             using (var session = NHibernateHelper.OpenSession())
             {
                 var perfil = await session.GetAsync<Perfil>(id.Value);
                 if (perfil == null) return NotFound();
 
-                // --- INICIO DE LA CORRECCI覰 ---
+                // --- INICIO DE LA CORRECCI脫N ---
                 // Comparar IDs directamente
                 if (perfil.Usuario.IdUsuario != currentUser.IdUsuario)
                 {
                     return Forbid("No tienes permiso para editar este perfil.");
                 }
-                // --- FIN DE LA CORRECCI覰 ---
+                // --- FIN DE LA CORRECCI脫N ---
 
                 var viewModel = new PerfilEditViewModel
                 {
@@ -227,12 +227,12 @@ namespace NeuralPlay.Controllers
         {
             if (id != viewModel.IdPerfil) return NotFound();
 
-            // --- INICIO DE LA CORRECCI覰 ---
-            // Reutilizar la misma l骻ica de autorizaci髇 del GET
+            // --- INICIO DE LA CORRECCI脫N ---
+            // Reutilizar la misma l贸gica de autorizaci贸n del GET
             var currentUser = _usuarioAuth.GetUsuarioActual();
             if (currentUser == null)
             {
-                return Unauthorized("Debes iniciar sesi髇 para editar un perfil.");
+                return Unauthorized("Debes iniciar sesi贸n para editar un perfil.");
             }
 
             using (var session = NHibernateHelper.OpenSession())
@@ -243,7 +243,7 @@ namespace NeuralPlay.Controllers
                     return Forbid("No tienes permiso para editar este perfil.");
                 }
             }
-            // --- FIN DE LA CORRECCI覰 ---
+            // --- FIN DE LA CORRECCI脫N ---
 
             if (ModelState.IsValid)
             {

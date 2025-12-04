@@ -3,69 +3,233 @@
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = $"Perfil de {Model.NickUsuario}";
     var currentUser = UsuarioAuth.GetUsuarioActual();
+    ViewBag.OcultarNavbar = true;
 }
 
-<div>
-    <h1>Perfil de @Html.DisplayFor(model => model.NickUsuario)</h1>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-    @* Mostrar siempre el bot�n de Feed. Restringir solo el de Editar al due�o *@
-    <p>
-        @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
-        {
-            <a asp-action="Edit" asp-route-id="@Model.IdPerfil" class="btn btn-primary">Editar Perfil</a>
-        }
-        <a asp-action="Feed" asp-route-id="@Model.IdPerfil" class="btn btn-secondary ms-2">Ver Feed</a>
-    </p>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
 
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            Avatar
-        </dt>
-        <dd class="col-sm-10">
-            @if (!string.IsNullOrEmpty(Model.Avatar))
-            {
-                <img src="@Model.Avatar" alt="Avatar" style="max-width:150px; border-radius:50%;" />
-            }
-            else
-            {
-                <span>(Sin avatar)</span>
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.NickUsuario)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.NickUsuario)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-    </dl>
-    
-    <h4>Juegos</h4>
-    @if (Model.Juegos != null && Model.Juegos.Any())
-    {
-        <ul>
-            @foreach (var juego in Model.Juegos)
-            {
-                <li>@juego.NombreJuego (@juego.Genero)</li>
-            }
-        </ul>
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
     }
-    else
-    {
-        <p>Este perfil no tiene juegos a�adidos.</p>
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
     }
-    <p>
-        <a asp-action="AnadirJuego" asp-route-idPerfil="@Model.IdPerfil">A�adir Juego</a>
-    </p>
-</div>
-<div>
-    <a asp-action="Index">Volver a la lista</a>
-</div>
+
+    body {
+        background-color: var(--np-grey);
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-top: 20px;
+    }
+
+    .profile-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: center;
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 20px;
+        margin-right: 11vw;
+    }
+
+    .profile-header h1 .username {
+        color: var(--np-red);
+    }
+
+    .profile-divider {
+        width: 70%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 30px auto;
+        margin-left: 6vw;
+        margin-right: 11vw;
+    }
+
+    .profile-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5.5rem;
+        color: white;
+        margin-bottom: 30px;
+        text-align: left;
+        padding-left: 0;
+        margin-left: 32px; /* Un poco más a la derecha */
+        font-weight: bold;
+    }
+
+    .profile-card {
+        background: var(--np-dark-grey);
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .profile-card h3 {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+    }
+
+    .profile-info dt {
+        font-family: 'Neue', sans-serif;
+        color: white;
+        margin-bottom: 5px;
+    }
+
+    .profile-info dd {
+        font-family: 'Lexend', sans-serif;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .avatar-container {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .avatar-container img {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--np-red);
+        margin-bottom: 20px;
+    }
+
+    .btn-custom {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 14px 36px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .btn-custom:hover {
+        transform: scale(1.07);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        color: #fff;
+        text-shadow: 0 1px 8px #e50a46;
+    }
+
+    .feed-container {
+        text-align: center;
+        padding: 40px;
+    }
+
+    .content-wrapper {
+        margin-right: 6vw;
+        padding: 0 20px;
+    }
+
+    .game-item {
+        font-family: 'Lexend', sans-serif;
+        margin-bottom: 10px;
+        color: white;
+    }
+
+    .no-games-text {
+        font-family: 'Lexend', sans-serif;
+        color: var(--np-grey);
+    }
+</style>
+
+<header class="profile-header">
+    <h1>Bienvenido, <span class="username">@Model.NickUsuario</span></h1>
+    <div class="profile-divider"></div>
+    <h2 class="profile-section-title">Tu Perfil</h2>
+</header>
+
+<main class="content-wrapper">
+    <section class="container-fluid">
+        <div class="row">
+            <!-- Columna izquierda: Datos del usuario y juegos -->
+            <section class="col-md-6">
+                <article class="profile-card" style="height: 100%;">
+                    <h3>Información del Perfil</h3>
+                    <dl class="profile-info row">
+                        <dt class="col-sm-3">Nickname</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.NickUsuario)</dd>
+                        <dt class="col-sm-3">Descripción</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+                    </dl>
+                    <h3 style="margin-top: 30px;">Juegos</h3>
+                    @if (Model.Juegos != null && Model.Juegos.Any())
+                    {
+                        <ul class="list-unstyled">
+                            @foreach (var juego in Model.Juegos)
+                            {
+                                <li class="game-item">
+                                    <strong>@juego.NombreJuego</strong> - @juego.Genero
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="no-games-text">Este perfil no tiene juegos añadidos.</p>
+                    }
+                    @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
+                    {
+                        <nav style="margin-top: 20px;">
+                            <a asp-action="AnadirJuego" asp-route-idPerfil="@Model.IdPerfil" class="btn-custom">Añadir Juego</a>
+                            <a asp-action="Edit" asp-route-id="@Model.IdPerfil" class="btn-custom" style="margin-left: 10px;">Editar Perfil</a>
+                        </nav>
+                    }
+                </article>
+            </section>
+            <!-- Columna derecha: Foto de perfil y botón Feed -->
+            <aside class="col-md-6">
+                <article class="profile-card avatar-container">
+                    <h3>Foto de Perfil</h3>
+                    @if (!string.IsNullOrEmpty(Model.Avatar))
+                    {
+                        <img src="@Model.Avatar" alt="Avatar" />
+                    }
+                    else
+                    {
+                        <div style="width: 200px; height: 200px; border-radius: 50%; background: var(--np-grey); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; border: 5px solid var(--np-red);">
+                            <span style="font-family: 'Lexend', sans-serif; color: white;">Sin foto</span>
+                        </div>
+                    }
+                    @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
+                    {
+                        <a href="#" class="btn-custom">Cambiar Foto</a>
+                    }
+                </article>
+                <nav style="text-align:center; margin-top: 80px;">
+                    <a asp-action="Feed" asp-route-id="@Model.IdPerfil" class="btn-custom" style="font-size: 2.5rem; padding: 32px 65px;">Ver Feed Personal</a>
+                </nav>
+            </aside>
+        </div>
+    </section>
+</main>

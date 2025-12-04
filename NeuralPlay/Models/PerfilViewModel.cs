@@ -12,7 +12,7 @@ namespace NeuralPlay.Models
         [Display(Name = "Usuario")]
         public string? NickUsuario { get; set; }
 
-        [Display(Name = "Biografía")]
+        [Display(Name = "BiografÃ­a")]
         [StringLength(500)]
         public string? Descripcion { get; set; }
 
