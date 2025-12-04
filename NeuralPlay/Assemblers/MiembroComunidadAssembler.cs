@@ -21,7 +21,8 @@ namespace NeuralPlay.Assemblers
                 FechaAccion = en.FechaAccion,
                 FechaBaja = en.FechaBaja,
                 NombreUsuario = en.Usuario?.Nick,
-                NombreComunidad = en.Comunidad?.Nombre
+                NombreComunidad = en.Comunidad?.Nombre,
+                Avatar = en.Usuario?.Perfil?.FotoPerfilUrl
             };
         }
 

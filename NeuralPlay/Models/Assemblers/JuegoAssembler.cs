@@ -7,7 +7,7 @@ namespace NeuralPlay.Models.Assemblers
 {
     public static class JuegoAssembler
     {
-        public static JuegoViewModel ToViewModel(Juego juego)
+        public static JuegoViewModel? ToViewModel(Juego juego)
         {
             if (juego == null)
             {
@@ -25,7 +25,7 @@ namespace NeuralPlay.Models.Assemblers
 
         public static IList<JuegoViewModel> ToViewModel(IEnumerable<Juego> juegos)
         {
-            // Reutiliza el método de mapeo de una sola entidad.
+            // Reutiliza el mï¿½todo de mapeo de una sola entidad.
             return juegos.Select(j => ToViewModel(j)).ToList();
         }
     }

@@ -7,17 +7,17 @@ namespace NeuralPlay.Models
         public long IdPerfil { get; set; }
 
         [Required(ErrorMessage = "El nick es obligatorio.")]
-        [StringLength(50, ErrorMessage = "El nick no puede tener más de 50 caracteres.")]
-        public string NickUsuario { get; set; }
+        [StringLength(50, ErrorMessage = "El nick no puede tener mï¿½s de 50 caracteres.")]
+        public string NickUsuario { get; set; } = string.Empty;
 
-        [StringLength(1000, ErrorMessage = "La descripción no puede tener más de 1000 caracteres.")]
+        [StringLength(1000, ErrorMessage = "La descripciï¿½n no puede tener mï¿½s de 1000 caracteres.")]
         public string? Descripcion { get; set; }
 
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Se elimina el atributo [Url] para no forzar la validación de la URL.
+        // --- INICIO DE LA CORRECCIï¿½N ---
+        // Se elimina el atributo [Url] para no forzar la validaciï¿½n de la URL.
         [Display(Name = "URL del Avatar")]
-        [StringLength(255, ErrorMessage = "La URL no puede tener más de 255 caracteres.")]
+        [StringLength(255, ErrorMessage = "La URL no puede tener mï¿½s de 255 caracteres.")]
         public string? FotoPerfilUrl { get; set; }
-        // --- FIN DE LA CORRECCIÓN ---
+        // --- FIN DE LA CORRECCIï¿½N ---
     }
 }

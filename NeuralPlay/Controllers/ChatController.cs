@@ -28,8 +28,8 @@ namespace NeuralPlay.Controllers
         {
             using (var session = NHibernateHelper.OpenSession())
             {
-                // --- INICIO DE LA CORRECCIÓN ---
-                // La consulta debe partir de Equipo, que es la entidad que tiene la relación con el Chat.
+                // --- INICIO DE LA CORRECCIï¿½N ---
+                // La consulta debe partir de Equipo, que es la entidad que tiene la relaciï¿½n con el Chat.
                 var equipoConChat = await session.Query<Equipo>()
                                                  .Where(e => e.IdEquipo == idEquipo)
                                                  .Fetch(e => e.Chat) // Carga el chat asociado al equipo
@@ -39,24 +39,24 @@ namespace NeuralPlay.Controllers
 
                 if (equipoConChat == null || equipoConChat.Chat == null)
                 {
-                    return NotFound($"No se encontró un equipo o un chat para el ID {idEquipo}.");
+                    return NotFound($"No se encontrï¿½ un equipo o un chat para el ID {idEquipo}.");
                 }
 
                 var chatEquipo = equipoConChat.Chat;
-                // --- FIN DE LA CORRECCIÓN ---
+                // --- FIN DE LA CORRECCIï¿½N ---
 
                 // Mapeamos las entidades a nuestro ViewModel
                 var viewModel = new ChatEquipoViewModel
                 {
                     IdChatEquipo = chatEquipo.IdChatEquipo,
-                    NombreEquipo = equipoConChat.Nombre, // El nombre se obtiene del equipo
+                    NombreEquipo = equipoConChat.Nombre ?? "Sin nombre", // El nombre se obtiene del equipo
                     Mensajes = chatEquipo.Mensajes
                                          .OrderBy(m => m.FechaEnvio)
                                          .Select(m => new MensajeChatViewModel
                                          {
                                              Contenido = m.Contenido,
                                              FechaEnvio = m.FechaEnvio,
-                                             NickAutor = m.Autor.Nick
+                                             NickAutor = m.Autor?.Nick ?? "Desconocido"
                                          }).ToList()
                 };
 

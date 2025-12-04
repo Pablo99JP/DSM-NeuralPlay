@@ -3,173 +3,567 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Publicación";
     var userId = HttpContextAccessor.HttpContext?.Session?.GetInt32("UsuarioId");
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>Details</h1>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-<div>
-    <h4>PublicacionViewModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NombreComunidad)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NombreComunidad)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NickAutor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NickAutor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.contenido)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.contenido)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.fechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.fechaCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.fechaEdicion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.fechaEdicion)
-        </dd>
-    </dl>
-</div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.idPublicacion }) <span>|</span>
-    <a asp-action="Index">Back to List</a>
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<hr />
-<h3>Interacciones</h3>
-<div>
-    <button id="like-publicacion-btn" data-publicacion-id="@Model.idPublicacion" class="@(Model.LikedByUser ? "btn btn-primary" : "btn btn-outline-primary")">
-        <span id="like-publicacion-icon">👍</span>
-        <span id="like-publicacion-text">Me gusta</span>
-        <span id="like-publicacion-count">(@Model.LikeCount)</span>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Contenedor principal - solo fondo */
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    /* Contenedor de contenido - entre las barras */
+    .content-container {
+        position: absolute;
+        left: 11%;
+        top: 0;
+        width: 83%;
+        min-height: 100vh;
+        z-index: 2;
+        padding: 40px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--np-red);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s;
+        margin-bottom: 30px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        background: #c4083c;
+        color: white;
+        transform: translateX(-5px);
+    }
+
+    .publication-detail-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .publication-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .publication-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--np-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        border: 2px solid var(--np-red);
+    }
+
+    .publication-author {
+        flex: 1;
+    }
+
+    .author-name {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .author-community {
+        font-family: 'Lexend', sans-serif;
+        color: #aaa;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .publication-content {
+        font-family: 'Lexend', sans-serif;
+        color: white;
+        font-size: 1.2rem;
+        line-height: 1.8;
+        margin-bottom: 20px;
+    }
+
+    .publication-meta {
+        font-family: 'Lexend', sans-serif;
+        color: #999;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+
+    .publication-actions {
+        display: flex;
+        gap: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        background: transparent;
+        border: 2px solid var(--np-grey);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+        border-color: var(--np-red);
+        color: var(--np-red);
+    }
+
+    .action-btn.active {
+        background: var(--np-red);
+        border-color: var(--np-red);
+        color: white;
+    }
+
+    .action-btn i {
+        font-size: 1.3rem;
+    }
+
+    .action-btn.active i {
+        color: white;
+    }
+
+    .action-btn:not(.active) i {
+        color: white;
+    }
+
+    .comments-section {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .comments-title {
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 2rem;
+        margin: 0 0 20px 0;
+    }
+
+    .btn-add-comment {
+        background: var(--np-red);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        display: inline-block;
+        margin-bottom: 20px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-add-comment:hover {
+        background: #c4083c;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .comment-item {
+        background: rgba(69, 69, 69, 0.6);
+        border-left: 4px solid var(--np-red);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .comment-author {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .comment-date {
+        font-family: 'Lexend', sans-serif;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .comment-content {
+        font-family: 'Lexend', sans-serif;
+        color: white;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .comment-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .comment-like-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        border: 1px solid var(--np-grey);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 5px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .comment-like-btn:hover {
+        border-color: var(--np-red);
+        color: var(--np-red);
+    }
+
+    .comment-like-btn.active {
+        background: var(--np-red);
+        border-color: var(--np-red);
+    }
+
+    .comment-edit-link {
+        color: #aaa;
+        text-decoration: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+    }
+
+    .comment-edit-link:hover {
+        color: white;
+    }
+
+    .no-comments {
+        text-align: center;
+        padding: 40px;
+        color: #888;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+    }
+
+    /* Formulario de comentario */
+    .comment-form {
+        background: rgba(69, 69, 69, 0.6);
+        border: 2px solid var(--np-red);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .comment-textarea {
+        width: 100%;
+        background: rgba(36, 36, 36, 0.8);
+        border: 1px solid var(--np-grey);
+        border-radius: 6px;
+        padding: 12px;
+        color: white;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        resize: vertical;
+        margin-bottom: 15px;
+    }
+
+    .comment-textarea:focus {
+        outline: none;
+        border-color: var(--np-red);
+        box-shadow: 0 0 0 2px rgba(229, 10, 70, 0.2);
+    }
+
+    .comment-textarea::placeholder {
+        color: #888;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-submit-comment {
+        background: var(--np-red);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-submit-comment:hover {
+        background: #c4083c;
+        transform: scale(1.05);
+    }
+
+    .btn-cancel-comment {
+        background: transparent;
+        color: white;
+        padding: 10px 20px;
+        border: 1px solid var(--np-grey);
+        border-radius: 6px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-cancel-comment:hover {
+        border-color: white;
+    }
+</style>
+
+<!-- Contenedor principal - solo fondo -->
+<div class="main-container"></div>
+
+<!-- Contenedor de contenido - entre las barras laterales -->
+<div class="content-container">
+    <button onclick="history.back()" class="btn-back">
+        <i class="bi bi-arrow-left"></i>
+        Volver
     </button>
-</div>
 
-<hr />
-<h3>Comentarios</h3>
-@if (userId.HasValue)
-{
-    <p>
-        <a asp-controller="Comentario" asp-action="Create" asp-route-publicacionId="@Model.idPublicacion" class="btn btn-primary">Añadir comentario</a>
-    </p>
-}
+    <!-- Publicación principal -->
+    <div class="publication-detail-card">
+        <div class="publication-header">
+            <div class="publication-avatar">
+                <span style="color: white; font-family: 'Neue', sans-serif; font-size: 1.5rem;">
+                    @(Model.NickAutor?.Substring(0, 1).ToUpper() ?? "U")
+                </span>
+            </div>
+            <div class="publication-author">
+                <h2 class="author-name">@(Model.NickAutor ?? "Usuario")</h2>
+                <p class="author-community">@(Model.NombreComunidad ?? "Comunidad")</p>
+            </div>
+        </div>
 
-@if (Model.comentarios != null && Model.comentarios.Any())
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Autor</th>
-                <th>Contenido</th>
-                <th>Fecha</th>
-                <th>Likes</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+        <p class="publication-content">@Model.contenido</p>
+        
+        <p class="publication-meta">
+            @Model.fechaCreacion.ToString("HH:mm") · @Model.fechaCreacion.ToString("dd/MM/yyyy")
+        </p>
+
+        <div class="publication-actions">
+            <button id="like-publicacion-btn" data-publicacion-id="@Model.idPublicacion" class="action-btn @(Model.LikedByUser ? "active" : "")">
+                <i class="bi bi-heart-fill"></i>
+                <span id="like-publicacion-count">@Model.LikeCount</span>
+            </button>
+            <div class="action-btn" style="cursor: default; border-color: transparent;">
+                <i class="bi bi-chat-fill"></i>
+                <span id="comment-count">@Model.comentarios.Count()</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de comentarios -->
+    <div class="comments-section">
+        <h3 class="comments-title">Comentarios</h3>
+        
+        @if (userId.HasValue)
+        {
+            <button id="btn-toggle-comment-form" class="btn-add-comment">
+                <i class="bi bi-plus-circle"></i> Añadir comentario
+            </button>
+
+            <!-- Formulario de comentario (oculto por defecto) -->
+            <div id="comment-form-container" style="display: none; margin-bottom: 20px;">
+                <form asp-controller="Comentario" asp-action="Create" method="post" class="comment-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="publicacionId" value="@Model.idPublicacion" />
+                    
+                    <div class="form-group">
+                        <textarea name="contenido" class="form-control comment-textarea" placeholder="Escribe tu comentario..." rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit-comment">
+                            <i class="bi bi-send-fill"></i> Publicar
+                        </button>
+                        <button type="button" id="btn-cancel-comment" class="btn-cancel-comment">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+
+        @if (Model.comentarios != null && Model.comentarios.Any())
+        {
             @foreach (var c in Model.comentarios)
             {
-                <tr>
-                    <td>@(c.autorNick ?? "-")</td>
-                    <td>@(c.contenido)</td>
-                    <td>@c.fechaCreacion</td>
-                    <td>
-                        <button class="btn btn-sm toggle-like-comentario @(c.LikedByUser ? "btn-primary" : "btn-outline-primary")" data-comentario-id="@c.idComentario">👍 <span class="like-count">(@c.LikeCount)</span></button>
-                    </td>
-                    <td>
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <h4 class="comment-author">@(c.autorNick ?? "Usuario")</h4>
+                        <span class="comment-date">@c.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <p class="comment-content">@c.contenido</p>
+                    <div class="comment-actions">
+                        <button class="comment-like-btn toggle-like-comentario @(c.LikedByUser ? "active" : "")" data-comentario-id="@c.idComentario">
+                            <i class="bi bi-heart-fill"></i>
+                            <span class="like-count">@c.LikeCount</span>
+                        </button>
                         @if (userId.HasValue && c.autorId == userId.Value)
                         {
-                            @Html.ActionLink("Edit", "Edit", "Comentario", new { id = c.idComentario }, null)
-                            @:<span> | </span>
-                            @Html.ActionLink("Delete", "Delete", "Comentario", new { id = c.idComentario }, null)
+                            <a asp-controller="Comentario" asp-action="Edit" asp-route-id="@c.idComentario" class="comment-edit-link">Editar</a>
+                            <span style="color: #666;">|</span>
+                            <a asp-controller="Comentario" asp-action="Delete" asp-route-id="@c.idComentario" class="comment-edit-link">Eliminar</a>
                         }
-                    </td>
-                </tr>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No hay comentarios todavía.</p>
-}
+        }
+        else
+        {
+            <div class="no-comments">
+                <p>No hay comentarios todavía.</p>
+                <p>¡Sé el primero en comentar!</p>
+            </div>
+        }
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        // Build route URLs server-side to avoid incorrect paths
-        const togglePublicacionUrl = '@Url.Action("TogglePublicacionLike","Reaccion")';
-        const toggleComentarioUrl = '@Url.Action("ToggleComentarioLike","Reaccion")';
+        // Toggle formulario de comentario
+        const btnToggle = document.getElementById('btn-toggle-comment-form');
+        const formContainer = document.getElementById('comment-form-container');
+        const btnCancel = document.getElementById('btn-cancel-comment');
 
-        const postJson = (url, data) => fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(async response => {
-            if (!response.ok) {
-                const text = await response.text().catch(() => null);
-                console.error('Request failed', response.status, response.statusText, text);
-                throw new Error('Request failed: ' + response.status);
-            }
-            const ct = response.headers.get('content-type') || '';
-            if (ct.indexOf('application/json') === -1) {
-                const text = await response.text().catch(() => null);
-                try { return JSON.parse(text); } catch { return null; }
-            }
-            return response.json().catch(() => null);
-        });
-
-        const pubBtn = document.getElementById('like-publicacion-btn');
-        if (pubBtn) {
-            pubBtn.addEventListener('click', function (e) {
-                const btn = e.currentTarget;
-                const pubId = parseInt(btn.getAttribute('data-publicacion-id'));
-                postJson(togglePublicacionUrl, { publicacionId: pubId }).then(j => {
-                    if (!j) return;
-                    if (j.liked) {
-                        btn.classList.remove('btn-outline-primary');
-                        btn.classList.add('btn-primary');
-                    } else {
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-outline-primary');
-                    }
-                    const countSpan = document.getElementById('like-publicacion-count');
-                    if (countSpan) countSpan.textContent = '(' + (j.count ??0) + ')';
-                }).catch(err => console.error('Like toggle error:', err));
+        if (btnToggle && formContainer) {
+            btnToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (formContainer.style.display === 'none') {
+                    formContainer.style.display = 'block';
+                    btnToggle.style.display = 'none';
+                    const textarea = formContainer.querySelector('.comment-textarea');
+                    if (textarea) textarea.focus();
+                } else {
+                    formContainer.style.display = 'none';
+                    btnToggle.style.display = 'inline-block';
+                }
             });
         }
 
-        document.querySelectorAll('.toggle-like-comentario').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                const b = e.currentTarget;
-                const comentarioId = parseInt(b.getAttribute('data-comentario-id'));
-                postJson(toggleComentarioUrl, { comentarioId: comentarioId }).then(j => {
-                    if (!j) return;
-                    if (j.liked) {
-                        b.classList.remove('btn-outline-primary');
-                        b.classList.add('btn-primary');
-                    } else {
-                        b.classList.remove('btn-primary');
-                        b.classList.add('btn-outline-primary');
-                    }
-                    const span = b.querySelector('.like-count');
-                    if (span) span.textContent = '(' + (j.count ??0) + ')';
-                }).catch(err => console.error('Comentario like toggle error:', err));
+        if (btnCancel && formContainer && btnToggle) {
+            btnCancel.addEventListener('click', function(e) {
+                e.preventDefault();
+                formContainer.style.display = 'none';
+                btnToggle.style.display = 'inline-block';
+                const textarea = formContainer.querySelector('.comment-textarea');
+                if (textarea) textarea.value = '';
             });
-        });
+        }
+
+        // Manejar el like de la publicación
+        const likeBtn = document.getElementById('like-publicacion-btn');
+        const publicacionId = likeBtn ? likeBtn.getAttribute('data-publicacion-id') : null;
+        
+        if (likeBtn && publicacionId) {
+            likeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const countSpan = document.getElementById('like-publicacion-count');
+                
+                // Hacer petición al servidor
+                fetch('@Url.Action("TogglePublicacionLike", "Reaccion")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ publicacionId: parseInt(publicacionId) })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.liked) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                        if (countSpan) {
+                            countSpan.textContent = data.likeCount;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al dar like:', error);
+                });
+            });
+        }
     </script>
 }

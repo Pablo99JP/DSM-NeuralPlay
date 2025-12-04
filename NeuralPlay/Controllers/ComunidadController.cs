@@ -15,6 +15,7 @@ namespace NeuralPlay.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly PublicacionCEN _publicacionCEN;
         private readonly IRepository<Publicacion> _publicacionRepository;
+        private readonly IReaccionRepository _reaccionRepository;
 
         public ComunidadController(
             UsuarioCEN usuarioCEN,
@@ -22,13 +23,15 @@ namespace NeuralPlay.Controllers
             ComunidadCEN comunidadCEN,
             IRepository<Comunidad> comunidadRepository,
             IUnitOfWork unitOfWork,
-            IRepository<Publicacion> publicacionRepository)
+            IRepository<Publicacion> publicacionRepository,
+            IReaccionRepository reaccionRepository)
             : base(usuarioCEN, usuarioRepository)
         {
             _comunidadCEN = comunidadCEN;
             _comunidadRepository = comunidadRepository;
             _unitOfWork = unitOfWork;
             _publicacionRepository = publicacionRepository;
+            _reaccionRepository = reaccionRepository;
             _publicacionCEN = new PublicacionCEN(publicacionRepository);
         }
 
@@ -62,9 +65,26 @@ namespace NeuralPlay.Controllers
                     .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
                     .ToList();
                 
+                // Obtener el usuario actual
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                
                 // Cargar las publicaciones de la comunidad
                 var publicaciones = (en.Publicaciones ?? Enumerable.Empty<Publicacion>())
-                    .Select(p => PublicacionAssembler.ConvertENToViewModel(p))
+                    .Select(p => {
+                        var pubVM = PublicacionAssembler.ConvertENToViewModel(p);
+                        // Cargar like count
+                        if (pubVM != null)
+                        {
+                            pubVM.LikeCount = _reaccionRepository.CountByPublicacion(p.IdPublicacion);
+                            // Verificar si el usuario actual dio like
+                            if (uid.HasValue)
+                            {
+                                var existing = _reaccionRepository.GetByPublicacionAndAutor(p.IdPublicacion, uid.Value);
+                                pubVM.LikedByUser = existing != null;
+                            }
+                        }
+                        return pubVM;
+                    })
                     .OrderByDescending(p => p.fechaCreacion)
                     .ToList();
                 
@@ -154,6 +174,32 @@ namespace NeuralPlay.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
+            }
+        }
+
+        // GET: /Comunidad/Miembros/5
+        public IActionResult Miembros(long id)
+        {
+            try
+            {
+                var en = _comunidadCEN.ReadOID_Comunidad(id);
+                if (en == null) return NotFound();
+                var vm = ComunidadAssembler.ConvertENToViewModel(en);
+                
+                // Cargar los miembros de la comunidad
+                var miembros = (en.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
+                    .Where(m => m != null)
+                    .OrderBy(m => m?.FechaAlta ?? DateTime.MinValue)
+                    .ToList();
+                
+                ViewBag.Miembros = (object?)miembros;
+                
+                return View(vm);
+            }
+            catch (System.Exception ex)
+            {
+                return Problem(ex.Message);
             }
         }
 

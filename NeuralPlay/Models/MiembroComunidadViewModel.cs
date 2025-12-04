@@ -36,5 +36,8 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Nombre de la Comunidad")]
         public string? NombreComunidad { get; set; }
+
+        [Display(Name = "Avatar")]
+        public string? Avatar { get; set; }
     }
 }

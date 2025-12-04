@@ -58,6 +58,7 @@ namespace NeuralPlay.Controllers
                 var en = _PublicacionCEN.ReadOID_Publicacion(id);
                 if (en == null) return NotFound();
                 var vm = PublicacionAssembler.ConvertENToViewModel(en);
+                if (vm == null) return NotFound();
 
                 // Populate comentarios using assembler helper to ensure non-null list
                 vm.comentarios = ComentarioAssembler.ConvertListENToViewModel(en.Comentarios);
