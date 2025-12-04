@@ -18,18 +18,21 @@ namespace NeuralPlay.Controllers
         private readonly IRepository<Publicacion> _PublicacionRepository;
         private readonly NHibernate.ISession _session;
         private readonly IReaccionRepository _reaccionRepository;
+        private readonly IRepository<Comunidad> _comunidadRepository;
 
         public PublicacionController(
             UsuarioCEN usuarioCEN,
             IUsuarioRepository usuarioRepository,
             IRepository<Publicacion> publicacionRepository,
             NHibernate.ISession session,
-            IReaccionRepository reaccionRepository)
+            IReaccionRepository reaccionRepository,
+            IRepository<Comunidad> comunidadRepository)
             : base(usuarioCEN, usuarioRepository)
         {
             _PublicacionRepository = publicacionRepository;
             _session = session;
             _reaccionRepository = reaccionRepository;
+            _comunidadRepository = comunidadRepository;
 
             // Instantiate the CEN here using the injected repository so DI container doesn't need a registration for PublicacionCEN
             _PublicacionCEN = new PublicacionCEN(publicacionRepository);
@@ -106,9 +109,17 @@ namespace NeuralPlay.Controllers
         }
 
         // GET: PublicacionController/Create
-        public ActionResult Create()
+        public ActionResult Create(long? idComunidad)
         {
-            return View();
+            var model = new PublicacionViewModel();
+            if (idComunidad.HasValue)
+            {
+                model.IdComunidad = idComunidad.Value;
+                var comunidad = _comunidadRepository.ReadById(idComunidad.Value);
+                model.NombreComunidad = comunidad?.Nombre;
+                ViewBag.IdComunidad = idComunidad.Value;
+            }
+            return View(model);
         }
 
         // POST: PublicacionController/Create
@@ -118,19 +129,34 @@ namespace NeuralPlay.Controllers
         {
             try
             {
-                
-                Publicacion newPubl = new Publicacion
+                // Obtener el usuario de la sesión
+                var userId = HttpContext.Session.GetInt32("UsuarioId");
+                Usuario? autor = null;
+                if (userId.HasValue)
                 {
-                    Contenido = Publ.contenido,
-                    FechaCreacion = DateTime.Now,
-                    FechaEdicion = DateTime.Now
-                };
-                _PublicacionCEN.NewPublicacion(newPubl.Contenido);
+                    autor = _session.Get<Usuario>((long)userId.Value);
+                }
+
+                // Obtener la comunidad si viene en el modelo
+                Comunidad? comunidad = null;
+                if (Publ.IdComunidad.HasValue)
+                {
+                    comunidad = _comunidadRepository.ReadById(Publ.IdComunidad.Value);
+                }
+
+                // Crear la publicación con autor y comunidad
+                _PublicacionCEN.NewPublicacion(Publ.contenido, comunidad, autor);
+                
+                // Redirigir según el contexto
+                if (Publ.IdComunidad.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = Publ.IdComunidad.Value });
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return View(Publ);
             }
         }
 

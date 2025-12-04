@@ -20,5 +20,15 @@
       <key column="ComunidadId" />
       <one-to-many class="ApplicationCore.Domain.EN.MiembroComunidad, ApplicationCore" />
     </bag>
+
+    <bag name="Publicaciones" inverse="true" lazy="false">
+      <key column="ComunidadId" />
+      <one-to-many class="ApplicationCore.Domain.EN.Publicacion, ApplicationCore" />
+    </bag>
+
+    <bag name="Torneos" inverse="true" lazy="false">
+      <key column="ComunidadOrganizadoraId" />
+      <one-to-many class="ApplicationCore.Domain.EN.Torneo, ApplicationCore" />
+    </bag>
   </class>
 </hibernate-mapping>

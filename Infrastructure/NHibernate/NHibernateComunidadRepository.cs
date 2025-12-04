@@ -16,7 +16,25 @@ namespace Infrastructure.NHibernate
             _session = session;
         }
 
-        public Comunidad? ReadById(long id) => _session.Get<Comunidad>(id);
+        public Comunidad? ReadById(long id)
+        {
+            var comunidad = _session.Get<Comunidad>(id);
+            if (comunidad != null)
+            {
+                // Inicializar colecciones para evitar lazy loading
+                NHibernateUtil.Initialize(comunidad.Miembros);
+                NHibernateUtil.Initialize(comunidad.Publicaciones);
+                NHibernateUtil.Initialize(comunidad.Torneos);
+                NHibernateUtil.Initialize(comunidad.Equipos);
+                
+                // Inicializar el autor de cada publicación
+                foreach (var pub in comunidad.Publicaciones ?? System.Array.Empty<Publicacion>())
+                {
+                    NHibernateUtil.Initialize(pub.Autor);
+                }
+            }
+            return comunidad;
+        }
 
         public IEnumerable<Comunidad> ReadAll()
         {
