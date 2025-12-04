@@ -18,8 +18,21 @@
         /* === COLORES DEFINIDOS === */
         :root {
             --np-red: #e50a46;
+            --np-transp: #21020a7a;
             --np-grey: #454545;
             --np-dark-grey: #242424;
+        }
+        @@font-face {
+            font-family: 'Neue';
+            src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @@font-face {
+            font-family: 'Lexend';
+            src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
         }
 
         body, html {
@@ -31,8 +44,10 @@
 
         .login-wrapper {
             min-height: 100vh;
+            width: 100%;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: row;
+            position: relative;
         }
 
         /* === LADO IZQUIERDO (3/4) === */
@@ -42,9 +57,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Centrado vertical */
-            align-items: center;     /* Centrado horizontal */
-            padding: 2rem;
+            width: 100%;
         }
 
         /* Capa opcional para mejorar contraste si el wallpaper es muy claro/oscuro
@@ -55,17 +68,25 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255, 255, 255, 0.1); /* Sutil tinte */
             z-index: 1;
+            pointer-events: none; /* Permite hacer clic a través de esta capa */
         }
 
         .left-content {
-            position: relative;
+            position: absolute;
+            left: 0;
+            height: 100%;
+            width: 67%;
             z-index: 2;
+            pointer-events: none; /* El contenido de la izquierda no bloquea clics */
             text-align: center;
-            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrado vertical */
+            align-items: center;     /* Centrado horizontal */
         }
 
         .brand-logo {
-            max-width: 400px; /* Ajusta según el tamaño real de tu imagen */
+            max-width: 1000px; /* Ajusta según el tamaño real de tu imagen */
             width: 100%;
             height: auto;
             margin-bottom: 20px;
@@ -75,30 +96,40 @@
 
         .welcome-text {
             color: black; /* Texto negro solicitado */
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 600;
-            background-color: rgba(255, 255, 255, 0.6); /* Fondo blanco semitransparente para legibilidad */
+            font-family: 'Lexend', sans-serif;
+            font-style: italic;
             padding: 15px;
             border-radius: 10px;
             display: inline-block;
+            text-align: left;
+            margin: 0 100px
         }
 
         /* === LADO DERECHO (1/4) === */
         .right-panel {
-            background-color: var(--np-dark-grey); /* #242424 */
+            background-color: var(--np-transp); /* #242424 */
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             padding: 3rem;
+            position: absolute;
+            height: 100%;
+            width: 33%;
+            right: 0;
+            z-index: 3; /* Asegura que el panel de login esté por encima */
+            pointer-events: auto; /* Habilita la interacción en este panel */
         }
 
         .login-title {
             color: white;
-            font-size: 2rem;
+            font-size: 3.5rem;
             font-weight: bold;
             margin-bottom: 2rem;
             text-align: center;
+            font-family: 'Neue', sans-serif;
         }
 
         /* Estilos de Inputs */
@@ -113,6 +144,8 @@
             border-radius: 4px;
             padding: 10px;
             color: var(--np-grey);
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.5rem;
         }
         
         .form-control-np:focus {
@@ -130,6 +163,8 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-family: 'Neue', sans-serif;
+            font-size: 2rem;
         }
 
         .btn-neural:hover {
@@ -141,13 +176,18 @@
         .login-footer {
             margin-top: 2rem;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 1.5rem;
+            >span{
+                font-family: 'Lexend', sans-serif;
+            }
         }
 
         .text-register {
             color: var(--np-red); /* #e50a46 */
             text-decoration: none;
-            font-weight: bold;
+            font-family: 'Neue', sans-serif;
+            text-decoration: underline;
+
         }
         
         .text-register:hover {
@@ -179,9 +219,9 @@
 <body>
 
     <div class="container-fluid p-0">
-        <div class="row g-0 login-wrapper">
+        <div class="login-wrapper">
             
-            <div class="col-lg-9 left-panel">
+            <div class="left-panel">
                 <div class="left-content">
                     <img src="~/Recursos/WORDMARK_BLANCA.png" alt="NeuralPlay Logo" class="brand-logo" />
                     
@@ -191,21 +231,19 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 right-panel">
+            <div class="right-panel">
                 <h2 class="login-title">Iniciar Sesión</h2>
 
                 <form asp-action="Login" method="post">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 mb-3" style="background:transparent; border: 1px solid var(--np-red); color: white;"></div>
 
                     <div class="mb-4">
-                        <label asp-for="Email" class="form-label">Correo Electrónico</label>
-                        <input asp-for="Email" class="form-control form-control-np" placeholder="ejemplo@correo.com" />
+                        <input asp-for="Email" class="form-control form-control-np" placeholder="Usuario/Email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="mb-5">
-                        <label asp-for="Password" class="form-label">Contraseña</label>
-                        <input asp-for="Password" type="password" class="form-control form-control-np" placeholder="••••••••" />
+                        <input asp-for="Password" type="password" class="form-control form-control-np" placeholder="Contraseña" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
@@ -217,7 +255,6 @@
                         <span>¿No tienes cuenta?</span>
                         <a asp-controller="Usuario" asp-action="Create" class="text-register ms-1">Regístrate</a>
                         
-                        <a href="#" class="forgot-password">¿Has olvidado tu contraseña?</a>
                     </div>
                 </form>
             </div>
