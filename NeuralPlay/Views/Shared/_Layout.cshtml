@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="~/NeuralPlay.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
+    <header style="margin-left: 13vw; margin-right: 7vw; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: white;">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">NeuralPlay</a>
@@ -101,13 +101,13 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container" style="margin-left: 13vw; margin-right: 7vw; padding-top: 100px;">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted" style="margin-left: 13vw; margin-right: 7vw;">
         <div class="container">
             &copy; 2025 - NeuralPlay - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>

@@ -3,6 +3,9 @@
     ViewData["Title"] = "Página de Inicio";
 }
 
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
 <div class="text-center">
     <h1 class="display-4">Bienvenido a NeuralPlay</h1>
     <p>Tu plataforma para conectar con otros jugadores.</p>
@@ -11,25 +14,25 @@
 <h2>Juegos Disponibles</h2>
 
 <table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>Nombre del Juego</th>
-            <th>Género</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var juego in Model)
-        {
+        <thead>
             <tr>
-                <td>@juego.NombreJuego</td>
-                <td>@juego.Genero</td>
-                <td>
-                    <a asp-controller="Juegos" asp-action="Edit" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-secondary">Editar</a> |
-                    <a asp-controller="Juegos" asp-action="Details" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-info">Detalles</a> |
-                    <a asp-controller="Juegos" asp-action="Delete" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                </td>
+                <th>Nombre del Juego</th>
+                <th>Género</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var juego in Model)
+            {
+                <tr>
+                    <td>@juego.NombreJuego</td>
+                    <td>@juego.Genero</td>
+                    <td>
+                        <a asp-controller="Juegos" asp-action="Edit" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-secondary">Editar</a> |
+                        <a asp-controller="Juegos" asp-action="Details" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-info">Detalles</a> |
+                        <a asp-controller="Juegos" asp-action="Delete" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
