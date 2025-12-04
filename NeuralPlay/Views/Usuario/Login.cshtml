@@ -51,7 +51,7 @@
         }
 
         /* === LADO IZQUIERDO (3/4) === */
-        .left-panel {
+        aside.left-panel {
             background: url('/Recursos/WALLPAPER.png') no-repeat center center;
             background-size: cover;
             position: relative;
@@ -60,42 +60,40 @@
             width: 100%;
         }
 
-        /* Capa opcional para mejorar contraste si el wallpaper es muy claro/oscuro
-           Quítalo si quieres ver la imagen pura */
-        .left-panel::before {
+        /* Capa opcional para mejorar contraste */
+        aside.left-panel::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.1); /* Sutil tinte */
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1;
-            pointer-events: none; /* Permite hacer clic a través de esta capa */
+            pointer-events: none;
         }
 
-        .left-content {
+        section.left-content {
             position: absolute;
             left: 0;
             height: 100%;
             width: 67%;
             z-index: 2;
-            pointer-events: none; /* El contenido de la izquierda no bloquea clics */
+            pointer-events: none;
             text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Centrado vertical */
-            align-items: center;     /* Centrado horizontal */
+            justify-content: center;
+            align-items: center;
         }
 
         .brand-logo {
-            max-width: 1000px; /* Ajusta según el tamaño real de tu imagen */
+            max-width: 1000px;
             width: 100%;
             height: auto;
             margin-bottom: 20px;
-            /* Filtro de sombra suave para que destaque sobre el wallpaper */
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
-        .welcome-text {
-            color: black; /* Texto negro solicitado */
+        h1.welcome-text {
+            color: black;
             font-size: 2rem;
             font-weight: 600;
             font-family: 'Lexend', sans-serif;
@@ -104,12 +102,12 @@
             border-radius: 10px;
             display: inline-block;
             text-align: left;
-            margin: 0 100px
+            margin: 0 100px;
         }
 
         /* === LADO DERECHO (1/4) === */
-        .right-panel {
-            background-color: var(--np-transp); /* #242424 */
+        section.right-panel {
+            background-color: var(--np-transp);
             color: white;
             display: flex;
             flex-direction: column;
@@ -119,8 +117,8 @@
             height: 100%;
             width: 33%;
             right: 0;
-            z-index: 3; /* Asegura que el panel de login esté por encima */
-            pointer-events: auto; /* Habilita la interacción en este panel */
+            z-index: 3;
+            pointer-events: auto;
         }
 
         .login-title {
@@ -132,13 +130,44 @@
             font-family: 'Neue', sans-serif;
         }
 
-        /* Estilos de Inputs */
-        .form-label {
-            color: #ccc;
-            font-size: 0.9rem;
+        /* Estilos del Formulario */
+        .login-form {
+            display: flex;
+            flex-direction: column;
         }
 
-        .form-control-np {
+        /* Fieldset y Legend */
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        legend {
+            display: none;
+        }
+
+        /* Grupo de formulario */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 2rem;
+        }
+
+        /* Estilos de Labels */
+        label {
+            color: #ccc;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Estilos de Inputs */
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
             background-color: white;
             border: none;
             border-radius: 4px;
@@ -146,16 +175,21 @@
             color: var(--np-grey);
             font-family: 'Lexend', sans-serif;
             font-size: 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
-        .form-control-np:focus {
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            outline: none;
             box-shadow: 0 0 0 3px var(--np-red);
         }
 
         /* Botón Personalizado */
-        .btn-neural {
+        button[type="submit"] {
             background-color: white;
-            color: var(--np-red); /* #e50a46 */
+            color: var(--np-red);
             border: 1px solid black;
             font-weight: bold;
             padding: 10px;
@@ -165,32 +199,33 @@
             letter-spacing: 1px;
             font-family: 'Neue', sans-serif;
             font-size: 2rem;
+            cursor: pointer;
+            box-sizing: border-box;
         }
 
-        .btn-neural:hover {
+        button[type="submit"]:hover {
             background-color: #f0f0f0;
             color: #c4083c;
         }
 
         /* Textos del Pie */
-        .login-footer {
+        footer {
             margin-top: 2rem;
             text-align: center;
             font-size: 1.5rem;
-            >span{
-                font-family: 'Lexend', sans-serif;
-            }
         }
 
-        .text-register {
-            color: var(--np-red); /* #e50a46 */
+        footer span {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        a {
+            color: var(--np-red);
             text-decoration: none;
             font-family: 'Neue', sans-serif;
-            text-decoration: underline;
-
         }
         
-        .text-register:hover {
+        a:hover {
             text-decoration: underline;
             color: #ff4a7d;
         }
@@ -208,59 +243,63 @@
         }
 
         /* Mensajes de Validación */
-        .text-danger {
-            color: var(--np-red) !important;
+        .validation-error {
+            color: var(--np-red);
             font-size: 0.8rem;
             margin-top: 5px;
             display: block;
+        }
+
+        .alert-validation {
+            background: transparent;
+            border: 1px solid var(--np-red);
+            color: white;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid p-0">
-        <div class="login-wrapper">
-            
-            <div class="left-panel">
-                <div class="left-content">
-                    <img src="~/Recursos/WORDMARK_BLANCA.png" alt="NeuralPlay Logo" class="brand-logo" />
+    <main class="login-wrapper">
+        <aside class="left-panel">
+            <section class="left-content">
+                <img src="~/Recursos/WORDMARK_BLANCA.png" alt="NeuralPlay Logo" class="brand-logo" />
+                <h1 class="welcome-text">
+                    Bienvenido a NeuralPlay, la comunidad para que los gamers conecten entre sí
+                </h1>
+            </section>
+        </aside>
+
+        <section class="right-panel">
+            <h2 class="login-title">Iniciar Sesión</h2>
+
+            <form asp-action="Login" method="post" class="login-form">
+
+                <fieldset>
+                    <legend>Formulario de Inicio de Sesión</legend>
                     
-                    <div class="welcome-text">
-                        Bienvenido a NeuralPlay, la comunidad para que los gamers conecten entre sí
-                    </div>
-                </div>
-            </div>
-
-            <div class="right-panel">
-                <h2 class="login-title">Iniciar Sesión</h2>
-
-                <form asp-action="Login" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 mb-3" style="background:transparent; border: 1px solid var(--np-red); color: white;"></div>
-
-                    <div class="mb-4">
-                        <input asp-for="Email" class="form-control form-control-np" placeholder="Usuario/Email" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                    <div class="form-group">
+                        <input asp-for="Email" type="email" placeholder="Email" required />
+                        <span asp-validation-for="Email" class="validation-error"></span>
                     </div>
 
-                    <div class="mb-5">
-                        <input asp-for="Password" type="password" class="form-control form-control-np" placeholder="Contraseña" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="form-group">
+                        <input asp-for="Password" type="password" placeholder="Contraseña" required />
+                        <span asp-validation-for="Password" class="validation-error"></span>
                     </div>
+                </fieldset>
 
-                    <button type="submit" class="btn btn-neural">
-                        ENTRAR
-                    </button>
+                <button type="submit">ENTRAR</button>
 
-                    <div class="login-footer">
-                        <span>¿No tienes cuenta?</span>
-                        <a asp-controller="Usuario" asp-action="Create" class="text-register ms-1">Regístrate</a>
-                        
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
+                <footer>
+                    <span>¿No tienes cuenta?</span>
+                    <a asp-controller="Usuario" asp-action="Create" class="ms-1">Regístrate</a>
+                </footer>
+            </form>
+        </section>
+    </main>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
