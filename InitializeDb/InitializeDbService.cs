@@ -815,6 +815,7 @@ END
                         if (perfil1 != null)
                         {
                             perfil1.Descripcion = "Pro gamer and streamer";
+                            perfil1.FotoPerfilUrl = "/Recursos/Perfiles/23758cc5-8e83-44be-8d5a-b1cfea664a1d.jpg";
                             perfilCEN.ModifyPerfil(perfil1);
                         }
 
