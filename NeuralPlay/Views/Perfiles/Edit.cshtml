@@ -2,41 +2,236 @@
 
 @{
     ViewData["Title"] = "Editar Perfil";
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>Editar Perfil</h1>
-<hr />
-<div class="row">
-    <div class="col-md-6">
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .edit-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-top: 20px;
+    }
+
+    .edit-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: center;
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 20px;
+        margin-right: 11vw;
+    }
+
+    .edit-divider {
+        width: 70%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 30px auto;
+        margin-left: 6vw;
+        margin-right: 11vw;
+    }
+
+    .edit-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5.5rem;
+        color: white;
+        margin-bottom: 30px;
+        text-align: left;
+        padding-left: 0;
+        margin-left: 32px;
+        font-weight: bold;
+    }
+
+    .content-wrapper {
+        margin-right: 11vw;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .edit-card {
+        background: var(--np-dark-grey);
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .edit-card h2 {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        margin-bottom: 30px;
+        font-size: 2.2rem;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        display: block;
+        font-weight: bold;
+    }
+
+    .form-group input.form-control,
+    .form-group textarea.form-control {
+        font-family: 'Lexend', sans-serif;
+        background: var(--np-grey);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .form-group input.form-control:focus,
+    .form-group textarea.form-control:focus {
+        background: var(--np-grey);
+        color: white;
+        border-color: #ff4b7d;
+        box-shadow: 0 0 10px rgba(229,10,70,0.3);
+        outline: none;
+    }
+
+    .text-danger {
+        color: #ff6b9d;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+        justify-content: center;
+    }
+
+    .btn-custom {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 14px 36px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+
+    .btn-custom:hover {
+        transform: scale(1.07);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        color: #fff;
+        text-shadow: 0 1px 8px #e50a46;
+    }
+
+    .btn-cancel {
+        background: linear-gradient(90deg, var(--np-grey) 60%, #555 100%);
+    }
+
+    .btn-cancel:hover {
+        box-shadow: 0 4px 16px rgba(100,100,100,0.25);
+        text-shadow: 0 1px 8px #555;
+    }
+
+    .validation-summary {
+        background: rgba(255, 107, 157, 0.1);
+        border-left: 4px solid #ff6b9d;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+    }
+
+    .validation-summary ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .validation-summary li {
+        color: #ff6b9d;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+    }
+</style>
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<header class="edit-header">
+    <h1 class="edit-section-title">Actualizar Datos</h1>
+    <div class="edit-divider"></div>
+</header>
+
+<main class="content-wrapper">
+    <article class="edit-card">
+        <h2>Información del Perfil</h2>
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
             <input type="hidden" asp-for="IdPerfil" />
 
-            <div class="form-group mb-3">
-                <label asp-for="NickUsuario" class="control-label"></label>
+            <div class="form-group">
+                <label asp-for="NickUsuario" class="control-label">Nombre de Usuario</label>
                 <input asp-for="NickUsuario" class="form-control" />
                 <span asp-validation-for="NickUsuario" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Descripcion" class="control-label"></label>
+            <div class="form-group">
+                <label asp-for="Descripcion" class="control-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="FotoPerfilUrl" class="control-label"></label>
+            <div class="form-group">
+                <label asp-for="FotoPerfilUrl" class="control-label">URL de Foto de Perfil</label>
                 <input asp-for="FotoPerfilUrl" class="form-control" />
                 <span asp-validation-for="FotoPerfilUrl" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-                <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="btn btn-secondary">Cancelar</a>
+            <div class="form-actions">
+                <input type="submit" value="Guardar" class="btn-custom" />
+                <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="btn-custom btn-cancel">Cancelar</a>
             </div>
         </form>
-    </div>
-</div>
+    </article>
+</main>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
