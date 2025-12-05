@@ -721,8 +721,20 @@ END
                         }
 
                         // 2. COMUNIDADES (grupos de usuarios con intereses comunes)
-                        var com1 = GetOrCreateComunidad("Gamers", "Gaming community");
-                        var com2 = GetOrCreateComunidad("Developers", "Developer community");
+                        var com1 = GetOrCreateComunidad("Fortnite", "Comunidad de Fortnite");
+                        var com2 = GetOrCreateComunidad("GTA V", "Comunidad de GTA V");
+                        var com3 = GetOrCreateComunidad("Valorant", "Comunidad de Valorant");
+                        var com4 = GetOrCreateComunidad("Rocket League", "Comunidad de Rocket League");
+
+                        // Asignar imágenes a las comunidades de prueba
+                        com1.ImagenUrl = "/Recursos/Comunidades/Fortnite.jpg";
+                        com2.ImagenUrl = "/Recursos/Comunidades/GTAV.webp";
+                        com3.ImagenUrl = "/Recursos/Comunidades/Valorant.jpg";
+                        com4.ImagenUrl = "/Recursos/Comunidades/RocketLeague.jpg";
+                        comunidadRepo.Modify(com1);
+                        comunidadRepo.Modify(com2);
+                        comunidadRepo.Modify(com3);
+                        comunidadRepo.Modify(com4);
 
                         // Persistir inmediatamente las comunidades para tener Id asignado antes de usarlas como FK
                         uow.SaveChanges();
@@ -1049,7 +1061,6 @@ END
 
                             // Execute calls (CEN methods prefer repository-specific wrappers via reflection)
                             RunCEN<UsuarioCEN, Usuario>("Usuario.BuscarUsuariosPorNickOEmail('alice')", "alice", c => c.BuscarUsuariosPorNickOEmail("alice"));
-                            RunCEN<ComunidadCEN, Comunidad>("Comunidad.BuscarComunidadesPorNombreODescripcion('Gamers')", "Gamers", c => c.BuscarComunidadesPorNombreODescripcion("Gamers"));
                             RunCEN<EquipoCEN, Equipo>("Equipo.BuscarEquiposPorNombreODescripcion('TeamAlpha')", "TeamAlpha", c => c.BuscarEquiposPorNombreODescripcion("TeamAlpha"));
                             RunCEN<PublicacionCEN, Publicacion>("Publicacion.BuscarPublicacionesPorContenido('Welcome')", "Welcome", c => c.BuscarPublicacionesPorContenido("Welcome"));
                             RunCEN<JuegoCEN, Juego>("Juego.BuscarJuegosPorNombreJuego('League')", "League", c => c.BuscarJuegosPorNombreJuego("League"));

@@ -18,7 +18,11 @@ namespace NeuralPlay.Models
         public DateTime FechaCreacion { get; set; }
 
         [Display(Name = "Es pública")]
-        public bool EsPublica { get; set; }
+
+    public bool EsPublica { get; set; }
+
+    // Ruta de la imagen asociada a la comunidad
+    public string? ImagenUrl { get; set; }
 
         [Display(Name = "Propietario")]
         public string? Propietario { get; set; }

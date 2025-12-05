@@ -12,31 +12,27 @@ namespace NeuralPlay.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Juego> _juegoRepo;
+        private readonly ApplicationCore.Domain.CEN.ComunidadCEN _comunidadCEN;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.Repositories.IRepository<ApplicationCore.Domain.EN.Juego> juegoRepo)
+        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.CEN.ComunidadCEN comunidadCEN)
         {
             _logger = logger;
-            _juegoRepo = juegoRepo;
+            _comunidadCEN = comunidadCEN;
         }
 
         public IActionResult Index()
         {
             try
             {
-                // Obtener lista de juegos mediante el CEN (usa el repositorio NHibernate inyectado por DI)
-                var listaJuegos = _juegoRepo.ReadAll();
-                // Log the concrete runtime type to help debug model type issues
-                var runtimeType = listaJuegos?.GetType().FullName ?? "(null)";
-                _logger?.LogDebug("Home.Index: juego collection runtime type = {Type}", runtimeType);
-                System.Console.WriteLine($"DEBUG: Home.Index juego collection runtime type = {runtimeType}");
-                return View(listaJuegos);
+                // Obtener todas las comunidades
+                var comunidades = _comunidadCEN.ReadAll_Comunidad();
+                var listaComunidadesVM = NeuralPlay.Assemblers.ComunidadAssembler.ConvertListENToViewModel(comunidades).ToList();
+                return View(listaComunidadesVM);
             }
             catch (System.Exception ex)
             {
-                // Si hay cualquier problema, logueamos y devolvemos una lista vacía del tipo esperado
-                _logger?.LogWarning(ex, "Fallo al cargar juegos para la vista Home: {Message}", ex.Message);
-                return View(System.Linq.Enumerable.Empty<ApplicationCore.Domain.EN.Juego>());
+                _logger?.LogWarning(ex, "Fallo al cargar comunidades para la vista Home: {Message}", ex.Message);
+                return View(System.Linq.Enumerable.Empty<NeuralPlay.Models.ComunidadViewModel>());
             }
         }
 

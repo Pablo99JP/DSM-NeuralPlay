@@ -15,7 +15,8 @@ namespace NeuralPlay.Assemblers
                 IdComunidad = en.IdComunidad,
                 Nombre = en.Nombre,
                 Descripcion = en.Descripcion,
-                FechaCreacion = en.FechaCreacion
+                FechaCreacion = en.FechaCreacion,
+                ImagenUrl = en.ImagenUrl
             };
         }
 
