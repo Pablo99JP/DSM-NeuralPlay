@@ -1,4 +1,4 @@
-﻿﻿@model NeuralPlay.Models.ExplorarViewModel
+﻿@model NeuralPlay.Models.ExplorarViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Explorar Neural";
@@ -212,6 +212,25 @@
         padding: 18px 32px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.10);
         gap: 32px;
+        transition: all 0.3s ease;
+    }
+    .equipo-card.expanded {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+        gap: 16px;
+    }
+    .equipo-header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 32px;
+    }
+    .equipo-card.expanded .equipo-header {
+        width: 100%;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
     }
     .equipo-logo {
         width: 80px;
@@ -220,6 +239,27 @@
         object-fit: cover;
         background: var(--np-grey);
         margin-right: 24px;
+        flex-shrink: 0;
+    }
+    .equipo-card.expanded .equipo-logo {
+        margin-right: 24px;
+        display: block;
+    }
+    .equipo-info {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        flex: 1;
+        width: 100%;
+    }
+    .equipo-card.expanded .equipo-info {
+        flex-direction: row;
+        align-items: center;
+        gap: 32px;
+        width: 100%;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .equipo-nombre {
         font-family: 'Neue', sans-serif;
@@ -227,6 +267,65 @@
         font-size: 2rem;
         font-weight: bold;
         margin-right: auto;
+    }
+    .equipo-card.expanded .equipo-nombre {
+        margin-right: auto;
+        font-size: 2rem;
+    }
+    .equipo-detalles {
+        display: none;
+        width: 100%;
+        color: #ccc;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    .equipo-card.expanded .equipo-detalles {
+        display: flex;
+        margin-bottom: 0;
+        gap: 40px;
+    }
+    .equipo-detalles-content {
+        flex: 1;
+    }
+    .equipo-detalles-item {
+        margin-bottom: 16px;
+    }
+    .equipo-detalles-label {
+        color: var(--np-red);
+        font-weight: bold;
+        font-size: 1.15rem;
+    }
+    .equipo-acciones {
+        display: none;
+        align-items: flex-end;
+        padding-bottom: 8px;
+    }
+    .equipo-card.expanded .equipo-acciones {
+        display: flex;
+    }
+    .btn-solicitar {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 16px 40px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.4rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        cursor: pointer;
+        border: none;
+        white-space: nowrap;
+    }
+    .btn-solicitar:hover {
+        transform: scale(1.07);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        color: #fff;
+        text-shadow: 0 1px 8px #e50a46;
     }
     .btn-vermas {
         background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
@@ -241,6 +340,13 @@
         letter-spacing: 1px;
         transition: transform 0.2s, box-shadow 0.2s;
         box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        cursor: pointer;
+        border: none;
+        white-space: nowrap;
+    }
+    .equipo-card.expanded .btn-vermas {
+        padding: 12px 28px;
+        font-size: 1.2rem;
     }
     .btn-vermas:hover {
         transform: scale(1.07);
@@ -286,10 +392,33 @@
                         <div class="equipos-list">
                             @foreach (var item in Model.Equipos)
                             {
-                                <div class="equipo-card">
-                                    <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Equipos/default.webp" : item.ImagenUrl)" class="equipo-logo" alt="@item.Nombre" />
-                                    <span class="equipo-nombre">@item.Nombre</span>
-                                    <a href="#" class="btn-vermas">Ver más</a>
+                                <div class="equipo-card" data-equipo-id="@item.IdEquipo">
+                                    <div class="equipo-header">
+                                        <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Equipos/default.webp" : item.ImagenUrl)" class="equipo-logo" alt="@item.Nombre" />
+                                        <div class="equipo-info">
+                                            <span class="equipo-nombre">@item.Nombre</span>
+                                            <button type="button" class="btn-vermas" onclick="toggleEquipoExpanded(event)">Ver más</button>
+                                        </div>
+                                    </div>
+                                    <div class="equipo-detalles">
+                                        <div class="equipo-detalles-content">
+                                            <div class="equipo-detalles-item">
+                                                <span class="equipo-detalles-label">Descripción:</span><br/>
+                                                @(string.IsNullOrEmpty(item.Descripcion) ? "Sin descripción disponible" : item.Descripcion)
+                                            </div>
+                                            <div class="equipo-detalles-item">
+                                                <span class="equipo-detalles-label">Actividad:</span><br/>
+                                                @(item.Actividad != null ? item.Actividad.ToString() : "No disponible")
+                                            </div>
+                                            <div class="equipo-detalles-item">
+                                                <span class="equipo-detalles-label">Fecha de creación:</span><br/>
+                                                @(item.FechaCreacion != DateTime.MinValue ? item.FechaCreacion.ToString("dd/MM/yyyy") : "No disponible")
+                                            </div>
+                                        </div>
+                                        <div class="equipo-acciones">
+                                            <button type="button" class="btn-solicitar" onclick="solicitarEntrada(event)">Solicitar Entrada</button>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -317,5 +446,42 @@
             equiposContent.style.display = '';
             comunidadesContent.style.display = 'none';
         }
+    }
+
+    function toggleEquipoExpanded(event) {
+        event.preventDefault();
+        const equipoCard = event.target.closest('.equipo-card');
+        const btnVermas = event.target;
+        const isExpanded = equipoCard.classList.contains('expanded');
+        
+        // Cerrar todas las tarjetas expandidas
+        document.querySelectorAll('.equipo-card.expanded').forEach(card => {
+            if (card !== equipoCard) {
+                card.classList.remove('expanded');
+                const boton = card.querySelector('.btn-vermas');
+                if (boton) boton.textContent = 'Ver más';
+            }
+        });
+
+        // Alternar la tarjeta clickeada
+        equipoCard.classList.toggle('expanded');
+        
+        // Cambiar el texto del botón
+        if (equipoCard.classList.contains('expanded')) {
+            btnVermas.textContent = 'Ver menos';
+        } else {
+            btnVermas.textContent = 'Ver más';
+        }
+    }
+
+    function solicitarEntrada(event) {
+        event.preventDefault();
+        const equipoCard = event.target.closest('.equipo-card');
+        const equipoId = equipoCard.getAttribute('data-equipo-id');
+        const equipoNombre = equipoCard.querySelector('.equipo-nombre').textContent;
+        
+        alert('Solicitud de entrada enviada a: ' + equipoNombre);
+        // Aquí puedes hacer una llamada AJAX para enviar la solicitud al servidor
+        // Por ejemplo: fetch('/Equipo/SolicitarEntrada/' + equipoId, { method: 'POST' })
     }
 </script>
