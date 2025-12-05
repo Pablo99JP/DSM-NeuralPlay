@@ -1,24 +1,230 @@
 @model IEnumerable<NeuralPlay.Models.UsuarioViewModel>
 
-<h2>Usuarios</h2>
-<table class="table">
-    <thead>
-        <tr><th>Nombre</th><th>Email</th><th>Fecha</th><th></th></tr>
-    </thead>
-    <tbody>
-    @foreach(var u in Model)
-    {
-        <tr>
-            <td>@u.Nombre</td>
-            <td>@u.Email</td>
-            <td>@u.FechaRegistro.ToString("dd/MM/yyyy")</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@u.Id">Details</a> |
-                <a asp-action="Edit" asp-route-id="@u.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@u.Id">Delete</a>
-            </td>
-        </tr>
+@{
+    ViewData["Title"] = "Usuarios";
+    ViewBag.OcultarNavbar = true;
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
     }
-    </tbody>
-</table>
-<a asp-action="Create" class="btn btn-primary">Crear usuario</a>
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .index-header {
+        margin-bottom: 15px;
+        padding-top: 10px;
+    }
+
+    .index-header .index-title-align {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-left: 6vw;
+    }
+
+    .index-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: left;
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 10px;
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .index-divider {
+        width: 72.5%;
+        height: 3px;
+        background-color: white;
+        margin-bottom: 30px;
+        margin-left: 6vw;
+        margin-right: 11vw;
+    }
+
+    .index-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5.5rem;
+        color: white;
+        margin-bottom: 30px;
+        text-align: left;
+        padding-left: 0;
+        margin-left: 32px;
+        font-weight: bold;
+    }
+
+    .content-wrapper {
+        margin-right: 11vw;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .perfil-table-card {
+        background: var(--np-dark-grey);
+        border-radius: 10px;
+        padding: 40px 30px 30px 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 1100px;
+    }
+
+    table.perfiles-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .perfiles-table th, .perfiles-table td {
+        font-family: 'Lexend', sans-serif;
+        color: white;
+        padding: 18px 16px;
+        text-align: left;
+        font-size: 1.2rem;
+        border-bottom: 1.5px solid var(--np-grey);
+    }
+
+    .perfiles-table th {
+        font-family: 'Neue', sans-serif;
+        color: var(--np-red);
+        font-size: 1.4rem;
+        background: var(--np-grey);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom: 2.5px solid var(--np-red);
+    }
+
+    .perfiles-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .perfiles-table tr {
+        transition: background 0.2s;
+    }
+
+    .perfiles-table tr:hover {
+        background: var(--np-transp);
+    }
+
+    .acciones-btn-group {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .btn-detalles {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 10px 28px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+        letter-spacing: 1px;
+        /* Elimina el margin-right, el gap lo gestiona el grupo */
+    }
+
+    .btn-detalles:hover {
+        transform: scale(1.07);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        color: #fff;
+        text-shadow: 0 1px 8px #e50a46;
+    }
+
+    .btn-crear {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 14px 36px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-top: 30px;
+    }
+
+    .btn-crear:hover {
+        transform: scale(1.07);
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        color: #fff;
+        text-shadow: 0 1px 8px #e50a46;
+    }
+</style>
+
+<header class="index-header">
+    <div class="index-title-align">
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    <div class="index-divider"></div>
+</header>
+
+<main class="content-wrapper">
+    <article class="perfil-table-card">
+        <table class="perfiles-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Fecha de registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var u in Model)
+            {
+                <tr>
+                    <td>@u.Nombre</td>
+                    <td>@u.Email</td>
+                    <td>@u.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <div class="acciones-btn-group">
+                            <a asp-action="Details" asp-route-id="@u.Id" class="btn-detalles">Detalles</a>
+                            <a asp-action="Edit" asp-route-id="@u.Id" class="btn-detalles">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@u.Id" class="btn-detalles">Eliminar</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    <div style="display: flex; justify-content: center; width: 100%; margin-top: 6px;">
+            <a asp-action="Create" class="btn-crear">Crear usuario</a>
+        </div>
+    </article>
+</main>
