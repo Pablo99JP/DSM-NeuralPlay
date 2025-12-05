@@ -847,9 +847,9 @@ END
                         // --- FIN DE LA CORRECCIÓN ---
 
                         // 11. JUEGOS (catálogo de videojuegos disponibles en la plataforma)
-                        var juego1 = juegoCEN.NewJuego("League of Legends", ApplicationCore.Domain.Enums.GeneroJuego.ESTRATEGIA);
-                        var juego2 = juegoCEN.NewJuego("FIFA 24", ApplicationCore.Domain.Enums.GeneroJuego.DEPORTE);
-                        var juego3 = juegoCEN.NewJuego("Zelda BOTW", ApplicationCore.Domain.Enums.GeneroJuego.AVENTURA);
+                        var juego1 = juegoCEN.NewJuego("League of Legends", ApplicationCore.Domain.Enums.GeneroJuego.ESTRATEGIA, "/Recursos/Juegos/lol.webp", "League of Legends es un videojuego de estrategia en tiempo real desarrollado por Riot Games.");
+                        var juego2 = juegoCEN.NewJuego("FIFA 24", ApplicationCore.Domain.Enums.GeneroJuego.DEPORTE, "/Recursos/Juegos/fifa.webp", "FIFA 24 es un videojuego de simulación de fútbol desarrollado por EA Sports.");
+                        var juego3 = juegoCEN.NewJuego("Zelda BOTW", ApplicationCore.Domain.Enums.GeneroJuego.AVENTURA, "/Recursos/Juegos/zelda.webp", "The Legend of Zelda: Breath of the Wild es un videojuego de aventura desarrollado por Nintendo.");
                         Console.WriteLine($"✓ Created {3} Juego");
 
                         // 12. PERFIL-JUEGO (juegos que cada usuario tiene en su biblioteca)

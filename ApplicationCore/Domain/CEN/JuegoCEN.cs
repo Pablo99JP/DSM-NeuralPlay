@@ -13,9 +13,9 @@ namespace ApplicationCore.Domain.CEN
             _repo = repo;
         }
 
-        public Juego NewJuego(string nombreJuego, ApplicationCore.Domain.Enums.GeneroJuego genero)
+        public Juego NewJuego(string nombreJuego, ApplicationCore.Domain.Enums.GeneroJuego genero, string? imagenUrl = null, string? descripcion = null)
         {
-            var j = new Juego { NombreJuego = nombreJuego, Genero = genero };
+            var j = new Juego { NombreJuego = nombreJuego, Genero = genero, ImagenUrl = imagenUrl, Descripcion = descripcion };
             _repo.New(j);
             return j;
         }

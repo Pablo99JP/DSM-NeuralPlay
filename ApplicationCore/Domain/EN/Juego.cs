@@ -8,6 +8,8 @@ namespace ApplicationCore.Domain.EN
         public virtual long IdJuego { get; set; }
         public virtual string NombreJuego { get; set; } = null!;
         public virtual GeneroJuego Genero { get; set; }
+        public virtual string? ImagenUrl { get; set; }
+        public virtual string? Descripcion { get; set; }
 
         public virtual IList<PerfilJuego> PerfilJuegos { get; set; } = new List<PerfilJuego>();
     }

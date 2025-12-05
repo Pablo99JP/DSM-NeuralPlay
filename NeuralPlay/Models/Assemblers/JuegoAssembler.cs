@@ -19,7 +19,10 @@ namespace NeuralPlay.Models.Assemblers
             {
                 IdJuego = juego.IdJuego,
                 NombreJuego = juego.NombreJuego,
-                Genero = juego.Genero
+                Nombre = juego.NombreJuego,
+                Genero = juego.Genero,
+                ImagenUrl = juego.ImagenUrl,
+                Descripcion = juego.Descripcion
             };
         }
 

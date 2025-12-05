@@ -58,6 +58,7 @@
         justify-content: center;
         margin-top: 10px;
         margin-bottom: 30px;
+        gap: 12px;
     }
     .search-input {
         width: 40vw;
@@ -70,6 +71,25 @@
         color: white;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         outline: none;
+    }
+    .btn-search {
+        background: var(--np-red);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 1.3rem;
+        font-family: 'Neue', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        white-space: nowrap;
+    }
+    .btn-search:hover {
+        background: #cc0a3d;
+        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
+        transform: scale(1.05);
     }
     .tab-selector {
         display: flex;
@@ -198,6 +218,98 @@
         text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
     }
 
+    /* Juegos */
+    .juegos-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 60px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .juego-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        height: 250px;
+        background: var(--np-grey);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .juego-card:hover {
+        transform: scale(1.03);
+    }
+    .juego-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: 0;
+    }
+    .juego-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+    .juego-title {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        text-align: left;
+        transform: none;
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        z-index: 2;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        letter-spacing: 1px;
+        white-space: normal;
+        max-width: 85%;
+        word-wrap: break-word;
+        overflow: hidden;
+        line-height: 1.1;
+    }
+    .juego-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(229, 10, 70, 0.7);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    .juego-card:hover .juego-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .juego-unirse {
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 3rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 1px;
+    }
+    .juego-unirse:hover {
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
     .equipos-list {
         display: flex;
         flex-direction: column;
@@ -219,6 +331,7 @@
         align-items: flex-start;
         padding: 24px;
         gap: 16px;
+        background: var(--np-red);
     }
     .equipo-header {
         display: flex;
@@ -275,7 +388,7 @@
     .equipo-detalles {
         display: none;
         width: 100%;
-        color: #ccc;
+        color: white;
         font-family: 'Lexend', sans-serif;
         font-size: 1.1rem;
         line-height: 1.8;
@@ -292,7 +405,7 @@
         margin-bottom: 16px;
     }
     .equipo-detalles-label {
-        color: var(--np-red);
+        color: white;
         font-weight: bold;
         font-size: 1.15rem;
     }
@@ -305,41 +418,40 @@
         display: flex;
     }
     .btn-solicitar {
-        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        background: var(--np-grey);
         color: white;
         border: none;
         padding: 16px 40px;
         font-family: 'Neue', sans-serif;
-        font-size: 1.4rem;
+        font-size: 2rem;
         border-radius: 8px;
         text-decoration: none;
         font-weight: bold;
         letter-spacing: 1px;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: color 0.2s, box-shadow 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         cursor: pointer;
         border: none;
         white-space: nowrap;
     }
     .btn-solicitar:hover {
+        color: var(--np-red);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         transform: scale(1.07);
-        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
-        color: #fff;
-        text-shadow: 0 1px 8px #e50a46;
     }
     .btn-vermas {
-        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        background: var(--np-grey);
         color: white;
         border: none;
         padding: 12px 28px;
         font-family: 'Neue', sans-serif;
-        font-size: 1.2rem;
+        font-size: 1.8rem;
         border-radius: 8px;
         text-decoration: none;
         font-weight: bold;
         letter-spacing: 1px;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 2px 8px rgba(229,10,70,0.15);
+        transition: color 0.2s, box-shadow 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         cursor: pointer;
         border: none;
         white-space: nowrap;
@@ -349,10 +461,21 @@
         font-size: 1.2rem;
     }
     .btn-vermas:hover {
+        color: var(--np-red);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         transform: scale(1.07);
-        box-shadow: 0 4px 16px rgba(229,10,70,0.25);
-        color: #fff;
-        text-shadow: 0 1px 8px #e50a46;
+    }
+    
+    .tab-btn.hidden {
+        display: none;
+    }
+    
+    .empty-message {
+        text-align: center;
+        padding: 40px;
+        color: white;
+        font-size: 1.5rem;
+        font-family: 'Neue', sans-serif;
     }
 </style>
 
@@ -366,11 +489,13 @@
         <div class="row justify-content-center">
             <section class="col-12">
                 <div class="search-bar">
-                    <input type="text" class="search-input" placeholder="Buscar comunidades, equipos o juegos..." />
+                    <input type="text" class="search-input" placeholder="Buscar comunidades, equipos o juegos..." value="@Model.SearchTerm" />
+                    <button type="button" class="btn-search" onclick="buscar()">Buscar</button>
                 </div>
                 <div class="tab-selector">
                     <button class="tab-btn active" id="tab-comunidades" onclick="showTab('comunidades')">Comunidades</button>
                     <button class="tab-btn" id="tab-equipos" onclick="showTab('equipos')">Equipos</button>
+                    <button class="tab-btn" id="tab-juegos" onclick="showTab('juegos')">Juegos</button>
                 </div>
                 <div class="tab-content">
                     <div id="comunidades-content">
@@ -378,7 +503,7 @@
                         <div class="comunidades-grid">
                             @foreach (var item in Model.Comunidades)
                             {
-                                <div class="comunidad-card">
+                                <div class="comunidad-card" data-comunidad-id="@item.IdComunidad" onclick="unirse(event)">
                                     <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="comunidad-img" />
                                     <div class="comunidad-overlay">
                                         <span class="comunidad-unirse">Unirse</span>
@@ -403,15 +528,15 @@
                                     <div class="equipo-detalles">
                                         <div class="equipo-detalles-content">
                                             <div class="equipo-detalles-item">
-                                                <span class="equipo-detalles-label">Descripción:</span><br/>
+                                                <span class="equipo-detalles-label">Descripción:</span>
                                                 @(string.IsNullOrEmpty(item.Descripcion) ? "Sin descripción disponible" : item.Descripcion)
                                             </div>
                                             <div class="equipo-detalles-item">
-                                                <span class="equipo-detalles-label">Actividad:</span><br/>
+                                                <span class="equipo-detalles-label">Actividad:</span>
                                                 @(item.Actividad != null ? item.Actividad.ToString() : "No disponible")
                                             </div>
                                             <div class="equipo-detalles-item">
-                                                <span class="equipo-detalles-label">Fecha de creación:</span><br/>
+                                                <span class="equipo-detalles-label">Fecha de creación:</span>
                                                 @(item.FechaCreacion != DateTime.MinValue ? item.FechaCreacion.ToString("dd/MM/yyyy") : "No disponible")
                                             </div>
                                         </div>
@@ -423,6 +548,20 @@
                             }
                         </div>
                     </div>
+                    <div id="juegos-content" style="display:none;">
+                        <div class="juegos-grid">
+                            @foreach (var item in Model.Juegos)
+                            {
+                                <div class="juego-card" data-juego-id="@item.IdJuego" onclick="verDetallesJuego(event)">
+                                    <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Juegos/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="juego-img" />
+                                    <div class="juego-overlay">
+                                        <span class="juego-unirse">Detalles</span>
+                                    </div>
+                                    <span class="juego-title">@item.Nombre</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -430,21 +569,97 @@
 </main>
 
 <script>
+    // Inicializar pestañas al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        ocultarPestanasVacias();
+    });
+
+    function ocultarPestanasVacias() {
+        const comunidadesBtn = document.getElementById('tab-comunidades');
+        const equiposBtn = document.getElementById('tab-equipos');
+        const juegosBtn = document.getElementById('tab-juegos');
+        
+        const comunidadesContent = document.getElementById('comunidades-content');
+        const equiposContent = document.getElementById('equipos-content');
+        const juegosContent = document.getElementById('juegos-content');
+        
+        // Contar elementos en cada sección
+        const comunidadesCount = comunidadesContent.querySelectorAll('.comunidad-card').length;
+        const equiposCount = equiposContent.querySelectorAll('.equipo-card').length;
+        const juegosCount = juegosContent.querySelectorAll('.juego-card').length;
+        
+        // Ocultar botones de pestañas sin resultados
+        comunidadesBtn.classList.toggle('hidden', comunidadesCount === 0);
+        equiposBtn.classList.toggle('hidden', equiposCount === 0);
+        juegosBtn.classList.toggle('hidden', juegosCount === 0);
+        
+        // Mostrar mensaje si no hay resultados
+        if (comunidadesCount === 0 && comunidadesContent.style.display !== 'none') {
+            if (!comunidadesContent.querySelector('.empty-message')) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-message';
+                emptyMsg.textContent = 'No hay comunidades que coincidan con tu búsqueda';
+                comunidadesContent.innerHTML = '';
+                comunidadesContent.appendChild(emptyMsg);
+            }
+        }
+        
+        if (equiposCount === 0 && equiposContent.style.display !== 'none') {
+            if (!equiposContent.querySelector('.empty-message')) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-message';
+                emptyMsg.textContent = 'No hay equipos que coincidan con tu búsqueda';
+                equiposContent.innerHTML = '';
+                equiposContent.appendChild(emptyMsg);
+            }
+        }
+        
+        if (juegosCount === 0 && juegosContent.style.display !== 'none') {
+            if (!juegosContent.querySelector('.empty-message')) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-message';
+                emptyMsg.textContent = 'No hay juegos que coincidan con tu búsqueda';
+                juegosContent.innerHTML = '';
+                juegosContent.appendChild(emptyMsg);
+            }
+        }
+        
+        // Mostrar la primera pestaña disponible
+        if (comunidadesCount > 0) {
+            showTab('comunidades');
+        } else if (equiposCount > 0) {
+            showTab('equipos');
+        } else if (juegosCount > 0) {
+            showTab('juegos');
+        }
+    }
+
     function showTab(tab) {
         const comunidadesBtn = document.getElementById('tab-comunidades');
         const equiposBtn = document.getElementById('tab-equipos');
+        const juegosBtn = document.getElementById('tab-juegos');
         const comunidadesContent = document.getElementById('comunidades-content');
         const equiposContent = document.getElementById('equipos-content');
+        const juegosContent = document.getElementById('juegos-content');
+        
+        // Ocultar todos
+        comunidadesContent.style.display = 'none';
+        equiposContent.style.display = 'none';
+        juegosContent.style.display = 'none';
+        comunidadesBtn.classList.remove('active');
+        equiposBtn.classList.remove('active');
+        juegosBtn.classList.remove('active');
+        
+        // Mostrar seleccionado
         if (tab === 'comunidades') {
             comunidadesBtn.classList.add('active');
-            equiposBtn.classList.remove('active');
             comunidadesContent.style.display = '';
-            equiposContent.style.display = 'none';
-        } else {
+        } else if (tab === 'equipos') {
             equiposBtn.classList.add('active');
-            comunidadesBtn.classList.remove('active');
             equiposContent.style.display = '';
-            comunidadesContent.style.display = 'none';
+        } else if (tab === 'juegos') {
+            juegosBtn.classList.add('active');
+            juegosContent.style.display = '';
         }
     }
 
@@ -478,10 +693,40 @@
         event.preventDefault();
         const equipoCard = event.target.closest('.equipo-card');
         const equipoId = equipoCard.getAttribute('data-equipo-id');
-        const equipoNombre = equipoCard.querySelector('.equipo-nombre').textContent;
         
-        alert('Solicitud de entrada enviada a: ' + equipoNombre);
-        // Aquí puedes hacer una llamada AJAX para enviar la solicitud al servidor
-        // Por ejemplo: fetch('/Equipo/SolicitarEntrada/' + equipoId, { method: 'POST' })
+        // Redirigir a Create con el ID del equipo
+        window.location.href = '@Url.Action("Create", "SolicitudIngreso")' + '?equipoId=' + equipoId;
+    }
+
+    function unirse(event) {
+        event.preventDefault();
+        const comunidadCard = event.target.closest('.comunidad-card');
+        const comunidadId = comunidadCard.getAttribute('data-comunidad-id');
+        
+        // Redirigir a Create con el ID de la comunidad
+        window.location.href = '@Url.Action("Create", "SolicitudIngreso")' + '?comunidadId=' + comunidadId;
+    }
+
+    function verDetallesJuego(event) {
+        event.preventDefault();
+        const juegoCard = event.target.closest('.juego-card');
+        const juegoId = juegoCard.getAttribute('data-juego-id');
+        
+        // Redirigir a Juegos/Details con el ID del juego
+        window.location.href = '/Juegos/Details/' + juegoId;
+    }
+
+    function buscar() {
+        const searchInput = document.querySelector('.search-input');
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm === '') {
+            // Si está vacío, redirigir al home
+            window.location.href = '@Url.Action("Index", "Home")';
+            return;
+        }
+        
+        // Redirigir a la acción Index con el parámetro de búsqueda
+        window.location.href = '@Url.Action("Index", "Home")' + '?searchTerm=' + encodeURIComponent(searchTerm);
     }
 </script>

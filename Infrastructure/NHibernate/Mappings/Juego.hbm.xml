@@ -9,6 +9,8 @@
     </id>
     <property name="NombreJuego" column="NombreJuego" />
     <property name="Genero" column="Genero" />
+    <property name="ImagenUrl" column="ImagenUrl" />
+    <property name="Descripcion" column="Descripcion" />
 
     <!-- PerfilJuegos collection omitted until PerfilJuego mapping is added -->
   </class>

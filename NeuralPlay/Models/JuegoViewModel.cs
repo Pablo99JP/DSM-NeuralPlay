@@ -11,8 +11,21 @@ namespace NeuralPlay.Models
         [Display(Name = "Nombre del Juego")]
         public string? NombreJuego { get; set; }
 
-        [Required(ErrorMessage = "El gÈnero del juego es obligatorio.")]
-        [Display(Name = "GÈnero")]
+        [Display(Name = "Nombre")]
+        public string? Nombre 
+        { 
+            get { return NombreJuego; }
+            set { NombreJuego = value; }
+        }
+
+        [Required(ErrorMessage = "El g√©nero del juego es obligatorio.")]
+        [Display(Name = "G√©nero")]
         public GeneroJuego Genero { get; set; }
+
+        [Display(Name = "URL de Imagen")]
+        public string? ImagenUrl { get; set; }
+
+        [Display(Name = "Descripci√≥n")]
+        public string? Descripcion { get; set; }
     }
 }
