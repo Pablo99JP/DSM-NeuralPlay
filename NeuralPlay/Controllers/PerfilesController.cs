@@ -257,6 +257,31 @@ namespace NeuralPlay.Controllers
                     
                     if (viewModel.ImagenArchivo != null && viewModel.ImagenArchivo.Length > 0)
                     {
+                        // Obtener la imagen antigua del perfil actual en BD
+                        using (var session = NHibernateHelper.OpenSession())
+                        {
+                            var perfilActual = await session.GetAsync<Perfil>(viewModel.IdPerfil);
+                            if (perfilActual != null && !string.IsNullOrEmpty(perfilActual.FotoPerfilUrl))
+                            {
+                                // Borrar la imagen antigua si existe
+                                try
+                                {
+                                    string rutaImagenAntigua = Path.Combine(_webHostEnvironment.WebRootPath, 
+                                        perfilActual.FotoPerfilUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                                    
+                                    if (System.IO.File.Exists(rutaImagenAntigua))
+                                    {
+                                        System.IO.File.Delete(rutaImagenAntigua);
+                                    }
+                                }
+                                catch (Exception deleteEx)
+                                {
+                                    // Log de error pero continuar con la actualización
+                                    Console.WriteLine($"Error al borrar imagen antigua: {deleteEx.Message}");
+                                }
+                            }
+                        }
+                        
                         // Generar nombre único para el archivo
                         string extension = Path.GetExtension(viewModel.ImagenArchivo.FileName);
                         string nombreArchivo = $"{Guid.NewGuid()}{extension}";
