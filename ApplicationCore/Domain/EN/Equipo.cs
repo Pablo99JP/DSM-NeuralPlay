@@ -14,6 +14,9 @@ namespace ApplicationCore.Domain.EN
         public virtual string? Pais { get; set; }
         public virtual string? Idioma { get; set; }
 
+        // Ruta de la imagen asociada al equipo
+        public virtual string? ImagenUrl { get; set; }
+
         public virtual Comunidad? Comunidad { get; set; }
         public virtual IList<MiembroEquipo> Miembros { get; set; } = new List<MiembroEquipo>();
         public virtual ChatEquipo? Chat { get; set; }

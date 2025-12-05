@@ -1,5 +1,4 @@
-﻿﻿
-@model IEnumerable<NeuralPlay.Models.ComunidadViewModel>
+﻿﻿@model NeuralPlay.Models.ExplorarViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Explorar Neural";
@@ -14,6 +13,13 @@
         --np-red: #e50a46;
         --np-grey: #454545;
         --np-dark-grey: #242424;
+    }
+    /* AÑADIDO: Prevenir scroll horizontal globalmente */
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
     }
     body {
         background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
@@ -67,19 +73,23 @@
     }
     .tab-selector {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         gap: 40px;
         margin-bottom: 30px;
+        margin-left: 6vw;
+        margin-top: -20px;
+        position: relative;
+        z-index: 10;
     }
     .tab-btn {
         font-family: 'Neue', sans-serif;
-        font-size: 2.5rem;
+        font-size: 1.5rem;
         color: white;
         background: none;
         border: none;
         font-weight: bold;
         cursor: pointer;
-        padding: 10px 30px;
+        padding: 10px 20px;
         border-radius: 8px 8px 0 0;
         transition: background 0.2s, color 0.2s;
     }
@@ -93,12 +103,15 @@
         margin: 0 auto;
         padding: 0 20px;
     }
+    main {
+        padding-bottom: 150px;
+    }
     /* Comunidades */
     .comunidades-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        max-width: 800px;
+        gap: 60px;
+        max-width: 900px;
         margin: 0 auto;
     }
     .comunidad-card {
@@ -106,7 +119,7 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        height: 180px;
+        height: 250px;
         background: var(--np-grey);
         cursor: pointer;
         transition: transform 0.2s;
@@ -122,26 +135,69 @@
         top: 0; left: 0;
         z-index: 0;
     }
+    .comunidad-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
     .comunidad-title {
         position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 20px;
+        left: 20px;
+        text-align: left;
+        transform: none;
         font-family: 'Neue', sans-serif;
         color: white;
-        font-size: 1.3rem;
+        font-size: 2.5rem;
         font-weight: bold;
-        background: rgba(229,10,70,0.90);
-        padding: 6px 16px;
-        border-radius: 8px;
         z-index: 2;
-        box-shadow: 0 2px 8px rgba(229,10,70,0.25);
-        white-space: nowrap;
-        max-width: 90%;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        letter-spacing: 1px;
+        white-space: normal;
+        max-width: 85%;
+        word-wrap: break-word;
         overflow: hidden;
-        text-overflow: ellipsis;
+        line-height: 1.1;
     }
-    /* Equipos */
+    .comunidad-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(229, 10, 70, 0.7);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    .comunidad-card:hover .comunidad-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .comunidad-unirse {
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 3rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 1px;
+    }
+    .comunidad-unirse:hover {
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
     .equipos-list {
         display: flex;
         flex-direction: column;
@@ -211,38 +267,31 @@
                     <button class="tab-btn" id="tab-equipos" onclick="showTab('equipos')">Equipos</button>
                 </div>
                 <div class="tab-content">
-                    <!-- Comunidades -->
                     <div id="comunidades-content">
 
                         <div class="comunidades-grid">
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Comunidades)
                             {
                                 <div class="comunidad-card">
                                     <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="comunidad-img" />
+                                    <div class="comunidad-overlay">
+                                        <span class="comunidad-unirse">Unirse</span>
+                                    </div>
                                     <span class="comunidad-title">@item.Nombre</span>
                                 </div>
                             }
                         </div>
                     </div>
-                    <!-- Equipos -->
                     <div id="equipos-content" style="display:none;">
                         <div class="equipos-list">
-                            <!-- Placeholder de equipos, reemplaza con tu modelo -->
-                            <div class="equipo-card">
-                                <img src="/Recursos/equipo1.png" class="equipo-logo" alt="Equipo 1" />
-                                <span class="equipo-nombre">Equipo Alpha</span>
-                                <a href="#" class="btn-vermas">Ver más</a>
-                            </div>
-                            <div class="equipo-card">
-                                <img src="/Recursos/equipo2.png" class="equipo-logo" alt="Equipo 2" />
-                                <span class="equipo-nombre">Equipo Beta</span>
-                                <a href="#" class="btn-vermas">Ver más</a>
-                            </div>
-                            <div class="equipo-card">
-                                <img src="/Recursos/equipo3.png" class="equipo-logo" alt="Equipo 3" />
-                                <span class="equipo-nombre">Equipo Gamma</span>
-                                <a href="#" class="btn-vermas">Ver más</a>
-                            </div>
+                            @foreach (var item in Model.Equipos)
+                            {
+                                <div class="equipo-card">
+                                    <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Equipos/default.webp" : item.ImagenUrl)" class="equipo-logo" alt="@item.Nombre" />
+                                    <span class="equipo-nombre">@item.Nombre</span>
+                                    <a href="#" class="btn-vermas">Ver más</a>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

@@ -18,7 +18,8 @@ namespace NeuralPlay.Assemblers
                 FechaCreacion = en.FechaCreacion,
                 Actividad = en.Actividad,
                 Pais = en.Pais,
-                Idioma = en.Idioma
+                Idioma = en.Idioma,
+                ImagenUrl = en.ImagenUrl
             };
         }
 

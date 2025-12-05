@@ -743,6 +743,12 @@ END
                         var eq1 = GetOrCreateEquipo("TeamAlpha", "Elite gaming team", com1);
                         var eq2 = GetOrCreateEquipo("TeamBeta", "Competitive team", com1);
 
+                        // Asignar imágenes a los equipos de prueba
+                        eq1.ImagenUrl = "/Recursos/Equipos/alpha.png";
+                        eq2.ImagenUrl = "/Recursos/Equipos/beta.webp";
+                        equipoRepo.Modify(eq1);
+                        equipoRepo.Modify(eq2);
+
                         // Asegurar comunidad asociada (algunas BDs existentes pueden tener FK NOT NULL)
                         if (eq1.Comunidad == null) { eq1.Comunidad = com1; equipoRepo.Modify(eq1); }
                         if (eq2.Comunidad == null) { eq2.Comunidad = com1; equipoRepo.Modify(eq2); }
@@ -894,6 +900,13 @@ END
                         {
                             tigres = equipoCEN.NewEquipo("Tigres Arkham", "Equipo de prueba Tigres Arkham");
                             Console.WriteLine("✓ Created Equipo: Tigres Arkham");
+                        }
+
+                        // Asignar imagen a Tigres Arkham
+                        if (!string.IsNullOrEmpty(tigres.ImagenUrl) == false || tigres.ImagenUrl != "/Recursos/Equipos/tigres.png")
+                        {
+                            tigres.ImagenUrl = "/Recursos/Equipos/tigres.png";
+                            equipoRepo.Modify(tigres);
                         }
 
                         // Crear 3 usuarios y añadirlos al equipo

@@ -13,11 +13,15 @@ namespace NeuralPlay.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationCore.Domain.CEN.ComunidadCEN _comunidadCEN;
+        private readonly ApplicationCore.Domain.CEN.EquipoCEN _equipoCEN;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationCore.Domain.CEN.ComunidadCEN comunidadCEN)
+        public HomeController(ILogger<HomeController> logger, 
+            ApplicationCore.Domain.CEN.ComunidadCEN comunidadCEN,
+            ApplicationCore.Domain.CEN.EquipoCEN equipoCEN)
         {
             _logger = logger;
             _comunidadCEN = comunidadCEN;
+            _equipoCEN = equipoCEN;
         }
 
         public IActionResult Index()
@@ -27,12 +31,24 @@ namespace NeuralPlay.Controllers
                 // Obtener todas las comunidades
                 var comunidades = _comunidadCEN.ReadAll_Comunidad();
                 var listaComunidadesVM = NeuralPlay.Assemblers.ComunidadAssembler.ConvertListENToViewModel(comunidades).ToList();
-                return View(listaComunidadesVM);
+
+                // Obtener todos los equipos
+                var equipos = _equipoCEN.ReadAll_Equipo();
+                var listaEquiposVM = NeuralPlay.Assemblers.EquipoAssembler.ConvertListENToViewModel(equipos).ToList();
+
+                // Crear modelo consolidado
+                var modelo = new ExplorarViewModel
+                {
+                    Comunidades = listaComunidadesVM,
+                    Equipos = listaEquiposVM
+                };
+
+                return View(modelo);
             }
             catch (System.Exception ex)
             {
-                _logger?.LogWarning(ex, "Fallo al cargar comunidades para la vista Home: {Message}", ex.Message);
-                return View(System.Linq.Enumerable.Empty<NeuralPlay.Models.ComunidadViewModel>());
+                _logger?.LogWarning(ex, "Fallo al cargar datos para la vista Home: {Message}", ex.Message);
+                return View(new ExplorarViewModel());
             }
         }
 

@@ -27,5 +27,8 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Idioma")]
         public string? Idioma { get; set; }
+
+        [Display(Name = "Imagen")]
+        public string? ImagenUrl { get; set; }
     }
 }

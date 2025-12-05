@@ -13,6 +13,7 @@
     <property name="Actividad" column="Actividad" />
     <property name="Pais" column="Pais" />
     <property name="Idioma" column="Idioma" />
+    <property name="ImagenUrl" column="ImagenUrl" />
 
     <many-to-one name="Comunidad" class="ApplicationCore.Domain.EN.Comunidad, ApplicationCore" column="ComunidadId" not-null="false" />
     <many-to-one name="Chat" class="ApplicationCore.Domain.EN.ChatEquipo, ApplicationCore" column="ChatId" not-null="false" />
