@@ -41,8 +41,8 @@
 
     .profile-header {
         text-align: center;
-        margin-bottom: 30px;
-        padding-top: 20px;
+        margin-bottom: 15px;
+        padding-top: 10px;
     }
 
     .profile-header h1 {
@@ -50,7 +50,7 @@
         text-align: center;
         font-size: 3.5rem;
         color: white;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         margin-right: 11vw;
     }
 
@@ -108,20 +108,79 @@
     }
 
     .avatar-container {
-        text-align: center;
-        padding: 30px;
-        >h3{
-            color: white;
-        }
+        position: relative;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .avatar-container:hover {
+        transform: scale(1.02);
+    }
+
+    .avatar-container::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
     }
 
     .avatar-container img {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        border: 5px solid var(--np-red);
-        margin-bottom: 20px;
+        z-index: 0;
+    }
+
+    .avatar-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--np-grey);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 0;
+    }
+
+    .avatar-title {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        text-align: center;
+        transform: translateX(-50%);
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 3.5rem;
+        z-index: 2;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        letter-spacing: 2px;
+        font-weight: bold;
+        white-space: nowrap;
+        width: max-content;
+    }
+
+    .avatar-no-edit {
+        cursor: default;
+    }
+
+    .avatar-no-edit:hover {
+        transform: none;
     }
 
     .btn-custom {
@@ -188,7 +247,7 @@
                            <dt class="col-sm-4">Descripción</dt>
                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Descripcion)</dd>
                     </dl>
-                    <h3 style="margin-top: 30px;">Juegos</h3>
+                    <h3 style="margin-top: 10px;">Juegos</h3>
                     @if (Model.Juegos != null && Model.Juegos.Any())
                     {
                         <ul class="list-unstyled">
@@ -215,25 +274,42 @@
             </section>
             <!-- Columna derecha: Foto de perfil y botón Feed -->
             <aside class="col-md-6">
-                <article class="profile-card avatar-container">
-                    <h3>FOTO DE PERFIL</h3>
-                    @if (!string.IsNullOrEmpty(Model.Avatar))
-                    {
-                        <img src="@Model.Avatar" alt="Avatar" />
-                    }
-                    else
-                    {
-                        <div style="width: 200px; height: 200px; border-radius: 50%; background: var(--np-grey); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; border: 5px solid var(--np-red);">
-                            <span style="font-family: 'Lexend', sans-serif; color: white;">Sin foto</span>
-                        </div>
-                    }
-                    @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
-                    {
-                        <a href="#" class="btn-custom">Cambiar Foto</a>
-                    }
-                </article>
-                <nav style="text-align:center; margin-top: 80px;">
-                    <a asp-action="Feed" asp-route-id="@Model.IdPerfil" class="btn-custom" style="font-size: 2.5rem; padding: 32px 65px;">Ver Feed Personal</a>
+                @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.IdPerfil" style="text-decoration: none; color: inherit;">
+                        <article class="profile-card avatar-container">
+                            <span class="avatar-title">FOTO DE PERFIL</span>
+                            @if (!string.IsNullOrEmpty(Model.Avatar))
+                            {
+                                <img src="@Model.Avatar" alt="Avatar" />
+                            }
+                            else
+                            {
+                                <div class="avatar-placeholder">
+                                    <span style="font-family: 'Lexend', sans-serif; color: white; font-size: 1.5rem;">Sin foto</span>
+                                </div>
+                            }
+                        </article>
+                    </a>
+                }
+                else
+                {
+                    <article class="profile-card avatar-container avatar-no-edit">
+                        <span class="avatar-title">FOTO DE PERFIL</span>
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="@Model.Avatar" alt="Avatar" />
+                        }
+                        else
+                        {
+                            <div class="avatar-placeholder">
+                                <span style="font-family: 'Lexend', sans-serif; color: white; font-size: 1.5rem;">Sin foto</span>
+                            </div>
+                        }
+                    </article>
+                }
+                <nav style="margin-top: 50px;">
+                    <a asp-action="Feed" asp-route-id="@Model.IdPerfil" class="btn-custom" style="font-size: 2.5rem; padding: 32px 20px; width: 100%; display: block; text-align: center; box-sizing: border-box;">Ver Feed Personal</a>
                 </nav>
             </aside>
         </div>

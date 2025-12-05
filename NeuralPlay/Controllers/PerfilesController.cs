@@ -19,16 +19,19 @@ namespace NeuralPlay.Controllers
     {
         private readonly ActualizarPerfilCP _actualizarPerfilCP;
         private readonly IUsuarioAuth _usuarioAuth; // Añadir el servicio de autenticación
+        private readonly IWebHostEnvironment _webHostEnvironment; // Servicio para rutas de archivos
 
         public PerfilesController(
             UsuarioCEN usuarioCEN,
             IUsuarioRepository usuarioRepository,
             ActualizarPerfilCP actualizarPerfilCP,
-            IUsuarioAuth usuarioAuth) // Inyectar el servicio
+            IUsuarioAuth usuarioAuth, // Inyectar el servicio
+            IWebHostEnvironment webHostEnvironment) // Inyectar IWebHostEnvironment
             : base(usuarioCEN, usuarioRepository)
         {
             _actualizarPerfilCP = actualizarPerfilCP;
             _usuarioAuth = usuarioAuth; // Asignar el servicio
+            _webHostEnvironment = webHostEnvironment; // Asignar el servicio
         }
 
         // GET: Perfiles
@@ -249,11 +252,42 @@ namespace NeuralPlay.Controllers
             {
                 try
                 {
+                    // Procesar subida de imagen si existe
+                    string? nuevaRutaImagen = viewModel.FotoPerfilUrl; // Mantener la actual por defecto
+                    
+                    if (viewModel.ImagenArchivo != null && viewModel.ImagenArchivo.Length > 0)
+                    {
+                        // Generar nombre único para el archivo
+                        string extension = Path.GetExtension(viewModel.ImagenArchivo.FileName);
+                        string nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                        
+                        // Definir ruta de guardado
+                        string directorioPerfiles = Path.Combine(_webHostEnvironment.WebRootPath, "Recursos", "Perfiles");
+                        
+                        // Crear directorio si no existe
+                        if (!Directory.Exists(directorioPerfiles))
+                        {
+                            Directory.CreateDirectory(directorioPerfiles);
+                        }
+                        
+                        string rutaCompleta = Path.Combine(directorioPerfiles, nombreArchivo);
+                        
+                        // Guardar el archivo
+                        using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                        {
+                            await viewModel.ImagenArchivo.CopyToAsync(stream);
+                        }
+                        
+                        // Actualizar la ruta relativa para guardar en BD
+                        nuevaRutaImagen = $"/Recursos/Perfiles/{nombreArchivo}";
+                    }
+                    
+                    // Actualizar el perfil con la nueva información
                     _actualizarPerfilCP.Ejecutar(
                         viewModel.IdPerfil,
                         viewModel.NickUsuario,
                         viewModel.Descripcion,
-                        viewModel.FotoPerfilUrl
+                        nuevaRutaImagen
                     );
                 }
                 catch (Exception ex)

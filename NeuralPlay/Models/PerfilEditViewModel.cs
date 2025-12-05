@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace NeuralPlay.Models
 {
@@ -13,11 +14,12 @@ namespace NeuralPlay.Models
         [StringLength(1000, ErrorMessage = "La descripci�n no puede tener m�s de 1000 caracteres.")]
         public string? Descripcion { get; set; }
 
-        // --- INICIO DE LA CORRECCI�N ---
-        // Se elimina el atributo [Url] para no forzar la validaci�n de la URL.
-        [Display(Name = "URL del Avatar")]
+        // Propiedad para almacenar la ruta actual de la imagen (campo oculto)
         [StringLength(255, ErrorMessage = "La URL no puede tener m�s de 255 caracteres.")]
         public string? FotoPerfilUrl { get; set; }
-        // --- FIN DE LA CORRECCI�N ---
+
+        // Nueva propiedad para subir archivo de imagen
+        [Display(Name = "Imagen de Perfil")]
+        public IFormFile? ImagenArchivo { get; set; }
     }
 }

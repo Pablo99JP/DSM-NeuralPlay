@@ -203,9 +203,10 @@
 <main class="content-wrapper">
     <article class="edit-card">
         <h2>Información del Perfil</h2>
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
             <input type="hidden" asp-for="IdPerfil" />
+            <input type="hidden" asp-for="FotoPerfilUrl" />
 
             <div class="form-group">
                 <label asp-for="NickUsuario" class="control-label">Nombre de Usuario</label>
@@ -220,9 +221,19 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="FotoPerfilUrl" class="control-label">URL de Foto de Perfil</label>
-                <input asp-for="FotoPerfilUrl" class="form-control" />
-                <span asp-validation-for="FotoPerfilUrl" class="text-danger"></span>
+                <label asp-for="ImagenArchivo" class="control-label">Imagen de Perfil</label>
+                @if (!string.IsNullOrEmpty(Model.FotoPerfilUrl))
+                {
+                    <div style="margin-bottom: 15px;">
+                        <img src="@Model.FotoPerfilUrl" alt="Avatar actual" style="max-width: 150px; max-height: 150px; border-radius: 10px; border: 2px solid var(--np-red);" />
+                        <p style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Imagen actual</p>
+                    </div>
+                }
+                <input asp-for="ImagenArchivo" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
+                <small style="color: #ccc; display: block; margin-top: 5px;">
+                    Selecciona una nueva imagen para reemplazar la actual (opcional)
+                </small>
             </div>
 
             <div class="form-actions">
