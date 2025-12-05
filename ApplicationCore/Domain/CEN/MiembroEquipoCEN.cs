@@ -43,6 +43,13 @@ namespace ApplicationCore.Domain.CEN
             return _repo.GetUsuariosByEquipo(idEquipo);
         }
 
+        // ReadFilter custom: Selecciona todos los Equipos a los que pertenece un usuario
+        public System.Collections.Generic.IEnumerable<ApplicationCore.Domain.EN.Equipo> ReadFilter_EquiposByUsuarioMembership(long idUsuario)
+        {
+            // Delegate to repository for efficiency
+            return _repo.GetEquiposByUsuario(idUsuario);
+        }
+
         // Banear miembro de equipo: marcar como expulsado y fijar fecha de baja/acción
         public void BanearMiembroEquipo(MiembroEquipo miembro)
         {

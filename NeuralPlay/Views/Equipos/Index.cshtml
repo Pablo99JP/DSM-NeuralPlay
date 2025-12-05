@@ -1,0 +1,292 @@
+@model IEnumerable<NeuralPlay.Models.EquipoViewModel>
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Mis Equipos";
+    ViewBag.OcultarNavbar = true;
+    var noAutenticado = ViewBag.NoAutenticado ?? false;
+    var currentUser = UsuarioAuth.GetUsuarioActual();
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Header con el título */
+    .profile-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-top: 10px;
+    }
+
+    .profile-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: center;
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 10px;
+        margin-right: 11vw;
+    }
+
+    .profile-header h1 .username {
+        color: var(--np-red);
+    }
+
+    .profile-divider {
+        width: 70%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 30px auto;
+        margin-left: 6vw;
+        margin-right: 11vw;
+    }
+
+    .profile-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5.5rem;
+        color: white;
+        margin-bottom: 30px;
+        text-align: left;
+        padding-left: 0;
+        margin-left: 32px;
+        font-weight: bold;
+    }
+
+    /* Contenedor principal */
+    .content-wrapper {
+        margin: 0 auto;
+        padding: 0 40px;
+        max-width: 1200px;
+    }
+
+    /* Cards de equipos - Layout horizontal */
+    .teams-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .team-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 20px 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .team-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(229, 10, 70, 0.4);
+        border-color: var(--np-red);
+    }
+
+    .team-icon {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        border-radius: 10px;
+        background: var(--np-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .team-name {
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 1.8rem;
+        margin: 0;
+        flex: 1;
+    }
+
+    .team-access {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--np-red);
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .team-access:hover {
+        background: white;
+        color: var(--np-red);
+        transform: scale(1.1);
+    }
+
+    .team-access i {
+        font-size: 1.5rem;
+    }
+
+    /* Mensaje de no equipos */
+    .no-teams-message {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 60px 40px;
+        text-align: center;
+        margin-top: 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .no-teams-icon {
+        font-size: 5rem;
+        color: var(--np-red);
+        margin-bottom: 20px;
+    }
+
+    .no-teams-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .no-teams-text {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        color: #ccc;
+        margin-bottom: 30px;
+    }
+
+    .btn-create-team {
+        font-family: 'Lexend', sans-serif;
+        background: var(--np-red);
+        color: white;
+        padding: 15px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        border: 2px solid var(--np-red);
+    }
+
+    .btn-create-team:hover {
+        background: white;
+        color: var(--np-red);
+        transform: scale(1.05);
+    }
+</style>
+
+<!-- Contenedor principal - solo fondo -->
+<div class="main-container"></div>
+
+@if (currentUser != null)
+{
+    <header class="profile-header">
+        <h1>Bienvenido, <span class="username">@currentUser.Nick</span></h1>
+        <div class="profile-divider"></div>
+        <h2 class="profile-section-title">Tus Equipos</h2>
+    </header>
+}
+else
+{
+    <header class="profile-header">
+        <h1>Bienvenido</h1>
+        <div class="profile-divider"></div>
+        <h2 class="profile-section-title">Tus Equipos</h2>
+    </header>
+}
+
+<main class="content-wrapper">
+        @if (noAutenticado)
+        {
+            <!-- Mensaje: Necesitas iniciar sesión -->
+            <div class="no-teams-message">
+                <div class="no-teams-icon">
+                    <i class="bi bi-person-lock"></i>
+                </div>
+                <h2 class="no-teams-title">Necesitas iniciar sesión</h2>
+                <p class="no-teams-text">
+                    Para ver tus equipos debes estar autenticado en la plataforma.
+                </p>
+                <a href="@Url.Action("Login", "Usuario")" class="btn-create-team">
+                    Iniciar Sesión
+                </a>
+            </div>
+        }
+        else if (!Model.Any())
+        {
+            <!-- Mensaje: No perteneces a ningún equipo -->
+            <div class="no-teams-message">
+                <div class="no-teams-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h2 class="no-teams-title">No perteneces a ningún equipo</h2>
+                <p class="no-teams-text">
+                    Aún no formas parte de ningún equipo. ¡Crea uno o únete a uno existente!
+                </p>
+                <a href="@Url.Action("Create", "Equipo")" class="btn-create-team">
+                    Crear Equipo
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Lista de equipos en horizontal -->
+            <div class="teams-list">
+                @foreach (var equipo in Model)
+                {
+                    <div class="team-card">
+                        <div class="team-icon">
+                            @if (!string.IsNullOrEmpty(equipo.Nombre))
+                            {
+                                @equipo.Nombre.Substring(0, 1).ToUpper()
+                            }
+                            else
+                            {
+                                <span>?</span>
+                            }
+                        </div>
+                        
+                        <h3 class="team-name">@equipo.Nombre</h3>
+                        
+                        <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo">
+                            <i class="bi bi-arrow-right-circle-fill"></i>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+</main>
