@@ -6,5 +6,6 @@ namespace ApplicationCore.Domain.Repositories
     public interface IMiembroEquipoRepository : IRepository<MiembroEquipo>
     {
         IEnumerable<Usuario> GetUsuariosByEquipo(long idEquipo);
+        IEnumerable<Equipo> GetEquiposByUsuario(long idUsuario);
     }
 }

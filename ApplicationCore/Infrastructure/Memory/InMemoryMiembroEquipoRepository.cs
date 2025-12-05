@@ -16,5 +16,15 @@ namespace ApplicationCore.Infrastructure.Memory
                 .Distinct()
                 .ToList();
         }
+
+        public IEnumerable<Equipo> GetEquiposByUsuario(long idUsuario)
+        {
+            return ReadAll()
+                .Where(m => m.Usuario != null && m.Usuario.IdUsuario == idUsuario && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                .Select(m => m.Equipo)
+                .Where(e => e != null)
+                .Distinct()
+                .ToList();
+        }
     }
 }

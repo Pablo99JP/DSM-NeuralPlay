@@ -50,5 +50,13 @@ namespace Infrastructure.NHibernate
             q.SetParameter("idEquipo", idEquipo);
             return q.List<Usuario>();
         }
+
+        public IEnumerable<Equipo> GetEquiposByUsuario(long idUsuario)
+        {
+            var q = _session.CreateQuery("select distinct m.Equipo from MiembroEquipo m where m.Usuario is not null and m.Usuario.IdUsuario = :idUsuario and m.Equipo is not null and m.Estado = :estado");
+            q.SetParameter("idUsuario", idUsuario);
+            q.SetParameter("estado", ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+            return q.List<Equipo>();
+        }
     }
 }
