@@ -10,6 +10,8 @@ namespace NeuralPlay.Assemblers
         public static ComunidadViewModel? ConvertENToViewModel(Comunidad? en)
         {
             if (en == null) return null;
+            // Depuración: mostrar el valor recibido de ImagenUrl en consola
+            System.Diagnostics.Debug.WriteLine($"[ComunidadAssembler] Comunidad: {en?.Nombre}, ImagenUrl: {en?.ImagenUrl}");
             return new ComunidadViewModel
             {
                 IdComunidad = en.IdComunidad,

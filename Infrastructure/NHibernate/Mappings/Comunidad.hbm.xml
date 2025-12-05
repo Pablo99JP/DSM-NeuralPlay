@@ -10,6 +10,7 @@
     <property name="Nombre" column="Nombre" />
     <property name="Descripcion" column="Descripcion" />
     <property name="FechaCreacion" column="FechaCreacion" />
+    <property name="ImagenUrl" column="ImagenUrl" />
 
     <bag name="Equipos" inverse="true" cascade="all-delete-orphan">
       <key column="ComunidadId" />
