@@ -36,5 +36,7 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Nombre del Equipo")]
         public string? NombreEquipo { get; set; }
+
+        public string? FotoPerfilUrl { get; set; }
     }
 }

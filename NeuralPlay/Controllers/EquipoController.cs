@@ -4,6 +4,7 @@ using NeuralPlay.Models;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
+using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 
@@ -17,6 +18,7 @@ namespace NeuralPlay.Controllers
         private readonly ChatEquipoCEN _chatEquipoCEN;      // NUEVO
         private readonly MensajeChatCEN _mensajeChatCEN;    // NUEVO
         private readonly ParticipacionTorneoCEN _participacionTorneoCEN;
+        private readonly PropuestaTorneoCEN _propuestaCEN;
 
         public EquipoController(
             UsuarioCEN usuarioCEN,
@@ -26,7 +28,8 @@ namespace NeuralPlay.Controllers
             IUnitOfWork unitOfWork,
             ChatEquipoCEN chatEquipoCEN,         // NUEVO
             MensajeChatCEN mensajeChatCEN,       // NUEVO
-            ParticipacionTorneoCEN participacionTorneoCEN
+            ParticipacionTorneoCEN participacionTorneoCEN,
+            PropuestaTorneoCEN propuestaCEN
         )
             : base(usuarioCEN, usuarioRepository)
         {
@@ -36,6 +39,7 @@ namespace NeuralPlay.Controllers
             _chatEquipoCEN = chatEquipoCEN;          // NUEVO
             _mensajeChatCEN = mensajeChatCEN;        // NUEVO
             _participacionTorneoCEN = participacionTorneoCEN;
+            _propuestaCEN = propuestaCEN;
         }
 
         // GET: /Equipo
@@ -104,6 +108,36 @@ namespace NeuralPlay.Controllers
                 }
                 
                 ViewBag.Palmares = (object?)palmares;
+
+                // Usuario actual para lógica de votos
+                long? currentUserId = null;
+                if (User?.Identity?.IsAuthenticated == true)
+                {
+                    var nameId = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    if (long.TryParse(nameId, out var parsed)) currentUserId = parsed;
+                }
+                if (currentUserId == null && HttpContext?.Session != null)
+                {
+                    currentUserId = HttpContext.Session.GetInt32("UsuarioId");
+                }
+
+                // Propuestas de torneo del equipo (pendientes) para votar
+                var propuestas = _propuestaCEN.ReadAll_PropuestaTorneo()
+                    .Where(p => p.EquipoProponente != null && p.EquipoProponente.IdEquipo == id)
+                    .Where(p => p.Estado == EstadoSolicitud.PENDIENTE)
+                    .Select(p => new
+                    {
+                        Id = p.IdPropuesta,
+                        Nombre = p.Torneo?.Nombre ?? "Torneo propuesto",
+                        PropuestoPor = p.PropuestoPor?.Nick ?? "Desconocido",
+                        VotosAFavor = p.Votos?.Count(v => v.Valor) ?? 0,
+                        VotosEnContra = p.Votos?.Count(v => !v.Valor) ?? 0,
+                        Pendientes = System.Math.Max(0, miembros.Count - (p.Votos?.Count ?? 0)),
+                        HasVotado = currentUserId != null && (p.Votos?.Any(v => v.Votante != null && v.Votante.IdUsuario == currentUserId.Value) ?? false)
+                    })
+                    .ToList();
+
+                ViewBag.Propuestas = (object?)propuestas;
                 
                 return View(vm);
             }
