@@ -841,6 +841,7 @@ END
                         if (perfil2 != null)
                         {
                             perfil2.Descripcion = "Casual player";
+                            perfil2.FotoPerfilUrl = "/Recursos/Perfiles/Default.png";
                             perfilCEN.ModifyPerfil(perfil2);
                         }
                         Console.WriteLine($"✓ Modified {2} Perfil");

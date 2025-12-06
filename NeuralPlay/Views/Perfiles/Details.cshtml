@@ -226,6 +226,40 @@
         font-family: 'Lexend', sans-serif;
         color: var(--np-grey);
     }
+
+    .profile-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 40px;
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .profile-actions a,
+    .profile-actions button {
+        flex: 0 1 200px;
+        padding: 15px 20px;
+        text-align: center;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Neue', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        white-space: nowrap;
+        min-height: 50px;
+    }
+
+    .profile-actions a:hover,
+    .profile-actions button:hover {
+        transform: scale(1.05);
+    }
 </style>
 
 <header class="profile-header">
@@ -313,5 +347,25 @@
                 </nav>
             </aside>
         </div>
+        
+        @if (currentUser != null && currentUser.Perfil != null && currentUser.Perfil.IdPerfil == Model.IdPerfil)
+        {
+            <div class="row" style="margin-top: 40px;">
+                <div class="col-12">
+                    <div class="profile-actions">
+                        <a href="@Url.Action("Logout", "Usuario")" class="btn-custom" style="background-color: #454545; color: white; flex: 0 1 180px;">
+                            Cerrar Sesión
+                        </a>
+                        <form method="post" action="@Url.Action("Delete", "Usuario")" style="flex: 0 1 180px; margin: 0;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@currentUser.IdUsuario" />
+                            <button type="submit" class="btn-custom" style="width: 100%; background-color: #d32f2f; color: white; flex: 0 1 180px;">
+                                Eliminar Cuenta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
     </section>
 </main>
