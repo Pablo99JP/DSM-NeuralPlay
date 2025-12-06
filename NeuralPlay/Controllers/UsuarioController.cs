@@ -43,11 +43,46 @@ namespace NeuralPlay.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            // Simulamos creación: la CEN acepta (nick, correo, hash)
-            _usuarioCEN.NewUsuario(model.Nombre ?? string.Empty, model.Email ?? string.Empty, model.Password ?? string.Empty);
-            // Persistir cambios via UnitOfWork cuando se usa NHibernate
-            try { _unitOfWork?.SaveChanges(); } catch { }
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                // Validar que no exista otro usuario con el mismo email
+                if (_usuarioCEN.ExisteEmail(model.Email ?? string.Empty))
+                {
+                    ModelState.AddModelError(nameof(model.Email), "Ya existe una cuenta con este correo electrónico.");
+                    return View(model);
+                }
+
+                // Validar que no exista otro usuario con el mismo nick
+                if (_usuarioCEN.ExisteNick(model.Nombre ?? string.Empty))
+                {
+                    ModelState.AddModelError(nameof(model.Nombre), "Ya existe un usuario con este nombre.");
+                    return View(model);
+                }
+
+                // Crear usuario con contraseña hasheada
+                var usuarioCreado = _usuarioCEN.NewUsuario(model.Nombre ?? string.Empty, model.Email ?? string.Empty, model.Password ?? string.Empty);
+                
+                // Persistir cambios via UnitOfWork cuando se usa NHibernate
+                try { _unitOfWork?.SaveChanges(); } catch { }
+                
+                // Validar que el usuario se creó correctamente
+                if (usuarioCreado == null || usuarioCreado.IdUsuario == 0)
+                {
+                    ModelState.AddModelError(string.Empty, "Error al crear el usuario. Intenta de nuevo.");
+                    return View(model);
+                }
+
+                // Login automático después del registro
+                HttpContext.Session.SetInt32("UsuarioId", (int)usuarioCreado.IdUsuario);
+                HttpContext.Session.SetString("UsuarioNombre", usuarioCreado.Nick ?? string.Empty);
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+                return View(model);
+            }
         }
 
         // GET: /Usuario/Edit/5
@@ -85,7 +120,7 @@ namespace NeuralPlay.Controllers
             HttpContext.Session.SetInt32("UsuarioId", (int)usuario.IdUsuario);
             HttpContext.Session.SetString("UsuarioNombre", usuario.Nick ?? string.Empty);
 
-            return RedirectToAction("Index", "Usuario");
+            return RedirectToAction("Index", "Home");
         }
 
         // Logout: limpia session y redirige al Login

@@ -1,3 +1,66 @@
-<div style="position: fixed; right: 0; top: 0; width: 6%; min-width: 80px; height: 100vh; background: #242424; box-shadow: -2px 0 5px rgba(0,0,0,0.05); z-index: 100;">
-    <!-- Puedes añadir contenido aquí si lo necesitas -->
+@using NHibernate.Linq
+@using ApplicationCore.Domain.EN
+@using Infrastructure.NHibernate
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+
+@{
+    var usuarioActual = UsuarioAuth?.GetUsuarioActual();
+    List<NeuralPlay.Models.CompaneroEquipoViewModel> companeros = new List<NeuralPlay.Models.CompaneroEquipoViewModel>();
+    
+    if (usuarioActual != null)
+    {
+        try
+        {
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                // Obtener todos los equipos del usuario actual
+                var equiposDelUsuario = session.Query<MiembroEquipo>()
+                    .Where(me => me.Usuario.IdUsuario == usuarioActual.IdUsuario)
+                    .Select(me => me.Equipo.IdEquipo)
+                    .ToList();
+                
+                // Obtener todos los usuarios que compartan equipo (excluyendo al usuario actual)
+                var usuariosCompaneros = session.Query<MiembroEquipo>()
+                    .Where(me => equiposDelUsuario.Contains(me.Equipo.IdEquipo) && me.Usuario.IdUsuario != usuarioActual.IdUsuario)
+                    .Select(me => me.Usuario)
+                    .Distinct()
+                    .Fetch(u => u.Perfil)
+                    .ToList();
+                
+                companeros = usuariosCompaneros
+                    .Select(u => new NeuralPlay.Models.CompaneroEquipoViewModel
+                    {
+                        IdUsuario = u.IdUsuario,
+                        Nick = u.Nick,
+                        FotoPerfilUrl = u.Perfil?.FotoPerfilUrl ?? "/Recursos/Perfiles/Default.png"
+                    })
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log de error
+            Console.WriteLine($"Error al obtener compañeros: {ex.Message}");
+        }
+    }
+}
+
+<div style="position: fixed; right: 0; top: 0; width: 6%; min-width: 80px; height: 100vh; background: #242424; box-shadow: -2px 0 5px rgba(0,0,0,0.05); z-index: 100; overflow-y: auto; padding-top: 80px;">
+    @if (usuarioActual != null && companeros.Any())
+    {
+        <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 15px 0;">
+            @foreach (var companero in companeros)
+            {
+                <a href="@Url.Action("Details", "Perfiles", new { id = companero.IdUsuario })" 
+                   title="@companero.Nick"
+                   style="text-decoration: none; display: flex; justify-content: center;">
+                    <img src="@companero.FotoPerfilUrl" 
+                         alt="@companero.Nick"
+                         style="width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid #e50a46; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                         onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 15px rgba(229, 10, 70, 0.6)';"
+                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" />
+                </a>
+            }
+        </div>
+    }
 </div>

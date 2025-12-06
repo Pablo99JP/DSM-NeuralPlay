@@ -190,7 +190,6 @@
         button[type="submit"] {
             background-color: white;
             color: var(--np-red);
-            border: 1px solid black;
             font-weight: bold;
             padding: 10px;
             width: 100%;
@@ -201,11 +200,14 @@
             font-size: 2rem;
             cursor: pointer;
             box-sizing: border-box;
+            border-radius: 15px;
+            border: none;
         }
 
         button[type="submit"]:hover {
             background-color: #f0f0f0;
             color: #c4083c;
+            transform: scale(1.05);
         }
 
         /* Textos del Pie */
@@ -244,7 +246,7 @@
 
         /* Mensajes de Validación */
         .validation-error {
-            color: var(--np-red);
+            color: white;
             font-size: 0.8rem;
             margin-top: 5px;
             display: block;
@@ -276,6 +278,7 @@
             <h2 class="login-title">Registrarse</h2>
 
             <form asp-action="Create" method="post" class="login-form">
+                @Html.AntiForgeryToken()
 
                 <fieldset>
                     <legend>Formulario de Registro</legend>

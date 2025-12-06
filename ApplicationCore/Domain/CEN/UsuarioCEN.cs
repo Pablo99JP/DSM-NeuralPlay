@@ -35,7 +35,7 @@ namespace ApplicationCore.Domain.CEN
             {
                 Usuario = u, // Establecer la relación bidireccional
                 Descripcion = $"Perfil de {nick}.",
-                FotoPerfilUrl = "/images/avatar_default.png", // Asignar una imagen por defecto
+                FotoPerfilUrl = "/Recursos/Perfiles/Default.png", // Asignar una imagen por defecto
                 VisibilidadPerfil = Visibilidad.PUBLICO,
                 VisibilidadActividad = Visibilidad.PRIVADO
             };
@@ -45,8 +45,8 @@ namespace ApplicationCore.Domain.CEN
             // --- FIN DE LA CORRECCIÓN ---
 
             _usuarioRepository.New(u);
-            // Recuperar el usuario por email para obtener el ID asignado
-            return _usuarioRepository.ReadByEmail(correo)!;
+            // Retornar directamente el usuario creado
+            return u;
         }
 
         public Usuario? ReadOID_Usuario(long id) => _usuarioRepository.ReadById(id);
@@ -85,5 +85,19 @@ namespace ApplicationCore.Domain.CEN
         }
         public void DestroyUsuario(long id) => _usuarioRepository.Destroy(id);
         public System.Collections.Generic.IEnumerable<Usuario> BuscarUsuariosPorNickOEmail(string filtro) => _usuarioRepository.ReadFilter(filtro);
+
+        // Verificar si ya existe un usuario con el mismo email
+        public bool ExisteEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            return _usuarioRepository.ReadByEmail(email) != null;
+        }
+
+        // Verificar si ya existe un usuario con el mismo nick
+        public bool ExisteNick(string nick)
+        {
+            if (string.IsNullOrWhiteSpace(nick)) return false;
+            return _usuarioRepository.ReadByNick(nick) != null;
+        }
     }
 }
