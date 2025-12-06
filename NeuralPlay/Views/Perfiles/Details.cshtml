@@ -263,9 +263,16 @@
 </style>
 
 <header class="profile-header">
-    <h1>Bienvenido, <span class="username">@Model.NickUsuario</span></h1>
-    <div class="profile-divider"></div>
-    <h2 class="profile-section-title">Tu Perfil</h2>
+    @if (currentUser?.IdUsuario == Model.IdUsuario)
+    {
+        <h1>Bienvenido, <span class="username">@Model.NickUsuario</span></h1>
+        <div class="profile-divider"></div>
+        <h2 class="profile-section-title">Tu Perfil</h2>
+    }
+    else
+    {
+        <h2 class="profile-section-title">Perfil de <span style="color: var(--np-red);">@Model.NickUsuario</span></h2>
+    }
 </header>
 
 <main class="content-wrapper">
@@ -348,7 +355,7 @@
             </aside>
         </div>
         
-        @if (currentUser != null && currentUser.Perfil != null && currentUser.Perfil.IdPerfil == Model.IdPerfil)
+        @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
         {
             <div class="row" style="margin-top: 40px;">
                 <div class="col-12">
