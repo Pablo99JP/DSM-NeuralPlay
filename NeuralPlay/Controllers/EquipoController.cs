@@ -19,6 +19,7 @@ namespace NeuralPlay.Controllers
         private readonly MensajeChatCEN _mensajeChatCEN;    // NUEVO
         private readonly ParticipacionTorneoCEN _participacionTorneoCEN;
         private readonly PropuestaTorneoCEN _propuestaCEN;
+        private readonly IMiembroEquipoRepository _miembroEquipoRepository;
 
         public EquipoController(
             UsuarioCEN usuarioCEN,
@@ -29,7 +30,8 @@ namespace NeuralPlay.Controllers
             ChatEquipoCEN chatEquipoCEN,         // NUEVO
             MensajeChatCEN mensajeChatCEN,       // NUEVO
             ParticipacionTorneoCEN participacionTorneoCEN,
-            PropuestaTorneoCEN propuestaCEN
+            PropuestaTorneoCEN propuestaCEN,
+            IMiembroEquipoRepository miembroEquipoRepository
         )
             : base(usuarioCEN, usuarioRepository)
         {
@@ -40,6 +42,7 @@ namespace NeuralPlay.Controllers
             _mensajeChatCEN = mensajeChatCEN;        // NUEVO
             _participacionTorneoCEN = participacionTorneoCEN;
             _propuestaCEN = propuestaCEN;
+            _miembroEquipoRepository = miembroEquipoRepository;
         }
 
         // GET: /Equipo
@@ -138,6 +141,21 @@ namespace NeuralPlay.Controllers
                     .ToList();
 
                 ViewBag.Propuestas = (object?)propuestas;
+
+                // Determinar si el usuario actual es admin del equipo
+                bool isLeader = false;
+                if (currentUserId.HasValue)
+                {
+                    var membership = _miembroEquipoRepository.ReadAll()
+                        .FirstOrDefault(m =>
+                            m.Usuario != null && m.Usuario.IdUsuario == currentUserId.Value &&
+                            m.Equipo != null && m.Equipo.IdEquipo == id &&
+                            m.Estado == EstadoMembresia.ACTIVA);
+                    isLeader = membership?.Rol == RolEquipo.ADMIN;
+                }
+                ViewBag.IsLeader = isLeader;
+                ViewBag.EquipoId = id;
+                ViewBag.CurrentUserId = currentUserId;
                 
                 return View(vm);
             }
@@ -180,7 +198,8 @@ namespace NeuralPlay.Controllers
                     {
                         Contenido = m.Contenido,
                         NickAutor = m.Autor?.Nick ?? "Desconocido",
-                        FechaEnvio = m.FechaEnvio
+                        FechaEnvio = m.FechaEnvio,
+                        FotoPerfilUrl = m.Autor?.Perfil?.FotoPerfilUrl
                     }).ToList();
                 }
 
@@ -188,6 +207,7 @@ namespace NeuralPlay.Controllers
                 {
                     IdEquipo = equipo.IdEquipo,
                     NombreEquipo = equipo.Nombre,
+                    ImagenUrl = equipo.ImagenUrl,
                     Mensajes = mensajesVm
                 };
 

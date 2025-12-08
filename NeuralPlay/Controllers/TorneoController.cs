@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
+using ApplicationCore.Domain.Repositories;
 using System.Linq;
 
 namespace NeuralPlay.Controllers
@@ -15,6 +16,9 @@ namespace NeuralPlay.Controllers
         private readonly ApplicationCore.Domain.CEN.EquipoCEN _equipoCEN;
         private readonly ApplicationCore.Domain.CEN.ParticipacionTorneoCEN _participacionTorneoCEN;
         private readonly ApplicationCore.Domain.CEN.TorneoCEN _torneoCEN;
+        private readonly ChatEquipoCEN _chatEquipoCEN;
+        private readonly MensajeChatCEN _mensajeChatCEN;
+        private readonly IUnitOfWork _unitOfWork;
 
         public TorneoController(ApplicationCore.Domain.Repositories.IRepository<Torneo> torneoRepo,
             PropuestaTorneoCEN propuestaCEN,
@@ -23,7 +27,10 @@ namespace NeuralPlay.Controllers
             ApplicationCore.Domain.CEN.MiembroComunidadCEN miembroComunidadCEN,
             ApplicationCore.Domain.CEN.EquipoCEN equipoCEN,
             ApplicationCore.Domain.CEN.ParticipacionTorneoCEN participacionTorneoCEN,
-            ApplicationCore.Domain.CEN.TorneoCEN torneoCEN)
+            ApplicationCore.Domain.CEN.TorneoCEN torneoCEN,
+            ChatEquipoCEN chatEquipoCEN,
+            MensajeChatCEN mensajeChatCEN,
+            IUnitOfWork unitOfWork)
         {
             _torneoRepo = torneoRepo;
             _propuestaCEN = propuestaCEN;
@@ -33,6 +40,9 @@ namespace NeuralPlay.Controllers
             _equipoCEN = equipoCEN;
             _participacionTorneoCEN = participacionTorneoCEN;
             _torneoCEN = torneoCEN;
+            _chatEquipoCEN = chatEquipoCEN;
+            _mensajeChatCEN = mensajeChatCEN;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
@@ -155,6 +165,23 @@ namespace NeuralPlay.Controllers
             // Crear propuesta vía CEN
             var propuesta = _propuestaCEN.NewPropuestaTorneo(equipo, torneo, usuario);
             TempData["SuccessMessage"] = "Propuesta creada correctamente.";
+
+            // Publicar en el chat del equipo
+            try
+            {
+                var chat = equipo.Chat;
+                if (chat == null)
+                {
+                    chat = _chatEquipoCEN.NewChatEquipo(equipo);
+                    equipo.Chat = chat;
+                    _equipoCEN.ModifyEquipo(equipo);
+                }
+
+                var contenido = $"{usuario.Nick} ha propuesto participar en el torneo \"{torneo.Nombre}\".";
+                _mensajeChatCEN.NewMensajeChat(contenido, usuario, chat);
+                try { _unitOfWork?.SaveChanges(); } catch { }
+            }
+            catch { /* No bloquear si falla el mensaje de notificación */ }
 
             // Redirigir a detalles del torneo
             return RedirectToAction("Details", new { id = torneo.IdTorneo });

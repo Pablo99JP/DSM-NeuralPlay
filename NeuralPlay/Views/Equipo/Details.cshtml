@@ -7,10 +7,15 @@
     var torneos = ViewBag.Torneos as List<ApplicationCore.Domain.EN.Torneo> ?? new List<ApplicationCore.Domain.EN.Torneo>();
     var palmares = ViewBag.Palmares as Dictionary<ApplicationCore.Domain.EN.Torneo, int> ?? new Dictionary<ApplicationCore.Domain.EN.Torneo, int>();
     var logo = string.IsNullOrEmpty(Model.ImagenUrl) ? "/Recursos/Equipos/default.webp" : Model.ImagenUrl;
+    var isLeader = ViewBag.IsLeader as bool? ?? false;
+    var equipoId = ViewBag.EquipoId as long? ?? 0;
+    var currentUserId = ViewBag.CurrentUserId as long? ?? 0;
 }
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
     :root {
@@ -374,6 +379,53 @@
 
     .cta-link:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
+    .members-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 14px;
+    }
+
+    .member-actions-admin {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+    }
+
+    .member-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+
+    .member-btn-edit {
+        background: #2196F3;
+    }
+
+    .member-btn-edit:hover {
+        background: white;
+        color: #2196F3;
+        transform: scale(1.05);
+    }
+
+    .member-btn-delete {
+        background: #f44336;
+    }
+
+    .member-btn-delete:hover {
+        background: white;
+        color: #f44336;
+        transform: scale(1.05);
+    }
+
     .empty-state {
         background: rgba(255, 255, 255, 0.02);
         border: 1px dashed rgba(255, 255, 255, 0.12);
@@ -417,6 +469,11 @@
     </section>
 
     <section id="tab-miembros" class="tab-panel">
+        <div class="members-actions">
+            <a class="cta-link" asp-controller="Invitacion" asp-action="Create">
+                <i class="bi bi-person-plus"></i> Invitar miembros
+            </a>
+        </div>
         @if (miembros.Any())
         {
             <div class="members-list">
@@ -433,6 +490,20 @@
                             <span class="member-role">@miembro.Rol</span>
                             <span class="member-name">@miembro.NombreUsuario</span>
                         </div>
+                        @if (isLeader)
+                        {
+                            <div class="member-actions-admin">
+                                <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                @if (miembro.IdUsuario != currentUserId)
+                                {
+                                    <a href="@Url.Action("Delete", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-delete" title="Expulsar miembro">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                }
+                            </div>
+                        }
                     </div>
                 }
             </div>

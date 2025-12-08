@@ -3,6 +3,7 @@ using NeuralPlay.Assemblers;
 using NeuralPlay.Models;
 using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
+using ApplicationCore.Domain.Enums;
 using ApplicationCore.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 
@@ -41,7 +42,24 @@ namespace NeuralPlay.Controllers
 
                 // Obtener los equipos del usuario usando el método del CEN
                 var equipos = _miembroEquipoCEN.ReadFilter_EquiposByUsuarioMembership(userId.Value);
-                var vms = EquipoAssembler.ConvertListENToViewModel(equipos);
+                var vms = EquipoAssembler.ConvertListENToViewModel(equipos).ToList();
+
+                // Marcar si el usuario es admin en cada equipo
+                var memberships = _miembroEquipoRepository.ReadAll()
+                    .Where(m =>
+                        m.Usuario != null && m.Usuario.IdUsuario == userId.Value &&
+                        m.Equipo != null &&
+                        m.Estado == EstadoMembresia.ACTIVA)
+                    .GroupBy(m => m.Equipo!.IdEquipo)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                foreach (var vm in vms)
+                {
+                    if (memberships.TryGetValue(vm.IdEquipo, out var membership))
+                    {
+                        vm.IsLeader = membership.Rol == RolEquipo.ADMIN;
+                    }
+                }
                 
                 ViewBag.NoAutenticado = false;
                 return View(vms);

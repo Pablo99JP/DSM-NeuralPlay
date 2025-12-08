@@ -31,6 +31,6 @@
     <input type="hidden" asp-for="IdMiembroEquipo" />
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>

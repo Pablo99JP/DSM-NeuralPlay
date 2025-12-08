@@ -46,7 +46,7 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn btn-secondary">Volver</a>
             </div>
         </form>
     </div>
