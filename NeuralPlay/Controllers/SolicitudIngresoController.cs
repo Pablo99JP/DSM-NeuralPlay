@@ -48,11 +48,34 @@ namespace NeuralPlay.Controllers
  }
 
  [HttpGet]
- public IActionResult Create()
+ public IActionResult Create(long? comunidadId = null, long? equipoId = null)
  {
+ // Obtener el usuario actual de la sesión
+ var uid = HttpContext.Session.GetInt32("UsuarioId");
+ if (!uid.HasValue) return RedirectToAction("Login", "Usuario");
+ 
+ var usuario = _usuarioRepo.ReadById(uid.Value);
+ if (usuario == null) return RedirectToAction("Login", "Usuario");
+
  ViewBag.Usuarios = _usuarioRepo.ReadAll().Select(u => new { Id = u.IdUsuario, Name = u.Nick }).ToList();
  ViewBag.Comunidades = _comRepo.ReadAll().Select(c => new { Id = c.IdComunidad, Name = c.Nombre }).ToList();
  ViewBag.Equipos = _equipoRepo.ReadAll().Select(e => new { Id = e.IdEquipo, Name = e.Nombre }).ToList();
+ 
+ // Pasar los parámetros a la vista
+ ViewBag.UsuarioActualId = uid.Value;
+ ViewBag.ComunidadIdPreseleccionada = comunidadId;
+ ViewBag.EquipoIdPreseleccionado = equipoId;
+ 
+ // Determinar el tipo según el parámetro
+ if (comunidadId.HasValue)
+ {
+ ViewBag.TipoPreseleccionado = 0; // COMUNIDAD
+ }
+ else if (equipoId.HasValue)
+ {
+ ViewBag.TipoPreseleccionado = 1; // EQUIPO
+ }
+ 
  return View();
  }
 
@@ -60,6 +83,22 @@ namespace NeuralPlay.Controllers
  [ValidateAntiForgeryToken]
  public IActionResult Create(long solicitanteId, ApplicationCore.Domain.Enums.TipoInvitacion tipo, long? comunidadId, long? equipoId)
  {
+ // Validación: debe haber uno y solo uno de los dos (comunidad o equipo)
+ if ((!comunidadId.HasValue && !equipoId.HasValue) || (comunidadId.HasValue && equipoId.HasValue))
+ {
+ ModelState.AddModelError(string.Empty, "Debes seleccionar una comunidad O un equipo, no ambos ni ninguno.");
+ ViewBag.Usuarios = _usuarioRepo.ReadAll().Select(u => new { Id = u.IdUsuario, Name = u.Nick }).ToList();
+ ViewBag.Comunidades = _comRepo.ReadAll().Select(c => new { Id = c.IdComunidad, Name = c.Nombre }).ToList();
+ ViewBag.Equipos = _equipoRepo.ReadAll().Select(e => new { Id = e.IdEquipo, Name = e.Nombre }).ToList();
+ ViewBag.UsuarioActualId = solicitanteId;
+ ViewBag.ComunidadIdPreseleccionada = comunidadId;
+ ViewBag.EquipoIdPreseleccionado = equipoId;
+ ViewBag.HuboError = true;
+ if (comunidadId.HasValue) ViewBag.TipoPreseleccionado = 0;
+ else if (equipoId.HasValue) ViewBag.TipoPreseleccionado = 1;
+ return View();
+ }
+ 
  var solicitante = _usuarioRepo.ReadById(solicitanteId);
  Comunidad? com = null; Equipo? eq = null;
  if (comunidadId.HasValue) com = _comRepo.ReadById(comunidadId.Value);
@@ -67,7 +106,29 @@ namespace NeuralPlay.Controllers
  try
  {
  var s = _solCEN.NewSolicitudIngreso(tipo, solicitante!, com, eq);
+ 
+ // Si es una solicitud de comunidad, se aprueba automáticamente y se crea el miembro
+ if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && com != null)
+ {
+ var miembro = new MiembroComunidad 
+ { 
+ Usuario = solicitante!, 
+ Comunidad = com, 
+ Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, 
+ FechaAlta = DateTime.UtcNow, 
+ Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO, 
+ FechaAccion = DateTime.UtcNow 
+ };
+ _miembroComunidadRepo.New(miembro);
+ }
+ 
  try { _uow?.SaveChanges(); } catch {}
+ 
+ // Redirigir según el tipo de solicitud
+ if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && comunidadId.HasValue)
+ {
+ return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+ }
  }
  catch (Exception ex)
  {
@@ -75,6 +136,12 @@ namespace NeuralPlay.Controllers
  ViewBag.Usuarios = _usuarioRepo.ReadAll().Select(u => new { Id = u.IdUsuario, Name = u.Nick }).ToList();
  ViewBag.Comunidades = _comRepo.ReadAll().Select(c => new { Id = c.IdComunidad, Name = c.Nombre }).ToList();
  ViewBag.Equipos = _equipoRepo.ReadAll().Select(e => new { Id = e.IdEquipo, Name = e.Nombre }).ToList();
+ ViewBag.UsuarioActualId = solicitanteId;
+ ViewBag.ComunidadIdPreseleccionada = comunidadId;
+ ViewBag.EquipoIdPreseleccionado = equipoId;
+ ViewBag.HuboError = true;
+ if (comunidadId.HasValue) ViewBag.TipoPreseleccionado = 0;
+ else if (equipoId.HasValue) ViewBag.TipoPreseleccionado = 1;
  return View();
  }
  return RedirectToAction(nameof(Index));

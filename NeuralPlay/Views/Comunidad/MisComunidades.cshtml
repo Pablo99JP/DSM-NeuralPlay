@@ -1,0 +1,299 @@
+@model IEnumerable<NeuralPlay.Models.ComunidadViewModel>
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Mis Comunidades";
+    ViewBag.OcultarNavbar = true;
+    var currentUser = UsuarioAuth.GetUsuarioActual();
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<script>
+    function irAComunidad(comunidadId) {
+        window.location.href = '/Comunidad/Details/' + comunidadId;
+    }
+</script>
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Header con el título */
+    .profile-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-top: 10px;
+    }
+
+    .profile-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: center;
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 10px;
+        margin-right: 11vw;
+    }
+
+    .profile-header h1 .username {
+        color: var(--np-red);
+    }
+
+    .profile-divider {
+        width: 70%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 30px auto;
+        margin-left: 6vw;
+        margin-right: 11vw;
+    }
+
+    .profile-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5.5rem;
+        color: white;
+        margin-bottom: 30px;
+        text-align: left;
+        padding-left: 0;
+        margin-left: 32px;
+        font-weight: bold;
+    }
+
+    /* Contenedor principal */
+    .content-wrapper {
+        margin: 0 auto;
+        padding: 0 40px;
+        max-width: 1100px;
+    }
+
+    /* Grid de comunidades - 2 columnas como en Home */
+    .comunidades-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 60px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .comunidad-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 20px rgba(229, 10, 70, 0.4);
+        height: 250px;
+        background: var(--np-grey);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .comunidad-card:hover {
+        transform: scale(1.03);
+    }
+
+    .comunidad-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    .comunidad-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .comunidad-title {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        text-align: left;
+        transform: none;
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        z-index: 2;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        letter-spacing: 1px;
+        white-space: normal;
+        max-width: 85%;
+        word-wrap: break-word;
+        overflow: hidden;
+        line-height: 1.1;
+    }
+
+    .comunidad-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(229, 10, 70, 0.7);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .comunidad-card:hover .comunidad-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .comunidad-ver {
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 3rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 1px;
+    }
+
+    .comunidad-ver:hover {
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Mensaje de no comunidades */
+    .no-comunidades-message {
+        text-align: center;
+        padding: 100px 40px;
+        color: white;
+    }
+
+    .no-comunidades-icon {
+        font-size: 6rem;
+        color: var(--np-red);
+        margin-bottom: 30px;
+    }
+
+    .no-comunidades-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .no-comunidades-text {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        color: #ccc;
+        margin-bottom: 30px;
+    }
+
+    .btn-explore-comunidades {
+        font-family: 'Lexend', sans-serif;
+        background: var(--np-red);
+        color: white;
+        padding: 15px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        border: 2px solid var(--np-red);
+    }
+
+    .btn-explore-comunidades:hover {
+        background: white;
+        color: var(--np-red);
+        transform: scale(1.05);
+    }
+</style>
+
+@if (currentUser != null)
+{
+    <header class="profile-header">
+        <h1>Bienvenido, <span class="username">@currentUser.Nick</span></h1>
+        <div class="profile-divider"></div>
+        <h2 class="profile-section-title">Tus Comunidades</h2>
+    </header>
+}
+else
+{
+    <header class="profile-header">
+        <h1>Bienvenido</h1>
+        <div class="profile-divider"></div>
+        <h2 class="profile-section-title">Tus Comunidades</h2>
+    </header>
+}
+
+<main class="content-wrapper">
+    @if (Model != null && Model.Any())
+    {
+        <div class="comunidades-grid">
+            @foreach (var comunidad in Model)
+            {
+                <div class="comunidad-card" onclick="irAComunidad(@comunidad.IdComunidad)">
+                    <img src="@(string.IsNullOrEmpty(comunidad.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : comunidad.ImagenUrl)" 
+                         alt="@comunidad.Nombre" 
+                         class="comunidad-img" />
+                    <div class="comunidad-overlay">
+                        <span class="comunidad-ver">Ver</span>
+                    </div>
+                    <span class="comunidad-title">@comunidad.Nombre</span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-comunidades-message">
+            <div class="no-comunidades-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <h3 class="no-comunidades-title">No perteneces a ninguna comunidad</h3>
+            <p class="no-comunidades-text">Explora y únete a comunidades para conectar con otros jugadores</p>
+            <a href="@Url.Action("Index", "Home")" class="btn-explore-comunidades">
+                <i class="bi bi-search"></i> Explorar Comunidades
+            </a>
+        </div>
+    }
+</main>

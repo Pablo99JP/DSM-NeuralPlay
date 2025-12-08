@@ -16,6 +16,7 @@ namespace NeuralPlay.Controllers
         private readonly PublicacionCEN _publicacionCEN;
         private readonly IRepository<Publicacion> _publicacionRepository;
         private readonly IReaccionRepository _reaccionRepository;
+        private readonly IMiembroComunidadRepository _miembroComunidadRepository;
 
         public ComunidadController(
             UsuarioCEN usuarioCEN,
@@ -24,7 +25,8 @@ namespace NeuralPlay.Controllers
             IRepository<Comunidad> comunidadRepository,
             IUnitOfWork unitOfWork,
             IRepository<Publicacion> publicacionRepository,
-            IReaccionRepository reaccionRepository)
+            IReaccionRepository reaccionRepository,
+            IMiembroComunidadRepository miembroComunidadRepository)
             : base(usuarioCEN, usuarioRepository)
         {
             _comunidadCEN = comunidadCEN;
@@ -33,6 +35,7 @@ namespace NeuralPlay.Controllers
             _publicacionRepository = publicacionRepository;
             _reaccionRepository = reaccionRepository;
             _publicacionCEN = new PublicacionCEN(publicacionRepository);
+            _miembroComunidadRepository = miembroComunidadRepository;
         }
 
         // GET: /Comunidad
@@ -48,6 +51,38 @@ namespace NeuralPlay.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(Enumerable.Empty<ComunidadViewModel>());
+            }
+        }
+
+        // GET: /Comunidad/MisComunidades
+        public IActionResult MisComunidades()
+        {
+            try
+            {
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return RedirectToAction("Login", "Usuario");
+                }
+
+                // Obtener todas las membresías activas del usuario
+                var miembros = _miembroComunidadRepository.ReadAll()
+                    .Where(m => m.Usuario != null && m.Usuario.IdUsuario == uid.Value 
+                             && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                    .ToList();
+
+                // Extraer las comunidades
+                var comunidades = miembros
+                    .Where(m => m.Comunidad != null)
+                    .Select(m => ComunidadAssembler.ConvertENToViewModel(m.Comunidad!))
+                    .ToList();
+
+                return View(comunidades);
+            }
+            catch (System.Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(new List<ComunidadViewModel>());
             }
         }
 
