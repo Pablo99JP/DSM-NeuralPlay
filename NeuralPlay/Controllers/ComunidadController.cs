@@ -107,10 +107,14 @@ namespace NeuralPlay.Controllers
                 var publicaciones = (en.Publicaciones ?? Enumerable.Empty<Publicacion>())
                     .Select(p => {
                         var pubVM = PublicacionAssembler.ConvertENToViewModel(p);
-                        // Cargar like count
+                        // Cargar comentarios
                         if (pubVM != null)
                         {
+                            pubVM.comentarios = ComentarioAssembler.ConvertListENToViewModel(p.Comentarios);
+                            
+                            // Cargar like count
                             pubVM.LikeCount = _reaccionRepository.CountByPublicacion(p.IdPublicacion);
+                            
                             // Verificar si el usuario actual dio like
                             if (uid.HasValue)
                             {

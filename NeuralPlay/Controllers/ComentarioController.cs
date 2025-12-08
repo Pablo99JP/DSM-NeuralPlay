@@ -28,6 +28,27 @@ namespace NeuralPlay.Controllers
  _publicacionCEN = new PublicacionCEN(publicacionRepo);
  }
 
+ // GET: Comentario/GetCount?publicacionId=5
+ [HttpGet]
+ public IActionResult GetCount(long publicacionId)
+ {
+ try
+ {
+ var pub = _publicacionCEN.ReadOID_Publicacion(publicacionId);
+ if (pub == null)
+ {
+ return Json(new { success = false, error = "Publicación no encontrada" });
+ }
+
+ var count = pub.Comentarios?.Count() ?? 0;
+ return Json(new { success = true, count = count });
+ }
+ catch (System.Exception ex)
+ {
+ return Json(new { success = false, error = ex.Message });
+ }
+ }
+
  // GET: Comentario/Create?publicacionId=5
  public IActionResult Create(long publicacionId)
  {

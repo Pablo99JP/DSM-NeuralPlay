@@ -1,0 +1,212 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Crear Neural";
+    ViewBag.OcultarNavbar = true;
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Header con el título */
+    .create-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-top: 10px;
+    }
+
+    .create-header h1 {
+        font-family: 'Neue', sans-serif;
+        text-align: center;
+        font-size: 7rem;
+        color: white;
+        margin-bottom: 10px;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .create-subtitle {
+        font-family: 'Lexend', sans-serif;
+        text-align: center;
+        font-size: 1.8rem;
+        color: var(--np-red);
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .create-divider {
+        width: 70%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 50px auto;
+    }
+
+    /* Contenedor principal */
+    .content-wrapper {
+        margin: 0 auto;
+        padding: 0 40px;
+        max-width: 1100px;
+    }
+
+    /* Grid de opciones - 2 columnas como en Home */
+    .create-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 60px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding-bottom: 100px;
+    }
+
+    .create-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 20px rgba(229, 10, 70, 0.4);
+        height: 300px;
+        background: var(--np-grey);
+        cursor: pointer;
+        transition: transform 0.2s;
+        text-decoration: none;
+        display: block;
+    }
+
+    .create-card:hover {
+        transform: scale(1.03);
+    }
+
+    .create-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    .create-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .create-card-title {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        text-align: left;
+        transform: none;
+        font-family: 'Neue', sans-serif;
+        color: white;
+        font-size: 3.5rem;
+        font-weight: bold;
+        z-index: 2;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .create-card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(229, 10, 70, 0.7);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .create-card:hover .create-card-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .create-card-action {
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 3.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .create-card-action:hover {
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+<header class="create-header">
+    <h1>CREAR NEURAL</h1>
+    <p class="create-subtitle">Crea una comunidad sobre un juego e invita a otros jugadores a ella,<br>o bien crea un equipo para jugar con tus amigos.</p>
+    <div class="create-divider"></div>
+</header>
+
+<main class="content-wrapper">
+    <div class="create-grid">
+        <!-- Card Comunidad -->
+        <a href="@Url.Action("Create", "Comunidad")" class="create-card">
+            <img src="/Recursos/Comunidades/default.webp" alt="Crear Comunidad" class="create-card-img" />
+            <div class="create-card-overlay">
+                <span class="create-card-action">Crear</span>
+            </div>
+            <span class="create-card-title">Comunidad</span>
+        </a>
+
+        <!-- Card Equipo -->
+        <a href="@Url.Action("Create", "Equipo")" class="create-card">
+            <img src="/Recursos/Equipos/default.webp" alt="Crear Equipo" class="create-card-img" />
+            <div class="create-card-overlay">
+                <span class="create-card-action">Crear</span>
+            </div>
+            <span class="create-card-title">Equipo</span>
+        </a>
+    </div>
+</main>

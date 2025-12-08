@@ -361,6 +361,54 @@
 
 @section Scripts {
     <script>
+        // Función para actualizar contadores de comentarios
+        function updateCommentCounts() {
+            document.querySelectorAll('.comment-count').forEach(span => {
+                const publicacionId = span.getAttribute('data-publicacion-id');
+                
+                fetch(`/Comentario/GetCount?publicacionId=${publicacionId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        span.textContent = data.count;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener contador de comentarios:', error);
+                });
+            });
+        }
+
+        // Actualizar contadores cuando la página se muestra (incluye navegación con botón atrás)
+        window.addEventListener('pageshow', function(event) {
+            // Si la página viene del cache del navegador (bfcache)
+            if (event.persisted) {
+                updateCommentCounts();
+            }
+        });
+
+        // Actualizar contadores cuando la página carga por primera vez o se recarga
+        window.addEventListener('load', function() {
+            updateCommentCounts();
+        });
+
+        // Actualizar contadores cuando la página se vuelve visible (usuario regresa desde otra pestaña/página)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateCommentCounts();
+            }
+        });
+
+        // Actualizar contadores cuando la página recibe el foco
+        window.addEventListener('focus', function() {
+            updateCommentCounts();
+        });
+
         // Event listeners para los botones de like
         document.querySelectorAll('.toggle-like-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {

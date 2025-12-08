@@ -121,7 +121,7 @@
     <a href="/" class="sidebar-link sidebar-link-main">EXPLORAR</a>
     <a asp-controller="Comunidad" asp-action="MisComunidades" class="sidebar-link sidebar-link-secondary">MIS COMUNIDADES</a>
     <a href="/Equipos" class="sidebar-link sidebar-link-secondary">MIS EQUIPOS</a>
-    <a href="/Crear" class="sidebar-link sidebar-link-secondary">CREAR</a>
+    <a asp-controller="Crear" asp-action="Index" class="sidebar-link sidebar-link-secondary">CREAR</a>
     
     @if (UsuarioAuth?.GetUsuarioActual() != null)
     {
