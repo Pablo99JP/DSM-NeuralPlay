@@ -6,6 +6,7 @@ namespace NeuralPlay.Models
     {
         public long IdEquipo { get; set; }
         public string NombreEquipo { get; set; } = string.Empty;
+        public string? ImagenUrl { get; set; }
         public IEnumerable<MensajeChatViewModel> Mensajes { get; set; } = new List<MensajeChatViewModel>();
     }
 }

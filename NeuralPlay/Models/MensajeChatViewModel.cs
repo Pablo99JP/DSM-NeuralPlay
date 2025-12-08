@@ -7,5 +7,6 @@ namespace NeuralPlay.Models
         public string Contenido { get; set; } = string.Empty;
         public string NickAutor { get; set; } = string.Empty;
         public System.DateTime FechaEnvio { get; set; }
+        public string? FotoPerfilUrl { get; set; }
     }
 }

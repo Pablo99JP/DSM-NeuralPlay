@@ -19,7 +19,8 @@ namespace NeuralPlay.Assemblers
                 Actividad = en.Actividad,
                 Pais = en.Pais,
                 Idioma = en.Idioma,
-                ImagenUrl = en.ImagenUrl
+                ImagenUrl = en.ImagenUrl,
+                IsLeader = false
             };
         }
 

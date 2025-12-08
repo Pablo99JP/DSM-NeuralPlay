@@ -30,5 +30,8 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Imagen")]
         public string? ImagenUrl { get; set; }
+
+        // Indica si el usuario actual es admin del equipo
+        public bool IsLeader { get; set; }
     }
 }

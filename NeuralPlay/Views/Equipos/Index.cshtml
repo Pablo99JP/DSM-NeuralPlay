@@ -293,12 +293,15 @@ else
                         <h3 class="team-name">@equipo.Nombre</h3>
 
                         <div class="team-actions">
-                            <a href="@Url.Action("Edit", "Equipo", new { id = equipo.IdEquipo })" class="team-edit" title="Editar equipo">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <a href="@Url.Action("Delete", "Equipo", new { id = equipo.IdEquipo })" class="team-delete" title="Eliminar equipo">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
+                            @if (equipo.IsLeader)
+                            {
+                                <a href="@Url.Action("Edit", "Equipo", new { id = equipo.IdEquipo })" class="team-edit" title="Editar equipo">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", "Equipo", new { id = equipo.IdEquipo })" class="team-delete" title="Eliminar equipo">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            }
                             <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo">
                                 <i class="bi bi-arrow-right-circle-fill"></i>
                             </a>
