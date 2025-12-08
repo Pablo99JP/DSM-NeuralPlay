@@ -1,9 +1,721 @@
-@model NeuralPlay.Models.PerfilViewModel
+@model NeuralPlay.Models.FeedViewModel
 @{
- ViewData["Title"] = $"Feed de {Model.NickUsuario}";
+    ViewData["Title"] = $"Feed de {Model.NickUsuario}";
+    ViewBag.OcultarNavbar = true;
 }
 
-<div class="container py-4">
- <h2>Feed de @Model.NickUsuario</h2>
- <p class="text-muted">(A�n no hay contenido en el feed)</p>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    /* Prevenir scroll horizontal */
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .feed-container {
+        padding-right: 20%;
+        padding-left: 6vw;
+        padding-top: 20px;
+        padding-bottom: 150px;
+    }
+
+    .feed-header {
+        display: flex;
+        align-items: flex-end;
+        gap: 40px;
+        margin-bottom: 0;
+        padding: 0;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .feed-avatar {
+        flex-shrink: 0;
+    }
+
+    .feed-avatar img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 3px solid var(--np-red);
+        object-fit: cover;
+        box-shadow: 0 4px 16px rgba(229, 10, 70, 0.3);
+    }
+
+    .feed-avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--np-red), #ff4070);
+        border: 3px solid var(--np-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        color: white;
+        box-shadow: 0 4px 16px rgba(229, 10, 70, 0.3);
+    }
+
+    .feed-info {
+        flex: 1;
+    }
+
+    .feed-username {
+        font-family: 'Neue', sans-serif;
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: white;
+        margin: 0;
+        letter-spacing: 1px;
+    }
+
+    .feed-bio {
+        display: none;
+    }
+
+    .feed-bio.empty {
+        display: none;
+    }
+
+    /* Pestañas horizontales */
+    .feed-tabs {
+        display: flex;
+        justify-content: flex-start;
+        gap: 40px;
+        margin-bottom: 40px;
+        margin-left: 0;
+        margin-top: -20px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .feed-divider {
+        width: 75%;
+        height: 3px;
+        background-color: white;
+        margin: 0 auto 30px auto;
+        margin-left: 6vw;
+        margin-right: 20%;
+    }
+
+    .feed-section-title {
+        display: none;
+    }
+
+    .feed-tab-btn {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: white;
+        background: none;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .feed-tab-btn.active {
+        color: var(--np-red);
+        background: var(--np-dark-grey);
+        box-shadow: 0 -2px 10px rgba(229, 10, 70, 0.15);
+    }
+
+    .feed-tab-btn:hover {
+        color: var(--np-red);
+        transform: translateY(-2px);
+    }
+
+    .feed-tab-btn span {
+        margin-left: 8px;
+        background: var(--np-red);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .feed-tab-content {
+        display: none;
+    }
+
+    .feed-tab-content.active {
+        display: block;
+    }
+
+    /* Secciones */
+    .feed-section {
+        margin-bottom: 0;
+    }
+
+    .feed-section-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 2.8rem;
+        color: white;
+        margin: 0 0 40px 0;
+        padding: 20px 30px;
+        background: linear-gradient(135deg, var(--np-dark-grey) 0%, rgba(36, 36, 36, 0.7) 100%);
+        border-radius: 12px;
+        border-left: 5px solid var(--np-red);
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .feed-section-title:hover {
+        background: linear-gradient(135deg, var(--np-dark-grey) 0%, rgba(36, 36, 36, 0.9) 100%);
+        transform: translateX(10px);
+        box-shadow: 0 4px 20px rgba(229, 10, 70, 0.2);
+        border-left-color: #ff4070;
+    }
+
+    .feed-section-icon {
+        display: inline-block;
+        margin-right: 15px;
+        font-size: 1.2em;
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+    }
+
+    .timeline-item {
+        background: rgba(36, 36, 36, 0.5);
+        border-left: 4px solid var(--np-red);
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .timeline-item:hover {
+        background: rgba(36, 36, 36, 0.8);
+        transform: translateX(8px);
+        box-shadow: 0 4px 16px rgba(229, 10, 70, 0.2);
+        border-left-color: #ff4070;
+    }
+
+    .timeline-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .timeline-item-type {
+        display: inline-block;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .timeline-item-type.publicacion {
+        background: rgba(13, 110, 253, 0.2);
+        color: #68a7ff;
+    }
+
+    .timeline-item-type.comentario {
+        background: rgba(23, 162, 184, 0.2);
+        color: #52d1d1;
+    }
+
+    .timeline-item-type.megusta {
+        background: rgba(40, 167, 69, 0.2);
+        color: #5df579;
+    }
+
+    .timeline-item-time {
+        color: #999;
+        font-size: 0.9rem;
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .timeline-item-content {
+        color: #ddd;
+        font-size: 1.1rem;
+        font-family: 'Lexend', sans-serif;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+
+    .timeline-item-comunidad {
+        color: var(--np-red);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    /* Cards */
+    .feed-card {
+        background: rgba(36, 36, 36, 0.5);
+        border: 1px solid rgba(229, 10, 70, 0.1);
+        border-radius: 12px;
+        padding: 28px;
+        margin-bottom: 24px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .feed-card:hover {
+        background: rgba(36, 36, 36, 0.8);
+        border-color: rgba(229, 10, 70, 0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 4px 20px rgba(229, 10, 70, 0.15);
+    }
+
+    .feed-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .feed-card-author {
+        color: white;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    .feed-card-author-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .feed-card-author-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid var(--np-red);
+        object-fit: cover;
+    }
+
+    .feed-card-author-avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--np-red), #ff4070);
+        border: 2px solid var(--np-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: white;
+    }
+
+    .feed-card-community {
+        display: inline-block;
+        background: var(--np-red);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 12px;
+    }
+
+    .feed-card-date {
+        color: #888;
+        font-size: 0.9rem;
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .feed-card-content {
+        color: #ddd;
+        font-size: 1.05rem;
+        font-family: 'Lexend', sans-serif;
+        line-height: 1.7;
+        margin-bottom: 4px;
+        word-wrap: break-word;
+    }
+
+    .feed-comment-thread {
+        margin-left: 40px;
+    }
+
+    .feed-card-stats {
+        display: flex;
+        gap: 20px;
+        padding-top: 12px;
+    }
+
+    .feed-card-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .feed-card-stat strong {
+        color: var(--np-red);
+        font-weight: 600;
+    }
+
+    /* Empty states */
+    .feed-empty {
+        background: rgba(36, 36, 36, 0.5);
+        border: 2px dashed rgba(229, 10, 70, 0.3);
+        border-radius: 12px;
+        padding: 60px 30px;
+        text-align: center;
+        color: #999;
+        font-size: 1.2rem;
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .feed-empty i {
+        display: block;
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: var(--np-red);
+        opacity: 0.5;
+    }
+
+    /* Responsivo */
+    @@media (max-width: 768px) {
+        .feed-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .feed-username {
+            font-size: 2.5rem;
+        }
+
+        .feed-section-title {
+            font-size: 2rem;
+        }
+
+        .feed-tabs {
+            gap: 20px;
+        }
+
+        .feed-tab-btn {
+            font-size: 1.3rem;
+            padding: 10px 16px;
+        }
+    }
+</style>
+
+<div class="feed-container">
+    <!-- Encabezado del Perfil -->
+    <div class="feed-header">
+        <div class="feed-avatar">
+            @if (!string.IsNullOrEmpty(Model.Avatar))
+            {
+                <img src="@Model.Avatar" alt="@Model.NickUsuario">
+            }
+            else
+            {
+                <div class="feed-avatar-placeholder">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+            }
+        </div>
+        <div class="feed-info">
+            <h1 class="feed-username">@Model.NickUsuario</h1>
+        </div>
+    </div>
+
+    <!-- Línea divisoria -->
+    <div class="feed-divider"></div>
+
+    <!-- Pestañas de navegación -->
+    <div class="feed-tabs">
+        <button class="feed-tab-btn active" onclick="showFeedTab('actividad')">
+            <i class="bi bi-activity"></i>Actividad<span>@Model.Actividades.Count</span>
+        </button>
+        <button class="feed-tab-btn" onclick="showFeedTab('publicaciones')">
+            <i class="bi bi-file-text"></i>Publicaciones<span>@Model.Publicaciones.Count</span>
+        </button>
+        <button class="feed-tab-btn" onclick="showFeedTab('megustas')">
+            <i class="bi bi-hand-thumbs-up"></i>Me Gusta<span>@Model.MeGustas.Count</span>
+        </button>
+        <button class="feed-tab-btn" onclick="showFeedTab('comentarios')">
+            <i class="bi bi-chat"></i>Comentarios<span>@Model.Comentarios.Count</span>
+        </button>
+    </div>
+
+    <!-- SECCIÓN 1: ACTIVIDAD -->
+    <div id="actividad-tab" class="feed-tab-content active">
+        @if (Model.Actividades.Any())
+        {
+            <div class="feed-section">
+                <h2 class="feed-section-title">
+                    <i class="bi bi-activity feed-section-icon"></i>Actividad
+                </h2>
+                <div class="timeline">
+                    @foreach (var actividad in Model.Actividades)
+                    {
+                        <div class="timeline-item">
+                            <div class="timeline-item-header">
+                                <div>
+                                    @switch (actividad.Tipo)
+                                    {
+                                        case NeuralPlay.Models.TipoActividad.Publicacion:
+                                            <span class="timeline-item-type publicacion">
+                                                <i class="bi bi-file-text"></i> Publicación
+                                            </span>
+                                            break;
+                                        case NeuralPlay.Models.TipoActividad.Comentario:
+                                            <span class="timeline-item-type comentario">
+                                                <i class="bi bi-chat"></i> Comentario
+                                            </span>
+                                            break;
+                                        case NeuralPlay.Models.TipoActividad.MeGustanPublicacion:
+                                            <span class="timeline-item-type megusta">
+                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta Publicación
+                                            </span>
+                                            break;
+                                        case NeuralPlay.Models.TipoActividad.MeGustanComentario:
+                                            <span class="timeline-item-type megusta">
+                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta Comentario
+                                            </span>
+                                            break;
+                                    }
+                                </div>
+                                <span class="timeline-item-time">@actividad.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <p class="timeline-item-content">@actividad.Descripcion</p>
+                            @if (!string.IsNullOrEmpty(actividad.NombreComunidad))
+                            {
+                                <p class="timeline-item-comunidad">
+                                    <i class="bi bi-diagram-2"></i> En: <strong>@actividad.NombreComunidad</strong>
+                                </p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="feed-empty">
+                <i class="bi bi-inbox"></i>
+                <p>No hay actividad aún</p>
+            </div>
+        }
+    </div>
+
+    <!-- SECCIÓN 2: PUBLICACIONES -->
+    <div id="publicaciones-tab" class="feed-tab-content">
+        @if (Model.Publicaciones.Any())
+        {
+            <div class="feed-section">
+                <h2 class="feed-section-title">
+                    <i class="bi bi-file-text feed-section-icon"></i>Publicaciones
+                </h2>
+                @foreach (var pub in Model.Publicaciones)
+                {
+                    <div class="feed-card">
+                        <div class="feed-card-header">
+                            <div>
+                                @if (!string.IsNullOrEmpty(pub.NombreComunidad))
+                                {
+                                    <span class="feed-card-community">@pub.NombreComunidad</span>
+                                }
+                            </div>
+                        </div>
+                        <p class="feed-card-content">@pub.contenido</p>
+                        <div class="feed-card-stats">
+                            <span class="feed-card-stat">
+                                <i class="bi bi-hand-thumbs-up"></i>
+                                <strong>@pub.LikeCount</strong> Likes
+                            </span>
+                            @{
+                                var comentarioCount = pub.comentarios != null ? pub.comentarios.Count() : 0;
+                            }
+                            @if (comentarioCount > 0)
+                            {
+                                <span class="feed-card-stat">
+                                    <i class="bi bi-chat"></i>
+                                    <strong>@comentarioCount</strong>
+                                </span>
+                            }
+                        </div>
+                        <span class="feed-card-date">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="feed-empty">
+                <i class="bi bi-file-earmark"></i>
+                <p>No hay publicaciones aún</p>
+            </div>
+        }
+    </div>
+
+    <!-- SECCIÓN 3: ME GUSTA -->
+    <div id="megustas-tab" class="feed-tab-content">
+        @if (Model.MeGustas.Any())
+        {
+            <div class="feed-section">
+                <h2 class="feed-section-title">
+                    <i class="bi bi-hand-thumbs-up feed-section-icon"></i>Me Gusta
+                </h2>
+                @foreach (var pub in Model.MeGustas)
+                {
+                    <div class="feed-card">
+                        <div class="feed-card-header">
+                            <div class="feed-card-author-container">
+                                @if (!string.IsNullOrEmpty(pub.AvatarAutor))
+                                {
+                                    <img src="@pub.AvatarAutor" alt="@pub.NickAutor" class="feed-card-author-avatar">
+                                }
+                                else
+                                {
+                                    <div class="feed-card-author-avatar-placeholder">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                }
+                                <span class="feed-card-author">@pub.NickAutor</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(pub.NombreComunidad))
+                            {
+                                <span class="feed-card-community">@pub.NombreComunidad</span>
+                            }
+                        </div>
+                        <p class="feed-card-content">@pub.contenido</p>
+                        <div class="feed-card-stats">
+                            <span class="feed-card-stat">
+                                <i class="bi bi-hand-thumbs-up"></i>
+                                <strong>@pub.LikeCount</strong> Likes
+                            </span>
+                        </div>
+                        <span class="feed-card-date">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="feed-empty">
+                <i class="bi bi-heart"></i>
+                <p>No has dado Me Gusta a ninguna publicación</p>
+            </div>
+        }
+    </div>
+
+    <!-- SECCIÓN 4: COMENTARIOS -->
+    <div id="comentarios-tab" class="feed-tab-content">
+        @if (Model.Comentarios.Any())
+        {
+            <div class="feed-section">
+                <h2 class="feed-section-title">
+                    <i class="bi bi-chat feed-section-icon"></i>Comentarios
+                </h2>
+                @foreach (var com in Model.Comentarios)
+                {
+                    <div class="feed-card">
+                        <div class="feed-card-header">
+                            <div class="feed-card-author-container">
+                                @if (!string.IsNullOrEmpty(com.AvatarAutorPublicacion))
+                                {
+                                    <img src="@com.AvatarAutorPublicacion" alt="@com.NickAutorPublicacion" class="feed-card-author-avatar">
+                                }
+                                else
+                                {
+                                    <div class="feed-card-author-avatar-placeholder">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                }
+                                <span class="feed-card-author">@com.NickAutorPublicacion</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(com.NombreComunidad))
+                            {
+                                <span class="feed-card-community">@com.NombreComunidad</span>
+                            }
+                        </div>
+                        <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                            <p style="color: #999; font-size: 0.95rem; margin: 0 0 8px 0;">
+                                <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>Publicación original
+                            </p>
+                            <p class="feed-card-content" style="margin: 0; color: #bbb;">@com.ContenidoPublicacion</p>
+                        </div>
+                        <div class="feed-comment-thread">
+                            <p style="color: var(--np-red); font-size: 0.95rem; margin: 0 0 8px 0; font-weight: 600;">
+                                <i class="bi bi-chat-left-text" style="margin-right: 8px;"></i>Tu comentario
+                            </p>
+                            <p class="feed-card-content" style="margin: 0;">@com.ContenidoComentario</p>
+                        </div>
+                        <div class="feed-card-stats" style="margin-top: 16px;">
+                            <span class="feed-card-stat">
+                                <i class="bi bi-hand-thumbs-up"></i>
+                                <strong>@com.LikeCount</strong> Likes
+                            </span>
+                            <span class="feed-card-date">@com.FechaComentario.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="feed-empty">
+                <i class="bi bi-chat-dots"></i>
+                <p>No has comentado en ninguna publicación</p>
+            </div>
+        }
+    </div>
+
+    <!-- Estados vacíos si no hay nada -->
+    @if (!Model.Actividades.Any() && !Model.Publicaciones.Any() && !Model.MeGustas.Any() && !Model.Comentarios.Any())
+    {
+        <div class="feed-empty" style="margin-top: 60px;">
+            <i class="bi bi-inbox"></i>
+            <p>No hay contenido en el feed aún</p>
+            <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerá aquí</small>
+        </div>
+    }
 </div>
+
+<script>
+    function showFeedTab(tabName) {
+        // Ocultar todos los tabs
+        const allTabs = document.querySelectorAll('.feed-tab-content');
+        allTabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Desactivar todos los botones
+        const allBtns = document.querySelectorAll('.feed-tab-btn');
+        allBtns.forEach(btn => btn.classList.remove('active'));
+        
+        // Mostrar el tab seleccionado
+        const selectedTab = document.getElementById(tabName + '-tab');
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+        }
+        
+        // Activar el botón seleccionado
+        event.target.closest('.feed-tab-btn').classList.add('active');
+    }
+</script>

@@ -29,6 +29,9 @@ namespace NeuralPlay.Models
         [Display(Name = "Autor")]
         public string? NickAutor { get; set; }
 
+        [Display(Name = "Avatar del Autor")]
+        public string? AvatarAutor { get; set; }
+
         // Comentarios asociados a la publicación
         public IEnumerable<ComentarioViewModel> comentarios { get; set; } = new List<ComentarioViewModel>();
 

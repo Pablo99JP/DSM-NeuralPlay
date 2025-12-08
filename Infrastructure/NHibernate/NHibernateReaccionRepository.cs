@@ -36,6 +36,17 @@ namespace Infrastructure.NHibernate
         // Descriptive wrapper used by CENs
         public IEnumerable<Reaccion> BuscarReaccionesPorAutorNickOPublicacionContenido(string filtro) => ReadFilter(filtro);
 
+        /// <summary>
+        /// Obtiene todas las reacciones (Me Gusta) de un usuario específico, ordenadas por fecha descendente
+        /// </summary>
+        public IEnumerable<Reaccion> GetReaccionesPorAutor(long autorId)
+        {
+            var q = _session.CreateQuery("from Reaccion r where r.Autor.IdUsuario = :autorId and r.Tipo = :tipo order by r.FechaCreacion desc");
+            q.SetParameter("autorId", autorId);
+            q.SetParameter("tipo", ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA);
+            return q.List<Reaccion>();
+        }
+
         public void New(Reaccion entity) => _session.Save(entity);
         public void Modify(Reaccion entity) => _session.Update(entity);
         public void Destroy(long id)

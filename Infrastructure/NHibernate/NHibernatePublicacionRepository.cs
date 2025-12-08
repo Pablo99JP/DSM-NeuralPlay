@@ -68,6 +68,16 @@ namespace Infrastructure.NHibernate
         // Descriptive wrapper used by CENs
         public IEnumerable<Publicacion> BuscarPublicacionesPorContenido(string filtro) => ReadFilter(filtro);
 
+        /// <summary>
+        /// Obtiene todas las publicaciones creadas por un usuario específico, ordenadas por fecha descendente
+        /// </summary>
+        public IEnumerable<Publicacion> GetPublicacionesPorAutor(long autorId)
+        {
+            var q = _session.CreateQuery("from Publicacion p where p.Autor.IdUsuario = :autorId order by p.FechaCreacion desc");
+            q.SetParameter("autorId", autorId);
+            return q.List<Publicacion>();
+        }
+
         public void New(Publicacion entity) => _session.Save(entity);
         public void Modify(Publicacion entity) => _session.Update(entity);
         public void Destroy(long id)

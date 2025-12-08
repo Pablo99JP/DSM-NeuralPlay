@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NeuralPlay.Models;
 using NeuralPlay.Models.Assemblers;
+using NeuralPlay.Assemblers;
 using NHibernate.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,16 +112,103 @@ namespace NeuralPlay.Controllers
                     return NotFound();
                 }
 
-                var viewModel = new PerfilViewModel
+                var usuarioId = perfil.Usuario.IdUsuario;
+
+                // Crear el ViewModel del Feed con las 4 secciones
+                var feedViewModel = new FeedViewModel
                 {
                     IdPerfil = perfil.IdPerfil,
-                    IdUsuario = perfil.Usuario.IdUsuario,
+                    IdUsuario = usuarioId,
                     NickUsuario = perfil.Usuario.Nick,
                     Descripcion = perfil.Descripcion,
                     Avatar = perfil.FotoPerfilUrl
                 };
 
-                return View(viewModel);
+                // ============================================
+                // SECCIÓN 1: ACTIVIDAD (Últimas acciones)
+                // ============================================
+                var publicacionRepository = new NHibernatePublicacionRepository(session);
+                var comentarioRepository = new NHibernateComentarioRepository(session);
+                var reaccionRepository = new NHibernateReaccionRepository(session);
+
+                // Obtener publicaciones del usuario
+                var publicacionesUsuario = publicacionRepository.GetPublicacionesPorAutor(usuarioId);
+
+                // Obtener comentarios del usuario
+                var comentariosUsuario = comentarioRepository.GetComentariosPorAutor(usuarioId);
+
+                // Obtener me gusta del usuario
+                var meGustasUsuario = reaccionRepository.GetReaccionesPorAutor(usuarioId);
+
+                // Combinar todas las actividades y ordenar por fecha descendente
+                var actividades = new List<ActividadViewModel>();
+
+                foreach (var pub in publicacionesUsuario)
+                {
+                    var actividad = FeedAssembler.ConvertPublicacionToActividad(pub);
+                    if (actividad != null) actividades.Add(actividad);
+                }
+
+                foreach (var com in comentariosUsuario)
+                {
+                    var actividad = FeedAssembler.ConvertComentarioToActividad(com);
+                    if (actividad != null) actividades.Add(actividad);
+                }
+
+                foreach (var reaccion in meGustasUsuario)
+                {
+                    var actividad = FeedAssembler.ConvertReaccionToActividad(reaccion);
+                    if (actividad != null) actividades.Add(actividad);
+                }
+
+                // Ordenar por fecha descendente y tomar solo las últimas 20 actividades
+                feedViewModel.Actividades = actividades
+                    .OrderByDescending(a => a.Fecha)
+                    .Take(20)
+                    .ToList();
+
+                // ============================================
+                // SECCIÓN 2: PUBLICACIONES DEL USUARIO
+                // ============================================
+                feedViewModel.Publicaciones = publicacionesUsuario
+                    .Select(p => PublicacionAssembler.ConvertENToViewModel(p)!)
+                    .Where(vm => vm != null)
+                    .ToList();
+
+                // ============================================
+                // SECCIÓN 3: ME GUSTA DEL USUARIO
+                // ============================================
+                var publicacionesConMeGusta = new List<PublicacionViewModel>();
+                foreach (var reaccion in meGustasUsuario)
+                {
+                    if (reaccion.Publicacion != null)
+                    {
+                        var pubVM = PublicacionAssembler.ConvertENToViewModel(reaccion.Publicacion);
+                        if (pubVM != null)
+                        {
+                            pubVM.LikeCount = reaccionRepository.CountByPublicacion(reaccion.Publicacion.IdPublicacion);
+                            publicacionesConMeGusta.Add(pubVM);
+                        }
+                    }
+                }
+                feedViewModel.MeGustas = publicacionesConMeGusta;
+
+                // ============================================
+                // SECCIÓN 4: COMENTARIOS DEL USUARIO
+                // ============================================
+                var comentariosEnPublicaciones = new List<ComentarioEnPublicacionViewModel>();
+                foreach (var comentario in comentariosUsuario)
+                {
+                    var likeCount = reaccionRepository.CountByComentario(comentario.IdComentario);
+                    var comVM = FeedAssembler.ConvertComentarioEnPublicacion(comentario, likeCount);
+                    if (comVM != null)
+                    {
+                        comentariosEnPublicaciones.Add(comVM);
+                    }
+                }
+                feedViewModel.Comentarios = comentariosEnPublicaciones;
+
+                return View(feedViewModel);
             }
         }
 

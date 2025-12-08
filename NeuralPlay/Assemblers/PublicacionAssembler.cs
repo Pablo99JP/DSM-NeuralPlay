@@ -19,6 +19,7 @@ namespace NeuralPlay.Assemblers
                 NombreComunidad = en.Comunidad?.Nombre,
                 IdAutor = en.Autor?.IdUsuario,
                 NickAutor = en.Autor?.Nick,
+                AvatarAutor = en.Autor?.Perfil?.FotoPerfilUrl,
                 LikeCount = en.Reacciones?.Count(r => r.Tipo == ApplicationCore.Domain.Enums.TipoReaccion.ME_GUSTA) ??0,
                 LikedByUser = false // controller will set this based on session
             };

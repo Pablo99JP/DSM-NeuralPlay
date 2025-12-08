@@ -36,6 +36,16 @@ namespace Infrastructure.NHibernate
         // Descriptive wrapper used by CENs
         public IEnumerable<Comentario> BuscarComentariosPorContenido(string filtro) => ReadFilter(filtro);
 
+        /// <summary>
+        /// Obtiene todos los comentarios creados por un usuario específico, ordenados por fecha descendente
+        /// </summary>
+        public IEnumerable<Comentario> GetComentariosPorAutor(long autorId)
+        {
+            var q = _session.CreateQuery("from Comentario c where c.Autor.IdUsuario = :autorId order by c.FechaCreacion desc");
+            q.SetParameter("autorId", autorId);
+            return q.List<Comentario>();
+        }
+
         public void New(Comentario entity) => _session.Save(entity);
         public void Modify(Comentario entity) => _session.Update(entity);
         public void Destroy(long id)
