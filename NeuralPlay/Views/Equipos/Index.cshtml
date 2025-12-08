@@ -143,26 +143,36 @@
         flex: 1;
     }
 
-    .team-access {
+    .team-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .team-access, .team-edit, .team-delete {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: var(--np-red);
         color: white;
         text-decoration: none;
         transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
     }
 
-    .team-access:hover {
-        background: white;
-        color: var(--np-red);
-        transform: scale(1.1);
-    }
+    .team-access { background: var(--np-red); }
+    .team-access:hover { background: white; color: var(--np-red); transform: scale(1.1); }
 
-    .team-access i {
+    .team-edit { background: #2196F3; }
+    .team-edit:hover { background: white; color: #2196F3; transform: scale(1.1); }
+
+    .team-delete { background: #f44336; }
+    .team-delete:hover { background: white; color: #f44336; transform: scale(1.1); }
+
+    .team-access i, .team-edit i, .team-delete i {
         font-size: 1.5rem;
     }
 
@@ -281,10 +291,18 @@ else
                         </div>
                         
                         <h3 class="team-name">@equipo.Nombre</h3>
-                        
-                        <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo">
-                            <i class="bi bi-arrow-right-circle-fill"></i>
-                        </a>
+
+                        <div class="team-actions">
+                            <a href="@Url.Action("Edit", "Equipo", new { id = equipo.IdEquipo })" class="team-edit" title="Editar equipo">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a href="@Url.Action("Delete", "Equipo", new { id = equipo.IdEquipo })" class="team-delete" title="Eliminar equipo">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                            <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo">
+                                <i class="bi bi-arrow-right-circle-fill"></i>
+                            </a>
+                        </div>
                     </div>
                 }
             </div>

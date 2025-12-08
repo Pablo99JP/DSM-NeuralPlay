@@ -457,31 +457,15 @@
                             <h4>@p.Nombre</h4>
                             <p class="proposal-meta">Propuesto por @p.PropuestoPor</p>
 
-                            @if (!p.HasVotado)
-                            {
-                                <div class="vote-actions">
-                                    <form asp-controller="PropuestaTorneo" asp-action="Votar" method="post">
-                                        <input type="hidden" name="propuestaId" value="@p.Id" />
-                                        <input type="hidden" name="decision" value="true" />
-                                        <button type="submit" class="btn-vote btn-yes">Sí</button>
-                                    </form>
-                                    <form asp-controller="PropuestaTorneo" asp-action="Votar" method="post">
-                                        <input type="hidden" name="propuestaId" value="@p.Id" />
-                                        <input type="hidden" name="decision" value="false" />
-                                        <button type="submit" class="btn-vote btn-no">No</button>
-                                    </form>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="vote-summary">Ya has votado en esta propuesta.</div>
-                            }
-
                             <div class="vote-counts">
                                 <span class="count yes">Sí: @p.VotosAFavor</span>
                                 <span class="count no">No: @p.VotosEnContra</span>
                                 <span class="count">Pendientes: @p.Pendientes</span>
                             </div>
+
+                            <a class="cta-link" asp-controller="PropuestaTorneo" asp-action="Details" asp-route-id="@p.Id">
+                                <i class="bi bi-eye"></i> Ver votación
+                            </a>
                         </div>
                     }
                 }

@@ -2,41 +2,169 @@
 
 @{
     ViewData["Title"] = "Eliminar Equipo";
+    ViewBag.OcultarNavbar = true;
+    var logo = string.IsNullOrEmpty(Model.ImagenUrl) ? "/Recursos/Equipos/default.webp" : Model.ImagenUrl;
 }
 
-<h1>@ViewData["Title"]</h1>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-<div class="alert alert-warning">
-    ¿Estás seguro de eliminar este equipo?
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<dl class="row">
-    <dt class="col-sm-3">ID</dt>
-    <dd class="col-sm-9">@Model.IdEquipo</dd>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
 
-    <dt class="col-sm-3">Nombre</dt>
-    <dd class="col-sm-9">@Model.Nombre</dd>
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
 
-    <dt class="col-sm-3">Descripción</dt>
-    <dd class="col-sm-9">@Model.Descripcion</dd>
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
 
-    <dt class="col-sm-3">Fecha de Creación</dt>
-    <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+    body {
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
+    }
 
-    <dt class="col-sm-3">Actividad</dt>
-    <dd class="col-sm-9">@Model.Actividad</dd>
+    .page-wrapper {
+        margin: 0 auto;
+        padding: 40px 60px 60px 60px;
+        max-width: 1200px;
+    }
 
-    <dt class="col-sm-3">País</dt>
-    <dd class="col-sm-9">@Model.Pais</dd>
+    .team-hero {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-bottom: 18px;
+    }
 
-    <dt class="col-sm-3">Idioma</dt>
-    <dd class="col-sm-9">@Model.Idioma</dd>
-</dl>
+    .team-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--np-red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="IdEquipo" />
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .team-header-text h1 {
+        font-family: 'Neue', sans-serif;
+        font-size: 4.4rem;
+        color: white;
+        margin: 0 0 12px 0;
+    }
+
+    .team-header-text .team-subtitle {
+        font-family: 'Lexend', sans-serif;
+        color: #d7d7d7;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .card-delete {
+        background: rgba(36, 36, 36, 0.92);
+        border-radius: 16px;
+        padding: 28px 32px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .warning {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(229, 10, 70, 0.12);
+        border: 1px solid rgba(229, 10, 70, 0.35);
+        color: #ffcdd2;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-family: 'Lexend', sans-serif;
+        margin-bottom: 18px;
+    }
+
+    dl {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        row-gap: 10px;
+        column-gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    dt { font-weight: 700; font-family: 'Lexend', sans-serif; color: #dcdcdc; }
+    dd { margin: 0; font-family: 'Lexend', sans-serif; color: white; }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .btn-danger {
+        background: var(--np-red);
+        border: 1px solid var(--np-red);
+    }
+    .btn-danger:hover { filter: brightness(1.05); }
+
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.25);
+        color: white;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+</style>
+
+<div class="page-wrapper">
+    <div class="team-hero">
+        <div class="team-avatar">
+            <img src="@logo" alt="Logo equipo" />
+        </div>
+        <div class="team-header-text">
+            <h1><i class="bi bi-trash-fill"></i> Eliminar equipo</h1>
+            <p class="team-subtitle">Esta acción es irreversible. Se eliminará el equipo y sus datos asociados.</p>
+        </div>
     </div>
-</form>
+
+    <div class="card-delete">
+        <div class="warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>Confirma que deseas eliminar este equipo.</span>
+        </div>
+
+        <dl>
+            <dt>ID</dt><dd>@Model.IdEquipo</dd>
+            <dt>Nombre</dt><dd>@Model.Nombre</dd>
+            <dt>Descripción</dt><dd>@Model.Descripcion</dd>
+            <dt>Fecha de creación</dt><dd>@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+            <dt>Actividad</dt><dd>@Model.Actividad</dd>
+            <dt>País</dt><dd>@Model.Pais</dd>
+            <dt>Idioma</dt><dd>@Model.Idioma</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="IdEquipo" />
+            <div class="actions">
+                <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
+                <a asp-controller="Equipos" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
