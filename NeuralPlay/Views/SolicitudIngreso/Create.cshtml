@@ -1,35 +1,318 @@
 @{
- ViewData["Title"] = "Crear Solicitud";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Crear Solicitud";
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>Crear Solicitud</h1>
-<form asp-action="Create" method="post">
- <div class="mb-3">
- <label class="form-label">Solicitante</label>
- <select name="solicitanteId" class="form-select">
- @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) { <option value="@u.Id">@u.Name</option> }
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Tipo</label>
- <select name="tipo" class="form-select">
- <option value="0">COMUNIDAD</option>
- <option value="1">EQUIPO</option>
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Comunidad (opcional)</label>
- <select name="comunidadId" class="form-select">
- <option value="">--</option>
- @foreach(var c in (IEnumerable<dynamic>)ViewBag.Comunidades) { <option value="@c.Id">@c.Name</option> }
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Equipo (opcional)</label>
- <select name="equipoId" class="form-select">
- <option value="">--</option>
- @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) { <option value="@e.Id">@e.Name</option> }
- </select>
- </div>
- <button type="submit" class="btn btn-primary">Crear</button>
-</form>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Contenedor principal - solo fondo */
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    /* Contenedor de contenido - entre las barras */
+    .content-container {
+        position: absolute;
+        left: 11%;
+        top: 0;
+        width: 83%; /* 100% - 11% (izq) - 6% (der) */
+        min-height: 100vh;
+        z-index: 2;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Título principal */
+    .page-header {
+        margin-bottom: 50px;
+    }
+
+    .page-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 7rem;
+        color: white;
+        text-transform: uppercase;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+        margin: 0;
+        letter-spacing: 3px;
+        line-height: 1;
+    }
+
+    /* Card del formulario */
+    .form-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 1000px;
+        width: 100%;
+    }
+
+    /* Campos del formulario */
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: var(--np-red);
+        margin-bottom: 10px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-select {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
+
+    .form-select:disabled {
+        background: rgba(229, 10, 70, 0.3);
+        border: 2px solid var(--np-red);
+        color: white;
+        cursor: not-allowed;
+    }
+
+    /* Estilo para campos habilitados después de error */
+    .form-select:not(:disabled) {
+        background: rgba(69, 69, 69, 0.9);
+        border: 2px solid var(--np-red);
+        color: white;
+        cursor: pointer;
+    }
+
+    .form-select:not(:disabled):hover {
+        background: rgba(69, 69, 69, 1);
+        border-color: #ff4a7d;
+    }
+
+    .form-select option {
+        background: var(--np-dark-grey);
+        color: white;
+        padding: 10px;
+    }
+
+    /* Botones */
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 50px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+        background: transparent;
+        color: var(--np-red);
+        transform: scale(1.05);
+    }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 50px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        margin-left: 15px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: white;
+        color: var(--np-dark-grey);
+    }
+
+    /* Nota informativa */
+    .form-note {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        color: #aaa;
+        font-style: italic;
+        margin-top: 5px;
+    }
+</style>
+
+<!-- Contenedor principal - solo fondo -->
+<div class="main-container"></div>
+
+<!-- Contenedor de contenido - entre las barras laterales -->
+<div class="content-container">
+    <!-- Header -->
+    <header class="page-header">
+        <h1 class="page-title">Crear Solicitud</h1>
+    </header>
+
+    <!-- Card del formulario -->
+    <section class="form-card">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+        }
+        
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label class="form-label">Solicitante</label>
+                <select name="solicitanteId" class="form-select" required disabled>
+                    @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) 
+                    { 
+                        <option value="@u.Id" selected="@(ViewBag.UsuarioActualId != null && u.Id == ViewBag.UsuarioActualId)">@u.Name</option> 
+                    }
+                </select>
+                <input type="hidden" name="solicitanteId" value="@ViewBag.UsuarioActualId" />
+                <div class="form-note">Tu usuario actual</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tipo</label>
+                <select name="tipo" class="form-select" required disabled>
+                    <option value="0" selected="@(ViewBag.TipoPreseleccionado != null && ViewBag.TipoPreseleccionado == 0)">COMUNIDAD</option>
+                    <option value="1" selected="@(ViewBag.TipoPreseleccionado != null && ViewBag.TipoPreseleccionado == 1)">EQUIPO</option>
+                </select>
+                <input type="hidden" name="tipo" value="@(ViewBag.TipoPreseleccionado ?? 0)" />
+            </div>
+
+            @* Solo mostrar el select de Comunidad si NO se está solicitando entrada a un equipo *@
+            @if (ViewBag.EquipoIdPreseleccionado == null)
+            {
+                <div class="form-group">
+                    <label class="form-label">Comunidad</label>
+                    @{
+                        // Si hay error y es solicitud de comunidad, desbloquear el campo
+                        bool desbloqueadoComunidad = ViewBag.HuboError == true && ViewBag.ComunidadIdPreseleccionada != null;
+                    }
+                    <select name="comunidadId" class="form-select" disabled="@(!desbloqueadoComunidad)" required>
+                        <option value="">-- Seleccionar --</option>
+                        @foreach(var c in (IEnumerable<dynamic>)ViewBag.Comunidades) 
+                        { 
+                            <option value="@c.Id" selected="@(ViewBag.ComunidadIdPreseleccionada != null && c.Id == ViewBag.ComunidadIdPreseleccionada)">@c.Name</option> 
+                        }
+                    </select>
+                    @* Solo usar hidden si el campo está bloqueado *@
+                    @if (!desbloqueadoComunidad && ViewBag.ComunidadIdPreseleccionada != null)
+                    {
+                        <input type="hidden" name="comunidadId" value="@ViewBag.ComunidadIdPreseleccionada" />
+                    }
+                </div>
+            }
+            else if (ViewBag.ComunidadIdPreseleccionada != null)
+            {
+                <input type="hidden" name="comunidadId" value="@ViewBag.ComunidadIdPreseleccionada" />
+            }
+
+            @* Solo mostrar el select de Equipo si NO se está solicitando entrada a una comunidad *@
+            @if (ViewBag.ComunidadIdPreseleccionada == null)
+            {
+                <div class="form-group">
+                    <label class="form-label">Equipo</label>
+                    @{
+                        // Si hay error y es solicitud de equipo, desbloquear el campo
+                        bool desbloqueadoEquipo = ViewBag.HuboError == true && ViewBag.EquipoIdPreseleccionado != null;
+                    }
+                    <select name="equipoId" class="form-select" disabled="@(!desbloqueadoEquipo)" required>
+                        <option value="">-- Seleccionar --</option>
+                        @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) 
+                        { 
+                            <option value="@e.Id" selected="@(ViewBag.EquipoIdPreseleccionado != null && e.Id == ViewBag.EquipoIdPreseleccionado)">@e.Name</option> 
+                        }
+                    </select>
+                    @* Solo usar hidden si el campo está bloqueado *@
+                    @if (!desbloqueadoEquipo && ViewBag.EquipoIdPreseleccionado != null)
+                    {
+                        <input type="hidden" name="equipoId" value="@ViewBag.EquipoIdPreseleccionado" />
+                    }
+                </div>
+            }
+            else if (ViewBag.EquipoIdPreseleccionado != null)
+            {
+                <input type="hidden" name="equipoId" value="@ViewBag.EquipoIdPreseleccionado" />
+            }
+
+            <div>
+                <button type="submit" class="btn-submit">
+                    @if (ViewBag.ComunidadIdPreseleccionada != null)
+                    {
+                        @:Unirse a la Comunidad
+                    }
+                    else if (ViewBag.EquipoIdPreseleccionado != null)
+                    {
+                        @:Solicitar Entrada al Equipo
+                    }
+                    else
+                    {
+                        @:Crear Solicitud
+                    }
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
