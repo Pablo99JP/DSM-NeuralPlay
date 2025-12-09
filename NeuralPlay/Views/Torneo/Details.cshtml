@@ -2,239 +2,666 @@
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Model.Torneo.Nombre;
     var currentUser = UsuarioAuth.GetUsuarioActual();
     var esCreador = currentUser != null && Model.Torneo.Creador != null && Model.Torneo.Creador.IdUsuario == currentUser.IdUsuario;
+    ViewBag.OcultarNavbar = true;
 }
 
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h2 class="mb-0">@Model.Torneo.Nombre</h2>
-            <p class="mb-0"><small>Organizado por: @(Model.Torneo.ComunidadOrganizadora?.Nombre ?? "Sin comunidad")</small></p>
-        </div>
-        <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-            <div class="mb-3">
-                <p><strong>Fecha de inicio:</strong> @(Model.Torneo.FechaInicio == default ? "-" : Model.Torneo.FechaInicio.ToString("yyyy-MM-dd"))</p>
-                <p><strong>Estado:</strong> 
-                    @if (Model.Torneo.Estado == "PENDIENTE")
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Contenedor principal - solo fondo */
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    /* Contenedor del contenido - aislado del fondo */
+    .content-wrapper {
+        position: absolute;
+        top: 0;
+        left: 11%;
+        width: 83%; /* 100% - 11% (izq) - 6% (der) */
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 2;
+    }
+
+    /* Título principal del torneo */
+    .torneo-header {
+        text-align: left;
+        margin-bottom: 30px;
+        padding-top: 30px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+    .torneo-header h1 {
+        font-family: 'Neue', sans-serif;
+        font-size: 4rem;
+        color: white;
+        margin: 0 0 10px 0;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .torneo-header h1 .highlight {
+        color: var(--np-red);
+    }
+
+    .torneo-header .torneo-subtitle {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        color: #aaa;
+        margin: 5px 0 0 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .torneo-divider {
+        height: 2px;
+        background: linear-gradient(90deg, var(--np-red) 0%, transparent 100%);
+        margin: 20px 40px 40px 40px;
+    }
+
+    /* Contenedor interior para centralizar contenido */
+    .content-inner {
+        margin: 0 auto;
+        padding: 0;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    /* Contenedor de tarjetas de información */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+        padding: 0 40px;
+    }
+
+    .info-card {
+        background: var(--np-dark-grey);
+        border-left: 4px solid var(--np-red);
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(229, 10, 70, 0.2);
+    }
+
+    .info-card-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.1rem;
+        color: var(--np-red);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
+
+    .info-card-value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.6rem;
+        color: white;
+        font-weight: 600;
+    }
+
+    .badge-custom {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: 'Neue', sans-serif;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-pending {
+        background: #ff9800;
+        color: white;
+    }
+
+    .badge-open {
+        background: #4caf50;
+        color: white;
+    }
+
+    .badge-finished {
+        background: #9e9e9e;
+        color: white;
+    }
+
+    /* Sección de pestañas */
+    .tabs-section {
+        margin-bottom: 40px;
+        padding: 0 40px;
+    }
+
+    .tabs-nav {
+        display: flex;
+        gap: 10px;
+        border-bottom: 2px solid rgba(229, 10, 70, 0.2);
+        margin-bottom: 0;
+        overflow-x: auto;
+    }
+
+    .tabs-nav button {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.1rem;
+        padding: 16px 24px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .tabs-nav button:hover {
+        color: white;
+    }
+
+    .tabs-nav button.active {
+        color: var(--np-red);
+        border-bottom-color: var(--np-red);
+    }
+
+    .tabs-content {
+        background: var(--np-dark-grey);
+        border-radius: 8px;
+        padding: 30px;
+        min-height: 300px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .tab-pane-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 2rem;
+        color: var(--np-red);
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .tab-pane-text {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        color: #ddd;
+        line-height: 1.6;
+    }
+
+    .tab-pane-text-empty {
+        color: #888;
+        font-style: italic;
+    }
+
+    /* Tabla de participantes */
+    .participants-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .participants-table thead {
+        background: rgba(229, 10, 70, 0.1);
+        border-bottom: 2px solid var(--np-red);
+    }
+
+    .participants-table th {
+        color: var(--np-red);
+        padding: 16px 12px;
+        text-align: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.95rem;
+    }
+
+    .participants-table td {
+        color: #ddd;
+        padding: 14px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .participants-table tbody tr:hover {
+        background: rgba(229, 10, 70, 0.05);
+    }
+
+    .medal-badge {
+        font-size: 1.4rem;
+        margin-right: 8px;
+    }
+
+    /* Lista de equipos */
+    .team-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .team-item {
+        background: rgba(69, 69, 69, 0.4);
+        border: 1px solid rgba(229, 10, 70, 0.3);
+        border-radius: 6px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .team-item:hover {
+        background: rgba(69, 69, 69, 0.6);
+        border-color: var(--np-red);
+    }
+
+    .team-info h6 {
+        font-family: 'Neue', sans-serif;
+        color: white;
+        margin: 0 0 6px 0;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .team-info small {
+        font-family: 'Lexend', sans-serif;
+        color: #aaa;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .team-action {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Botones */
+    .btn-custom {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(229, 10, 70, 0.15);
+        transition: all 0.3s ease;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(229, 10, 70, 0.3);
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--np-red);
+        color: var(--np-red);
+    }
+
+    .btn-outline:hover {
+        background: var(--np-red);
+        color: white;
+    }
+
+    /* Sección de acciones */
+    .actions-section {
+        margin-bottom: 60px;
+        padding: 0 40px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    /* Alertas personalizadas */
+    .alert-custom {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4caf50;
+        border-radius: 6px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        font-family: 'Lexend', sans-serif;
+        color: #c8e6c9;
+    }
+
+    .alert-custom-warning {
+        background: rgba(255, 152, 0, 0.1);
+        border-left-color: #ff9800;
+        color: #ffe0b2;
+    }
+
+    .alert-custom-info {
+        background: rgba(33, 150, 243, 0.1);
+        border-left-color: #2196f3;
+        color: #bbdefb;
+    }
+
+    .alert-custom i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .alert-custom a {
+        color: var(--np-red);
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .alert-custom a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Contenedor principal -->
+<div class="main-container">
+    <!-- Contenedor de contenido -->
+    <div class="content-wrapper">
+        <div class="content-inner">
+            <!-- Encabezado del torneo -->
+            <div class="torneo-header">
+                <h1>
+                    <span>Torneo:</span> <span class="highlight">@Model.Torneo.Nombre</span>
+                </h1>
+                <p class="torneo-subtitle">
+                    @if (Model.Torneo.ComunidadOrganizadora != null)
                     {
-                        <span class="badge bg-warning text-dark">@Model.Torneo.Estado</span>
-                    }
-                    else if (Model.Torneo.Estado == "ABIERTO")
-                    {
-                        <span class="badge bg-success">@Model.Torneo.Estado</span>
-                    }
-                    else if (Model.Torneo.Estado == "FINALIZADO")
-                    {
-                        <span class="badge bg-secondary">@Model.Torneo.Estado</span>
+                        <span>Organizado por: @Model.Torneo.ComunidadOrganizadora.Nombre</span>
                     }
                     else
                     {
-                        <span class="badge bg-info">@Model.Torneo.Estado</span>
+                        <span>Sin comunidad organizadora</span>
                     }
                 </p>
             </div>
 
-            <!-- Pestañas de navegación -->
-            <ul class="nav nav-tabs" id="torneoTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="descripcion-tab" data-bs-toggle="tab" data-bs-target="#descripcion" type="button" role="tab">
+            <div class="torneo-divider"></div>
+
+            <!-- Tarjetas de información -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-calendar-event"></i> Fecha de Inicio</div>
+                    <div class="info-card-value">
+                        @(Model.Torneo.FechaInicio == default ? "-" : Model.Torneo.FechaInicio.ToString("dd/MM/yyyy"))
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-info-circle"></i> Estado</div>
+                    <div class="info-card-value">
+                        @if (Model.Torneo.Estado == "PENDIENTE")
+                        {
+                            <span class="badge-custom badge-pending">@Model.Torneo.Estado</span>
+                        }
+                        else if (Model.Torneo.Estado == "ABIERTO")
+                        {
+                            <span class="badge-custom badge-open">@Model.Torneo.Estado</span>
+                        }
+                        else if (Model.Torneo.Estado == "FINALIZADO")
+                        {
+                            <span class="badge-custom badge-finished">@Model.Torneo.Estado</span>
+                        }
+                        else
+                        {
+                            <span class="badge-custom" style="background: #2196f3; color: white;">@Model.Torneo.Estado</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-people-fill"></i> Equipos</div>
+                    <div class="info-card-value">@(Model.Participaciones.Count())</div>
+                </div>
+            </div>
+
+            <!-- Mensajes de éxito/error -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div style="margin-bottom: 20px;">
+                    <div class="alert-custom">
+                        <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                    </div>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div style="margin-bottom: 20px;">
+                    <div class="alert-custom alert-custom-warning">
+                        <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+                    </div>
+                </div>
+            }
+
+            <!-- Sección de pestañas -->
+            <div class="tabs-section">
+                <!-- Navegación de pestañas -->
+                <div class="tabs-nav" role="tablist">
+                    <button class="active" data-tab="descripcion" role="tab">
                         <i class="bi bi-file-text"></i> Descripción
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="clasificacion-tab" data-bs-toggle="tab" data-bs-target="#clasificacion" type="button" role="tab">
+                    <button data-tab="clasificacion" role="tab">
                         <i class="bi bi-trophy"></i> Clasificación
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="premios-tab" data-bs-toggle="tab" data-bs-target="#premios" type="button" role="tab">
+                    <button data-tab="premios" role="tab">
                         <i class="bi bi-gift"></i> Premios
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="unirse-tab" data-bs-toggle="tab" data-bs-target="#unirse" type="button" role="tab">
+                    <button data-tab="unirse" role="tab">
                         <i class="bi bi-plus-circle"></i> Unirse
                     </button>
-                </li>
-            </ul>
-
-            <!-- Contenido de las pestañas -->
-            <div class="tab-content mt-3" id="torneoTabsContent">
-                <!-- Pestaña Descripción -->
-                <div class="tab-pane fade show active" id="descripcion" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Reglas del Torneo</h5>
-                            @if (!string.IsNullOrWhiteSpace(Model.Torneo.Reglas))
-                            {
-                                <p class="card-text">@Model.Torneo.Reglas</p>
-                            }
-                            else
-                            {
-                                <p class="text-muted">No se han especificado reglas para este torneo.</p>
-                            }
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Pestaña Clasificación -->
-                <div class="tab-pane fade" id="clasificacion" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Equipos Participantes</h5>
-                            @if (Model.Participaciones.Any())
-                            {
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Posición</th>
-                                            <th>Equipo</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            var posicion = 1;
-                                        }
-                                        @foreach (var p in Model.Participaciones.OrderBy(x => x.IdParticipacion))
-                                        {
-                                            <tr>
-                                                <td>
-                                                    @if (posicion == 1)
-                                                    {
-                                                        <span class="badge bg-warning text-dark">🥇 @posicion</span>
-                                                    }
-                                                    else if (posicion == 2)
-                                                    {
-                                                        <span class="badge bg-secondary">🥈 @posicion</span>
-                                                    }
-                                                    else if (posicion == 3)
-                                                    {
-                                                        <span class="badge bg-danger">🥉 @posicion</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-light text-dark">@posicion</span>
-                                                    }
-                                                </td>
-                                                <td>@(p.Equipo?.Nombre ?? "-")</td>
-                                                <td>
-                                                    @if (p.Estado == "ACEPTADA")
-                                                    {
-                                                        <span class="badge bg-success">Confirmado</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-warning text-dark">@p.Estado</span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                            posicion++;
-                                        }
-                                    </tbody>
-                                </table>
-                            }
-                            else
-                            {
-                                <p class="text-muted">No hay equipos participantes aún.</p>
-                            }
-                        </div>
+                <!-- Contenido de pestañas -->
+                <div class="tabs-content">
+                    <!-- Pestaña Descripción -->
+                    <div id="tab-descripcion" class="tab-pane active">
+                        <h2 class="tab-pane-title">Reglas del Torneo</h2>
+                        @if (!string.IsNullOrWhiteSpace(Model.Torneo.Reglas))
+                        {
+                            <p class="tab-pane-text">@Model.Torneo.Reglas</p>
+                        }
+                        else
+                        {
+                            <p class="tab-pane-text tab-pane-text-empty">No se han especificado reglas para este torneo.</p>
+                        }
                     </div>
-                </div>
 
-                <!-- Pestaña Premios -->
-                <div class="tab-pane fade" id="premios" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Premios del Torneo</h5>
-                            @if (!string.IsNullOrWhiteSpace(Model.Torneo.Premios))
-                            {
-                                <p class="card-text">@Model.Torneo.Premios</p>
-                            }
-                            else
-                            {
-                                <p class="text-muted">No se han especificado premios para este torneo.</p>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pestaña Unirse -->
-                <div class="tab-pane fade" id="unirse" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Proponer Participación</h5>
-                            @if (currentUser == null)
-                            {
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesión</a> para proponer la participación de tus equipos.
-                                </div>
-                            }
-                            else if (!Model.EquiposUsuario.Any())
-                            {
-                                <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle"></i> No perteneces a ningún equipo. Únete o crea un equipo para participar.
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="text-muted mb-3">Selecciona uno de tus equipos para proponer su participación en este torneo:</p>
-                                <div class="list-group">
-                                    @foreach (var equipo in Model.EquiposUsuario)
+                    <!-- Pestaña Clasificación -->
+                    <div id="tab-clasificacion" class="tab-pane" style="display: none;">
+                        <h2 class="tab-pane-title">Equipos Participantes</h2>
+                        @if (Model.Participaciones.Any())
+                        {
+                            <table class="participants-table">
+                                <thead>
+                                    <tr>
+                                        <th>Posición</th>
+                                        <th>Equipo</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var posicion = 1;
+                                    }
+                                    @foreach (var p in Model.Participaciones.OrderBy(x => x.IdParticipacion))
                                     {
-                                        var yaPropuesto = Model.Propuestas.Any(pr => pr.EquipoProponente?.IdEquipo == equipo.IdEquipo);
-                                        var yaParticipando = Model.Participaciones.Any(pa => pa.Equipo?.IdEquipo == equipo.IdEquipo);
-                                        
-                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0">@equipo.Nombre</h6>
-                                                <small class="text-muted">@(equipo.Descripcion ?? "Sin descripción")</small>
-                                            </div>
+                                        <tr>
+                                            <td>
+                                                @if (posicion == 1)
+                                                {
+                                                    <span class="medal-badge">🥇</span><span class="badge-custom badge-open">@posicion</span>
+                                                }
+                                                else if (posicion == 2)
+                                                {
+                                                    <span class="medal-badge">🥈</span><span class="badge-custom badge-finished">@posicion</span>
+                                                }
+                                                else if (posicion == 3)
+                                                {
+                                                    <span class="medal-badge">🥉</span><span class="badge-custom badge-pending">@posicion</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-custom" style="background: #555; color: white;">@posicion</span>
+                                                }
+                                            </td>
+                                            <td>@(p.Equipo?.Nombre ?? "-")</td>
+                                            <td>
+                                                @if (p.Estado == "ACEPTADA")
+                                                {
+                                                    <span class="badge-custom badge-open">Confirmado</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-custom badge-pending">@p.Estado</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        posicion++;
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aún.</p>
+                        }
+                    </div>
+
+                    <!-- Pestaña Premios -->
+                    <div id="tab-premios" class="tab-pane" style="display: none;">
+                        <h2 class="tab-pane-title">Premios del Torneo</h2>
+                        @if (!string.IsNullOrWhiteSpace(Model.Torneo.Premios))
+                        {
+                            <p class="tab-pane-text">@Model.Torneo.Premios</p>
+                        }
+                        else
+                        {
+                            <p class="tab-pane-text tab-pane-text-empty">No se han especificado premios para este torneo.</p>
+                        }
+                    </div>
+
+                    <!-- Pestaña Unirse -->
+                    <div id="tab-unirse" class="tab-pane" style="display: none;">
+                        <h2 class="tab-pane-title">Proponer Participación</h2>
+                        @if (currentUser == null)
+                        {
+                            <div class="alert-custom alert-custom-info">
+                                <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesión</a> para proponer la participación de tus equipos.
+                            </div>
+                        }
+                        else if (!Model.EquiposUsuario.Any())
+                        {
+                            <div class="alert-custom alert-custom-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No perteneces a ningún equipo. Únete o crea un equipo para participar.
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participación en este torneo:</p>
+                            <div class="team-list">
+                                @foreach (var equipo in Model.EquiposUsuario)
+                                {
+                                    var yaPropuesto = Model.Propuestas.Any(pr => pr.EquipoProponente?.IdEquipo == equipo.IdEquipo);
+                                    var yaParticipando = Model.Participaciones.Any(pa => pa.Equipo?.IdEquipo == equipo.IdEquipo);
+                                    
+                                    <div class="team-item">
+                                        <div class="team-info">
+                                            <h6>@equipo.Nombre</h6>
+                                            <small>@(equipo.Descripcion ?? "Sin descripción")</small>
+                                        </div>
+                                        <div class="team-action">
                                             @if (yaParticipando)
                                             {
-                                                <span class="badge bg-success">Ya participa</span>
+                                                <span class="badge-custom badge-open">Ya participa</span>
                                             }
                                             else if (yaPropuesto)
                                             {
-                                                <span class="badge bg-info">Propuesta enviada</span>
+                                                <span class="badge-custom" style="background: #2196f3; color: white;">Propuesta enviada</span>
                                             }
                                             else
                                             {
                                                 <form method="post" asp-controller="Torneo" asp-action="ProponerParticipacion" asp-route-id="@Model.Torneo.IdTorneo" class="d-inline">
                                                     <input type="hidden" name="SelectedEquipoId" value="@equipo.IdEquipo" />
-                                                    <button type="submit" class="btn btn-sm btn-primary">Proponer</button>
+                                                    <button type="submit" class="btn-custom">Proponer</button>
                                                 </form>
                                             }
                                         </div>
-                                    }
-                                </div>
-                            }
-                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
 
-            <!-- Botones de acción -->
-            <div class="mt-4">
-                <a class="btn btn-secondary" asp-action="Index">
+            <!-- Sección de acciones -->
+            <div class="actions-section">
+                <a class="btn-custom btn-outline" asp-action="Index">
                     <i class="bi bi-arrow-left"></i> Volver
                 </a>
                 @if (esCreador)
                 {
-                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Torneo.IdTorneo">
+                    <a class="btn-custom" asp-action="Edit" asp-route-id="@Model.Torneo.IdTorneo">
                         <i class="bi bi-pencil"></i> Editar
                     </a>
-                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Torneo.IdTorneo">
+                    <a class="btn-custom" style="background: linear-gradient(90deg, #ff5252 60%, #ff7272 100%);" asp-action="Delete" asp-route-id="@Model.Torneo.IdTorneo">
                         <i class="bi bi-trash"></i> Eliminar
                     </a>
                 }
@@ -242,3 +669,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Sistema de pestañas interactivo
+    document.querySelectorAll('.tabs-nav button').forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Remover clase activa de todos los botones y pestañas
+            document.querySelectorAll('.tabs-nav button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.style.display = 'none');
+            
+            // Agregar clase activa al botón y mostrar pestaña
+            this.classList.add('active');
+            document.getElementById(`tab-${tabId}`).style.display = 'block';
+        });
+    });
+</script>
