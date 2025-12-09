@@ -3,6 +3,8 @@
 @inject ApplicationCore.Domain.CEN.MiembroComunidadCEN MiembroComunidadCEN
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Torneos";
     var currentUser = UsuarioAuth?.GetUsuarioActual();
     var puedeCrearTorneo = false;
     if (currentUser != null)
@@ -15,78 +17,479 @@
              mc.Rol == ApplicationCore.Domain.Enums.RolComunidad.MODERADOR) && 
             mc.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
     }
+    ViewBag.OcultarNavbar = true;
 }
 
-<div class="mb-3 d-flex justify-content-between align-items-center">
-    <h2 class="m-0">Torneos disponibles</h2>
-    <div class="d-flex gap-2">
-        @if (puedeCrearTorneo)
-        {
-            <a class="btn btn-success" asp-action="Create">
-                <i class="bi bi-plus-circle"></i> Crear Torneo
-            </a>
-        }
-        <a class="btn btn-outline-secondary" asp-controller="PropuestaTorneo" asp-action="Index">Ver propuestas</a>
-    </div>
-</div>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Fecha Inicio</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var t in Model)
-    {
-        var esCreador = currentUser != null && t.Creador != null && t.Creador.IdUsuario == currentUser.IdUsuario;
-        <tr>
-            <td>@t.Nombre</td>
-            <td>@(t.FechaInicio == default ? "-" : t.FechaInicio.ToString("yyyy-MM-dd"))</td>
-            <td>
-                @if (t.Estado == "PENDIENTE")
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Contenedor principal - solo fondo */
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    /* Contenedor del contenido - aislado del fondo */
+    .content-wrapper {
+        position: absolute;
+        top: 0;
+        left: 11%;
+        width: 83%; /* 100% - 11% (izq) - 6% (der) */
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 2;
+    }
+
+    /* Contenedor interior para centralizar contenido */
+    .content-inner {
+        margin: 0 auto;
+        padding: 0;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    /* Encabezado de torneos */
+    .torneos-header {
+        text-align: left;
+        margin-bottom: 30px;
+        padding-top: 30px;
+        padding-left: 32px;
+        padding-right: 20px;
+    }
+
+    .torneos-header h1 {
+        font-family: 'Neue', sans-serif;
+        font-size: 4rem;
+        color: white;
+        margin: 0 0 10px 0;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .torneos-header h1 .highlight {
+        color: var(--np-red);
+    }
+
+    .torneos-divider {
+        height: 2px;
+        background: linear-gradient(90deg, var(--np-red) 0%, transparent 100%);
+        margin: 20px 32px 40px 32px;
+    }
+
+    /* Sección de acciones */
+    .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 32px;
+        margin-bottom: 40px;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .actions-left {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .actions-right {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    /* Botones */
+    .btn-custom {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(229, 10, 70, 0.15);
+        transition: all 0.3s ease;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(229, 10, 70, 0.3);
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--np-red);
+        color: var(--np-red);
+    }
+
+    .btn-outline:hover {
+        background: var(--np-red);
+        color: white;
+    }
+
+    /* Alertas personalizadas */
+    .alert-custom {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4caf50;
+        border-radius: 6px;
+        padding: 18px 20px;
+        margin: 0 32px 20px 32px;
+        font-family: 'Lexend', sans-serif;
+        color: #c8e6c9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .alert-custom-danger {
+        background: rgba(255, 82, 82, 0.1);
+        border-left-color: #ff5252;
+        color: #ffcdd2;
+    }
+
+    .alert-custom i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .alert-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1.5rem;
+        padding: 0;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .alert-close:hover {
+        opacity: 1;
+    }
+
+    /* Lista de torneos */
+    .torneos-list {
+        padding: 0 32px 60px 32px;
+    }
+
+    .torneos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .torneo-card {
+        background: var(--np-dark-grey);
+        border-left: 4px solid var(--np-red);
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .torneo-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(229, 10, 70, 0.3);
+        border-left-color: #ff4b7d;
+    }
+
+    .torneo-card-header {
+        margin-bottom: 15px;
+    }
+
+    .torneo-card-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: var(--np-red);
+        margin: 0 0 8px 0;
+        font-weight: bold;
+        line-height: 1.3;
+    }
+
+    .torneo-card-fecha {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.95rem;
+        color: #aaa;
+    }
+
+    .torneo-card-body {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+
+    .torneo-card-estado {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-family: 'Neue', sans-serif;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 15px;
+    }
+
+    .estado-pendiente {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ffb74d;
+        border: 1px solid #ff9800;
+    }
+
+    .estado-abierto {
+        background: rgba(76, 175, 80, 0.2);
+        color: #81c784;
+        border: 1px solid #4caf50;
+    }
+
+    .estado-finalizado {
+        background: rgba(158, 158, 158, 0.2);
+        color: #b0bec5;
+        border: 1px solid #9e9e9e;
+    }
+
+    .torneo-card-description {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.95rem;
+        color: #ddd;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    /* Acciones de la tarjeta */
+    .torneo-card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-small {
+        background: transparent;
+        border: 1px solid var(--np-red);
+        color: var(--np-red);
+        padding: 8px 16px;
+        font-family: 'Neue', sans-serif;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: bold;
+        text-transform: uppercase;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-small:hover {
+        background: var(--np-red);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-small.danger {
+        border-color: #ff5252;
+        color: #ff5252;
+    }
+
+    .btn-small.danger:hover {
+        background: #ff5252;
+        color: white;
+    }
+
+    .btn-small.warning {
+        border-color: #ff9800;
+        color: #ff9800;
+    }
+
+    .btn-small.warning:hover {
+        background: #ff9800;
+        color: white;
+    }
+
+    /* Mensaje vacío */
+    .empty-state {
+        text-align: center;
+        padding: 60px 32px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #555;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        margin: 0;
+    }
+</style>
+
+<!-- Contenedor principal -->
+<div class="main-container">
+    <!-- Contenedor de contenido -->
+    <div class="content-wrapper">
+        <div class="content-inner">
+            <!-- Encabezado -->
+            <div class="torneos-header">
+                <h1>
+                    <span>Torneos</span> <span class="highlight">Disponibles</span>
+                </h1>
+            </div>
+
+            <div class="torneos-divider"></div>
+
+            <!-- Barra de acciones -->
+            <div class="actions-bar">
+                <div class="actions-left">
+                    @if (puedeCrearTorneo)
+                    {
+                        <a class="btn-custom" asp-action="Create">
+                            <i class="bi bi-plus-circle"></i> Crear Torneo
+                        </a>
+                    }
+                </div>
+                <div class="actions-right">
+                    <a class="btn-custom btn-outline" asp-controller="PropuestaTorneo" asp-action="Index">
+                        <i class="bi bi-file-text"></i> Ver Propuestas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mensajes de éxito/error -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert-custom">
+                    <div>
+                        <i class="bi bi-check-circle"></i>
+                        <span>@TempData["SuccessMessage"]</span>
+                    </div>
+                    <button class="alert-close" onclick="this.parentElement.style.display='none';">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert-custom alert-custom-danger">
+                    <div>
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@TempData["ErrorMessage"]</span>
+                    </div>
+                    <button class="alert-close" onclick="this.parentElement.style.display='none';">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            }
+
+            <!-- Lista de torneos -->
+            <div class="torneos-list">
+                @if (Model.Any())
                 {
-                    <span class="badge bg-warning text-dark">@t.Estado</span>
-                }
-                else if (t.Estado == "ABIERTO")
-                {
-                    <span class="badge bg-success">@t.Estado</span>
+                    <div class="torneos-grid">
+                        @foreach (var t in Model)
+                        {
+                            var esCreador = currentUser != null && t.Creador != null && t.Creador.IdUsuario == currentUser.IdUsuario;
+                            var estadoClass = t.Estado == "PENDIENTE" ? "estado-pendiente" : 
+                                            t.Estado == "ABIERTO" ? "estado-abierto" : "estado-finalizado";
+                            
+                            <div class="torneo-card">
+                                <div class="torneo-card-header">
+                                    <h3 class="torneo-card-title">@t.Nombre</h3>
+                                    <p class="torneo-card-fecha">
+                                        <i class="bi bi-calendar-event"></i>
+                                        @(t.FechaInicio == default ? "-" : t.FechaInicio.ToString("dd/MM/yyyy"))
+                                    </p>
+                                </div>
+
+                                <div class="torneo-card-body">
+                                    <span class="torneo-card-estado @estadoClass">@t.Estado</span>
+                                    @if (!string.IsNullOrWhiteSpace(t.Reglas))
+                                    {
+                                        <p class="torneo-card-description">@t.Reglas</p>
+                                    }
+                                </div>
+
+                                <div class="torneo-card-actions">
+                                    <a class="btn-small" asp-action="Details" asp-route-id="@t.IdTorneo">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                    @if (esCreador)
+                                    {
+                                        <a class="btn-small warning" asp-action="Edit" asp-route-id="@t.IdTorneo">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                        <a class="btn-small danger" asp-action="Delete" asp-route-id="@t.IdTorneo">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
                 }
                 else
                 {
-                    <span class="badge bg-secondary">@t.Estado</span>
+                    <div class="empty-state">
+                        <i class="bi bi-trophy"></i>
+                        <p>No hay torneos disponibles en este momento</p>
+                    </div>
                 }
-            </td>
-            <td>
-                <div class="btn-group" role="group">
-                    <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@t.IdTorneo">Ver</a>
-                    @if (esCreador)
-                    {
-                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@t.IdTorneo">Editar</a>
-                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@t.IdTorneo">Eliminar</a>
-                    }
-                </div>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+            </div>
+        </div>
+    </div>
+</div>

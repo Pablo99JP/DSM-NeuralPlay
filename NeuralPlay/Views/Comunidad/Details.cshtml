@@ -748,9 +748,8 @@
         }
 
         function verTorneos() {
-            console.log('Ver torneos - Función pendiente de implementar');
-            // TODO: Implementar navegación a lista de torneos
-            alert('Funcionalidad en desarrollo: Ver Torneos');
+            const comunidadId = @Model.IdComunidad;
+            window.location.href = '/Torneo/ByComunidad?idComunidad=' + comunidadId;
         }
 
         function crearTorneo() {

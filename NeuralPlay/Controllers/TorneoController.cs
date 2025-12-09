@@ -51,6 +51,16 @@ namespace NeuralPlay.Controllers
             return View(torneos);
         }
 
+        public IActionResult ByComunidad(long idComunidad)
+        {
+            var torneos = _torneoRepo.ReadAll()
+                .Where(t => t.ComunidadOrganizadora != null && t.ComunidadOrganizadora.IdComunidad == idComunidad)
+                .ToList();
+            
+            ViewBag.ComunidadId = idComunidad;
+            return View("Index", torneos);
+        }
+
         public IActionResult Details(long id)
         {
             var torneo = _torneoRepo.ReadById(id);

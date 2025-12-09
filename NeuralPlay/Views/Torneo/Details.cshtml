@@ -71,8 +71,8 @@
         text-align: left;
         margin-bottom: 30px;
         padding-top: 30px;
-        padding-left: 40px;
-        padding-right: 40px;
+        padding-left: 32px;
+        padding-right: 20px;
     }
 
     .torneo-header h1 {
@@ -100,7 +100,7 @@
     .torneo-divider {
         height: 2px;
         background: linear-gradient(90deg, var(--np-red) 0%, transparent 100%);
-        margin: 20px 40px 40px 40px;
+        margin: 20px 32px 40px 32px;
     }
 
     /* Contenedor interior para centralizar contenido */
@@ -117,7 +117,7 @@
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 25px;
         margin-bottom: 40px;
-        padding: 0 40px;
+        padding: 0 32px;
     }
 
     .info-card {
@@ -180,7 +180,7 @@
     /* Sección de pestañas */
     .tabs-section {
         margin-bottom: 40px;
-        padding: 0 40px;
+        padding: 0 32px;
     }
 
     .tabs-nav {
@@ -283,6 +283,89 @@
         margin-right: 8px;
     }
 
+    /* Lista de clasificación */
+    .classification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .classification-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(69, 69, 69, 0.3);
+        padding: 16px 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(229, 10, 70, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .classification-item:hover {
+        background: rgba(69, 69, 69, 0.5);
+        border-color: var(--np-red);
+    }
+
+    .classification-image {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: var(--np-grey);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(229, 10, 70, 0.3);
+    }
+
+    .classification-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .classification-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--np-red), #ff4b7d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .classification-info {
+        flex: 1;
+    }
+
+    .classification-team-name {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .classification-ranking {
+        font-family: 'Neue', sans-serif;
+        font-size: 2rem;
+        color: var(--np-red);
+        font-weight: bold;
+        min-width: 70px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .classification-ranking-label {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.85rem;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     /* Lista de equipos */
     .team-list {
         display: flex;
@@ -366,7 +449,7 @@
     /* Sección de acciones */
     .actions-section {
         margin-bottom: 60px;
-        padding: 0 40px;
+        padding: 0 32px;
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
@@ -525,58 +608,39 @@
 
                     <!-- Pestaña Clasificación -->
                     <div id="tab-clasificacion" class="tab-pane" style="display: none;">
-                        <h2 class="tab-pane-title">Equipos Participantes</h2>
+                        <h2 class="tab-pane-title">Clasificación para este torneo:</h2>
                         @if (Model.Participaciones.Any())
                         {
-                            <table class="participants-table">
-                                <thead>
-                                    <tr>
-                                        <th>Posición</th>
-                                        <th>Equipo</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        var posicion = 1;
-                                    }
-                                    @foreach (var p in Model.Participaciones.OrderBy(x => x.IdParticipacion))
-                                    {
-                                        <tr>
-                                            <td>
-                                                @if (posicion == 1)
-                                                {
-                                                    <span class="medal-badge">🥇</span><span class="badge-custom badge-open">@posicion</span>
-                                                }
-                                                else if (posicion == 2)
-                                                {
-                                                    <span class="medal-badge">🥈</span><span class="badge-custom badge-finished">@posicion</span>
-                                                }
-                                                else if (posicion == 3)
-                                                {
-                                                    <span class="medal-badge">🥉</span><span class="badge-custom badge-pending">@posicion</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge-custom" style="background: #555; color: white;">@posicion</span>
-                                                }
-                                            </td>
-                                            <td>@(p.Equipo?.Nombre ?? "-")</td>
-                                            <td>
-                                                @if (p.Estado == "ACEPTADA")
-                                                {
-                                                    <span class="badge-custom badge-open">Confirmado</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge-custom badge-pending">@p.Estado</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                        posicion++;
-                                    }
-                                </tbody>
-                            </table>
+                            <div class="classification-list">
+                                @{
+                                    var posicion = 1;
+                                }
+                                @foreach (var p in Model.Participaciones.OrderBy(x => x.IdParticipacion))
+                                {
+                                    <div class="classification-item">
+                                        <div class="classification-image">
+                                            @if (!string.IsNullOrWhiteSpace(p.Equipo?.ImagenUrl))
+                                            {
+                                                <img src="@p.Equipo.ImagenUrl" alt="@p.Equipo?.Nombre" />
+                                            }
+                                            else
+                                            {
+                                                <div class="classification-image-placeholder">
+                                                    <i class="bi bi-shield-fill"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="classification-info">
+                                            <h3 class="classification-team-name">@(p.Equipo?.Nombre ?? "-")</h3>
+                                        </div>
+                                        <div class="classification-ranking">
+                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Posición</div>
+                                            @posicion
+                                        </div>
+                                    </div>
+                                    posicion++;
+                                }
+                            </div>
                         }
                         else
                         {
