@@ -33,5 +33,8 @@ namespace NeuralPlay.Models
 
         // Indica si el usuario actual es admin del equipo
         public bool IsLeader { get; set; }
+
+        // Indica si el usuario actual es miembro del equipo
+        public bool IsMember { get; set; }
     }
 }

@@ -67,6 +67,47 @@ namespace NeuralPlay.Controllers
             }
         }
 
+        // GET: /MiembroComunidad/Detalles?idComunidad=X
+        public IActionResult Detalles(long idComunidad)
+        {
+            try
+            {
+                // Verificar que el usuario actual es líder de la comunidad
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return RedirectToAction("Login", "Usuario");
+                }
+
+                var comunidad = _comunidadCEN.ReadOID_Comunidad(idComunidad);
+                if (comunidad == null) return NotFound();
+
+                // Verificar que el usuario actual tiene permisos (es LIDER)
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
+                {
+                    return Forbid();
+                }
+
+                // Obtener todos los miembros de la comunidad
+                var miembros = (comunidad.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
+                    .OrderBy(m => m.Rol)
+                    .ThenBy(m => m.NombreUsuario)
+                    .ToList();
+
+                var comunidadVM = ComunidadAssembler.ConvertENToViewModel(comunidad);
+                ViewBag.Miembros = (object?)miembros;
+                ViewBag.Roles = System.Enum.GetValues(typeof(RolComunidad)).Cast<RolComunidad>().ToList();
+
+                return View(comunidadVM);
+            }
+            catch (System.Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
         // GET: /MiembroComunidad/Create
         public IActionResult Create()
         {
@@ -195,6 +236,98 @@ namespace NeuralPlay.Controllers
                 ViewBag.Roles = new SelectList(System.Enum.GetValues(typeof(RolComunidad)));
                 ViewBag.Estados = new SelectList(System.Enum.GetValues(typeof(EstadoMembresia)));
                 return View(model);
+            }
+        }
+
+        // POST: /MiembroComunidad/CambiarRol
+        [HttpPost]
+        public IActionResult CambiarRol(long miembroId, RolComunidad nuevoRol)
+        {
+            try
+            {
+                // Verificar autenticación
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return Json(new { success = false, message = "No autenticado" });
+                }
+
+                // Obtener el miembro a modificar
+                var miembro = _miembroComunidadCEN.ReadOID_MiembroComunidad(miembroId);
+                if (miembro == null)
+                {
+                    return Json(new { success = false, message = "Miembro no encontrado" });
+                }
+
+                // Verificar que el usuario actual es líder de la comunidad
+                var comunidad = miembro.Comunidad;
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
+                {
+                    return Json(new { success = false, message = "No tienes permisos para realizar esta acción" });
+                }
+
+                // No permitir que el líder cambie su propio rol
+                if (miembro.IdMiembroComunidad == miembroActual.IdMiembroComunidad)
+                {
+                    return Json(new { success = false, message = "No puedes cambiar tu propio rol" });
+                }
+
+                // Cambiar el rol
+                _miembroComunidadCEN.CambiarRol(miembro, nuevoRol);
+                _unitOfWork?.SaveChanges();
+
+                return Json(new { success = true, message = "Rol actualizado correctamente" });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: /MiembroComunidad/ExpulsarMiembro
+        [HttpPost]
+        public IActionResult ExpulsarMiembro(long miembroId)
+        {
+            try
+            {
+                // Verificar autenticación
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return Json(new { success = false, message = "No autenticado" });
+                }
+
+                // Obtener el miembro a expulsar
+                var miembro = _miembroComunidadCEN.ReadOID_MiembroComunidad(miembroId);
+                if (miembro == null)
+                {
+                    return Json(new { success = false, message = "Miembro no encontrado" });
+                }
+
+                // Verificar que el usuario actual es líder de la comunidad
+                var comunidad = miembro.Comunidad;
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
+                {
+                    return Json(new { success = false, message = "No tienes permisos para realizar esta acción" });
+                }
+
+                // No permitir que el líder se expulse a sí mismo
+                if (miembro.IdMiembroComunidad == miembroActual.IdMiembroComunidad)
+                {
+                    return Json(new { success = false, message = "No puedes expulsarte a ti mismo" });
+                }
+
+                // Expulsar al miembro
+                _miembroComunidadCEN.Expulsar(miembro);
+                _unitOfWork?.SaveChanges();
+
+                return Json(new { success = true, message = "Miembro expulsado correctamente" });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

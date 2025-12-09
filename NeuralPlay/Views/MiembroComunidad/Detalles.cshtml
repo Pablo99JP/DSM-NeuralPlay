@@ -1,0 +1,448 @@
+@model NeuralPlay.Models.ComunidadViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = $"Gestionar Miembros - {Model.Nombre}";
+    var miembros = ViewBag.Miembros as List<NeuralPlay.Models.MiembroComunidadViewModel> ?? new List<NeuralPlay.Models.MiembroComunidadViewModel>();
+    var roles = ViewBag.Roles as List<ApplicationCore.Domain.Enums.RolComunidad> ?? new List<ApplicationCore.Domain.Enums.RolComunidad>();
+    ViewBag.OcultarNavbar = true;
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    .content-container {
+        position: absolute;
+        left: 11%;
+        top: 0;
+        width: 83%;
+        min-height: 100vh;
+        z-index: 2;
+        padding: 40px;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 4rem;
+        color: white;
+        text-transform: uppercase;
+        margin: 0;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.5rem;
+        color: #aaa;
+        margin: 0;
+        margin-bottom: 30px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--np-red);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s;
+        margin-bottom: 30px;
+    }
+
+    .btn-back:hover {
+        background: #cc0a3d;
+        transform: translateX(-5px);
+    }
+
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+
+    .member-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .member-card:hover {
+        border-color: var(--np-red);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(229, 10, 70, 0.3);
+    }
+
+    .member-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid var(--np-red);
+    }
+
+    .member-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .member-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: var(--np-grey);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .member-info {
+        flex: 1;
+    }
+
+    .member-name {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        margin: 0 0 5px 0;
+        text-decoration: none;
+        display: block;
+        transition: color 0.3s;
+    }
+
+    .member-name:hover {
+        color: var(--np-red);
+    }
+
+    .member-role-select {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+        background: rgba(69, 69, 69, 0.8);
+        color: white;
+        border: 1px solid var(--np-red);
+        border-radius: 5px;
+        margin: 5px 0;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .member-role-select:hover {
+        background: var(--np-red);
+    }
+
+    .member-date {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.85rem;
+        color: #666;
+        margin: 5px 0 0 0;
+    }
+
+    .member-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-save {
+        background: var(--np-red);
+        color: white;
+    }
+
+    .btn-save:hover {
+        background: #cc0a3d;
+        transform: scale(1.05);
+    }
+
+    .btn-kick {
+        background: transparent;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+    }
+
+    .btn-kick:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .no-members {
+        text-align: center;
+        padding: 60px 20px;
+        color: #888;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 5px 0;
+    }
+
+    .role-lider {
+        background: var(--np-red);
+        color: white;
+    }
+
+    .role-moderador, .role-colaborador {
+        background: #ffa500;
+        color: white;
+    }
+
+    .role-miembro {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+</style>
+
+<div class="main-container"></div>
+
+<div class="content-container">
+    <div class="page-header">
+        <a asp-controller="Comunidad" asp-action="Details" asp-route-id="@Model.IdComunidad" class="btn-back">
+            <i class="bi bi-arrow-left"></i>
+            Volver a la comunidad
+        </a>
+        
+        <h1 class="page-title">Gestionar Miembros</h1>
+        <p class="page-subtitle">@Model.Nombre</p>
+    </div>
+
+    @if (miembros.Any())
+    {
+        <div class="members-grid">
+            @foreach (var miembro in miembros)
+            {
+                <div class="member-card" data-card-id="@miembro.IdMiembroComunidad">
+                    <div class="member-avatar">
+                        @if (!string.IsNullOrEmpty(miembro.Avatar))
+                        {
+                            <img src="@miembro.Avatar" alt="@miembro.NombreUsuario" />
+                        }
+                        else
+                        {
+                            <div class="member-avatar-placeholder">
+                                @miembro.NombreUsuario.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                    </div>
+                    <div class="member-info">
+                        <a href="#" class="member-name">@miembro.NombreUsuario</a>
+                        
+                        <!-- Select para cambiar el rol -->
+                        <select class="member-role-select" data-miembro-id="@miembro.IdMiembroComunidad" data-original-role="@miembro.Rol">
+                            @foreach (var rol in roles)
+                            {
+                                <option value="@rol" selected="@(rol.ToString() == miembro.Rol.ToString())">
+                                    @rol
+                                </option>
+                            }
+                        </select>
+
+                        <p class="member-date">Miembro desde @miembro.FechaAlta.ToString("dd/MM/yyyy")</p>
+
+                        <div class="member-actions">
+                            <button class="btn-action btn-save" onclick="cambiarRol(@miembro.IdMiembroComunidad)" style="display:none;">
+                                <i class="bi bi-check-lg"></i>
+                                Guardar rol
+                            </button>
+                            <button class="btn-action btn-kick" onclick="expulsarMiembro(@miembro.IdMiembroComunidad, '@miembro.NombreUsuario')">
+                                <i class="bi bi-person-x-fill"></i>
+                                Expulsar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-members">
+            <p>Esta comunidad aún no tiene miembros.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Detectar cambios en el select de rol
+        document.querySelectorAll('.member-role-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const miembroId = this.getAttribute('data-miembro-id');
+                const originalRole = this.getAttribute('data-original-role');
+                const newRole = this.value;
+                
+                const card = document.querySelector(`.member-card[data-card-id="${miembroId}"]`);
+                const btnSave = card.querySelector('.btn-save');
+                
+                if (originalRole !== newRole) {
+                    btnSave.style.display = 'inline-flex';
+                } else {
+                    btnSave.style.display = 'none';
+                }
+            });
+        });
+
+        function cambiarRol(miembroId) {
+            const select = document.querySelector(`.member-role-select[data-miembro-id="${miembroId}"]`);
+            const nuevoRol = select.value;
+            const card = document.querySelector(`.member-card[data-card-id="${miembroId}"]`);
+            const btnSave = card.querySelector('.btn-save');
+            
+            // Deshabilitar el botón durante la petición
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+            
+            fetch('/MiembroComunidad/CambiarRol', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `miembroId=${miembroId}&nuevoRol=${nuevoRol}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar la página para actualizar la vista
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<i class="bi bi-check-lg"></i> Guardar rol';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cambiar el rol. Por favor, inténtalo de nuevo.');
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<i class="bi bi-check-lg"></i> Guardar rol';
+            });
+        }
+
+        function expulsarMiembro(miembroId, nombreUsuario) {
+            const confirmar = confirm(`¿Estás seguro de que deseas expulsar a ${nombreUsuario} de la comunidad?\n\nEsta acción no se puede deshacer.`);
+            
+            if (confirmar) {
+                const card = document.querySelector(`.member-card[data-card-id="${miembroId}"]`);
+                
+                // Añadir indicador visual
+                card.style.opacity = '0.5';
+                card.style.pointerEvents = 'none';
+                
+                fetch('/MiembroComunidad/ExpulsarMiembro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `miembroId=${miembroId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        alert('Miembro expulsado correctamente');
+                        
+                        // Eliminar la tarjeta del DOM con animación
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.transform = 'scale(0)';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Verificar si quedan miembros
+                            const membersGrid = document.querySelector('.members-grid');
+                            if (!membersGrid.children.length) {
+                                location.reload();
+                            }
+                        }, 300);
+                    } else {
+                        alert('Error: ' + data.message);
+                        card.style.opacity = '1';
+                        card.style.pointerEvents = 'auto';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al expulsar al miembro. Por favor, inténtalo de nuevo.');
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'auto';
+                });
+            }
+        }
+    </script>
+}

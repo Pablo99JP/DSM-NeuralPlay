@@ -15,22 +15,31 @@ namespace NeuralPlay.Controllers
         private readonly ApplicationCore.Domain.CEN.ComunidadCEN _comunidadCEN;
         private readonly ApplicationCore.Domain.CEN.EquipoCEN _equipoCEN;
         private readonly ApplicationCore.Domain.CEN.JuegoCEN _juegoCEN;
+        private readonly IMiembroComunidadRepository _miembroComunidadRepository;
+        private readonly IMiembroEquipoRepository _miembroEquipoRepository;
 
         public HomeController(ILogger<HomeController> logger, 
             ApplicationCore.Domain.CEN.ComunidadCEN comunidadCEN,
             ApplicationCore.Domain.CEN.EquipoCEN equipoCEN,
-            ApplicationCore.Domain.CEN.JuegoCEN juegoCEN)
+            ApplicationCore.Domain.CEN.JuegoCEN juegoCEN,
+            IMiembroComunidadRepository miembroComunidadRepository,
+            IMiembroEquipoRepository miembroEquipoRepository)
         {
             _logger = logger;
             _comunidadCEN = comunidadCEN;
             _equipoCEN = equipoCEN;
             _juegoCEN = juegoCEN;
+            _miembroComunidadRepository = miembroComunidadRepository;
+            _miembroEquipoRepository = miembroEquipoRepository;
         }
 
         public IActionResult Index(string searchTerm = "")
         {
             try
             {
+                // Obtener el ID del usuario logueado
+                var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
+
                 // Obtener todas las comunidades
                 var comunidades = _comunidadCEN.ReadAll_Comunidad();
                 var listaComunidadesVM = NeuralPlay.Assemblers.ComunidadAssembler.ConvertListENToViewModel(comunidades).ToList();
@@ -42,6 +51,34 @@ namespace NeuralPlay.Controllers
                 // Obtener todos los juegos
                 var juegos = _juegoCEN.ReadAll_Juego();
                 var listaJuegosVM = NeuralPlay.Models.Assemblers.JuegoAssembler.ToViewModel(juegos).ToList();
+
+                // Si el usuario está logueado, verificar sus membresías
+                if (usuarioId.HasValue)
+                {
+                    // Obtener todas las membresías de comunidades del usuario
+                    var miembrosComunidad = _miembroComunidadRepository.ReadAll()
+                        .Where(m => m.Usuario.IdUsuario == usuarioId.Value && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                        .Select(m => m.Comunidad.IdComunidad)
+                        .ToHashSet();
+
+                    // Obtener todas las membresías de equipos del usuario
+                    var miembrosEquipo = _miembroEquipoRepository.ReadAll()
+                        .Where(m => m.Usuario.IdUsuario == usuarioId.Value && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                        .Select(m => m.Equipo.IdEquipo)
+                        .ToHashSet();
+
+                    // Marcar las comunidades donde el usuario es miembro
+                    foreach (var comunidad in listaComunidadesVM)
+                    {
+                        comunidad.IsMember = miembrosComunidad.Contains(comunidad.IdComunidad);
+                    }
+
+                    // Marcar los equipos donde el usuario es miembro
+                    foreach (var equipo in listaEquiposVM)
+                    {
+                        equipo.IsMember = miembrosEquipo.Contains(equipo.IdEquipo);
+                    }
+                }
 
                 // Aplicar filtro de búsqueda si se proporciona
                 if (!string.IsNullOrWhiteSpace(searchTerm))

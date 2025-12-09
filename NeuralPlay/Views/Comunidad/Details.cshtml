@@ -53,6 +53,185 @@
         z-index: 1;
     }
 
+    /* Botón hamburguesa para el menú lateral */
+    .menu-toggle {
+        position: fixed;
+        top: 20px;
+        right: calc(6% + 20px); /* A la izquierda de la barra derecha (6%) */
+        z-index: 1001;
+        background: var(--np-red);
+        border: none;
+        padding: 15px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .menu-toggle:hover {
+        background: #cc0a3d;
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(229, 10, 70, 0.4);
+    }
+
+    .menu-toggle i {
+        color: white;
+        font-size: 1.8rem;
+        display: block;
+    }
+
+    /* Menú lateral desplegable */
+    .sidebar-menu {
+        position: fixed;
+        top: 0;
+        right: -400px; /* Oculto inicialmente más allá de la barra derecha */
+        width: 400px;
+        height: 100vh;
+        background: rgba(36, 36, 36, 0.98);
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        overflow-y: auto;
+        padding: 80px 0 40px 0;
+        border-left: 4px solid var(--np-red);
+    }
+
+    .sidebar-menu.active {
+        right: 6%; /* Se despliega justo a la izquierda de la barra derecha (6%) */
+    }
+
+    /* Overlay cuando el menú está abierto */
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Título del nombre de la comunidad en el menú */
+    .sidebar-menu-header {
+        padding: 0 30px 30px 30px;
+        border-bottom: 2px solid rgba(229, 10, 70, 0.3);
+        margin-bottom: 30px;
+    }
+
+    .sidebar-menu-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 2.5rem;
+        color: var(--np-red);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    /* Sección del menú */
+    .menu-section {
+        padding: 0 30px;
+        margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    /* Botones del menú */
+    .menu-btn {
+        width: 100%;
+        background: transparent;
+        border: 2px solid var(--np-red);
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.3rem;
+        padding: 18px 25px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .menu-btn:hover {
+        background: var(--np-red);
+        transform: translateX(-5px);
+        box-shadow: 0 4px 15px rgba(229, 10, 70, 0.4);
+    }
+
+    .menu-btn i {
+        font-size: 1.5rem;
+    }
+
+    /* Botón de información (rol del usuario) */
+    .menu-info-btn {
+        width: 100%;
+        background: rgba(69, 69, 69, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.3rem;
+        padding: 18px 25px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: default;
+    }
+
+    .menu-info-btn .role-label {
+        font-size: 0.9rem;
+        color: #999;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .menu-info-btn .role-value {
+        color: var(--np-red);
+        font-size: 1.5rem;
+    }
+
+    /* Botón de abandonar (estilo peligroso) */
+    .menu-btn-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .menu-btn-danger:hover {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+    /* Separador */
+    .menu-divider {
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 30px 30px;
+    }
+
     /* Contenedor de contenido - entre las barras */
     .content-container {
         position: absolute;
@@ -288,6 +467,77 @@
     }
 </style>
 
+<!-- Botón hamburguesa para abrir el menú -->
+<button class="menu-toggle" onclick="toggleMenu()">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Overlay oscuro cuando el menú está abierto -->
+<div class="menu-overlay" onclick="toggleMenu()"></div>
+
+<!-- Menú lateral desplegable -->
+<aside class="sidebar-menu">
+    <div class="sidebar-menu-header">
+        <h2 class="sidebar-menu-title">@Model.Nombre</h2>
+    </div>
+
+    @{
+        var rolUsuario = ViewBag.RolUsuario as string ?? "MIEMBRO";
+        var esLider = rolUsuario == "LIDER";
+        var esModerador = rolUsuario == "MODERADOR" || rolUsuario == "COLABORADOR";
+    }
+
+    <!-- Opciones comunes para todos los usuarios -->
+    <div class="menu-section">
+        <button class="menu-btn" onclick="verTorneos()">
+            <span>VER TORNEOS</span>
+            <i class="bi bi-trophy-fill"></i>
+        </button>
+    </div>
+
+    <!-- Opciones para Líder en exclusiva -->
+    @if (esLider)
+    {
+        <div class="menu-section">
+            <button class="menu-btn" onclick="gestionarMiembros()">
+                <span>GESTIONAR MIEMBROS</span>
+                <i class="bi bi-people-fill"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Opciones para Líder y Moderadores (Colaborador/Moderador) -->
+    @if (esLider || esModerador)
+    {
+        <div class="menu-section">
+            <button class="menu-btn" onclick="crearTorneo()">
+                <span>CREAR TORNEO</span>
+                <i class="bi bi-plus-circle-fill"></i>
+            </button>
+        </div>
+    }
+
+    <div class="menu-divider"></div>
+
+    <!-- Información del rol del usuario -->
+    <div class="menu-section">
+        <div class="menu-info-btn">
+            <span class="role-label">TU ROL:</span>
+            <span class="role-value">@rolUsuario</span>
+        </div>
+    </div>
+
+    <div class="menu-divider"></div>
+
+    <!-- Opción de abandonar comunidad -->
+    <div class="menu-section">
+        <button class="menu-btn menu-btn-danger" onclick="abandonarComunidad()">
+            <span>ABANDONAR COMUNIDAD</span>
+            <i class="bi bi-box-arrow-right"></i>
+        </button>
+    </div>
+</aside>
+
 <!-- Contenedor principal - solo fondo -->
 <div class="main-container"></div>
 
@@ -461,6 +711,63 @@
                 });
             });
         });
+
+        // ===== FUNCIONES DEL MENÚ LATERAL =====
+
+        // Función para abrir/cerrar el menú lateral
+        function toggleMenu() {
+            const menu = document.querySelector('.sidebar-menu');
+            const overlay = document.querySelector('.menu-overlay');
+            
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Prevenir scroll del body cuando el menú está abierto
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Cerrar el menú al presionar ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const menu = document.querySelector('.sidebar-menu');
+                if (menu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+        });
+
+        // ===== FUNCIONES DE LOS BOTONES DEL MENÚ (sin implementar) =====
+
+        function gestionarMiembros() {
+            const comunidadId = @Model.IdComunidad;
+            window.location.href = '/MiembroComunidad/Detalles?idComunidad=' + comunidadId;
+        }
+
+        function verTorneos() {
+            console.log('Ver torneos - Función pendiente de implementar');
+            // TODO: Implementar navegación a lista de torneos
+            alert('Funcionalidad en desarrollo: Ver Torneos');
+        }
+
+        function crearTorneo() {
+            console.log('Crear torneo - Función pendiente de implementar');
+            // TODO: Implementar navegación a crear torneo
+            alert('Funcionalidad en desarrollo: Crear Torneo');
+        }
+
+        function abandonarComunidad() {
+            console.log('Abandonar comunidad - Función pendiente de implementar');
+            // TODO: Implementar confirmación y lógica de abandono
+            const confirmar = confirm('¿Estás seguro de que deseas abandonar esta comunidad?');
+            if (confirmar) {
+                alert('Funcionalidad en desarrollo: Abandonar Comunidad');
+                // Aquí iría la llamada al servidor
+            }
+        }
     </script>
 }
 

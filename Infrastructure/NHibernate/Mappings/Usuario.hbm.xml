@@ -11,7 +11,7 @@
     <property name="FechaRegistro" type="DateTime" not-null="true" />
     <property name="EstadoCuenta" type="ApplicationCore.Domain.Enums.EstadoCuenta, ApplicationCore" not-null="true" />
 
-    <one-to-one name="Perfil" class="Perfil" cascade="all" />
+    <one-to-one name="Perfil" class="Perfil" cascade="save-update" />
 
     <bag name="MiembrosComunidad" table="MiembroComunidad" inverse="true" cascade="all-delete-orphan">
       <key column="IdUsuario" />

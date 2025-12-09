@@ -103,6 +103,17 @@ namespace NeuralPlay.Controllers
                 // Obtener el usuario actual
                 var uid = HttpContext.Session.GetInt32("UsuarioId");
                 
+                // Determinar el rol del usuario en esta comunidad
+                string rolUsuario = "Jugador"; // Valor por defecto
+                if (uid.HasValue)
+                {
+                    var miembroActual = en.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                    if (miembroActual != null)
+                    {
+                        rolUsuario = miembroActual.Rol.ToString();
+                    }
+                }
+                
                 // Cargar las publicaciones de la comunidad
                 var publicaciones = (en.Publicaciones ?? Enumerable.Empty<Publicacion>())
                     .Select(p => {
@@ -129,6 +140,7 @@ namespace NeuralPlay.Controllers
                 
                 ViewBag.Miembros = (object?)miembros;
                 ViewBag.Publicaciones = (object?)publicaciones;
+                ViewBag.RolUsuario = rolUsuario;
                 
                 return View(vm);
             }

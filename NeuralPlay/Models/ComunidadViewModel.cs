@@ -26,5 +26,8 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Propietario")]
         public string? Propietario { get; set; }
+
+        // Indica si el usuario actual es miembro de la comunidad
+        public bool IsMember { get; set; }
     }
 }

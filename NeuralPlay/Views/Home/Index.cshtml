@@ -503,10 +503,10 @@
                         <div class="comunidades-grid">
                             @foreach (var item in Model.Comunidades)
                             {
-                                <div class="comunidad-card" data-comunidad-id="@item.IdComunidad" onclick="unirse(event)">
+                                <div class="comunidad-card" data-comunidad-id="@item.IdComunidad" data-is-member="@item.IsMember.ToString().ToLower()" onclick="@(item.IsMember ? "verComunidad(event)" : "unirse(event)")">
                                     <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="comunidad-img" />
                                     <div class="comunidad-overlay">
-                                        <span class="comunidad-unirse">Unirse</span>
+                                        <span class="comunidad-unirse">@(item.IsMember ? "Ver" : "Unirse")</span>
                                     </div>
                                     <span class="comunidad-title">@item.Nombre</span>
                                 </div>
@@ -541,7 +541,14 @@
                                             </div>
                                         </div>
                                         <div class="equipo-acciones">
-                                            <button type="button" class="btn-solicitar" onclick="solicitarEntrada(event)">Solicitar Entrada</button>
+                                            @if (item.IsMember)
+                                            {
+                                                <button type="button" class="btn-solicitar" onclick="entrarEquipo(event)">Entrar</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="btn-solicitar" onclick="solicitarEntrada(event)">Solicitar Entrada</button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -705,6 +712,25 @@
         
         // Redirigir a Create con el ID de la comunidad
         window.location.href = '@Url.Action("Create", "SolicitudIngreso")' + '?comunidadId=' + comunidadId;
+    }
+
+    function verComunidad(event) {
+        event.preventDefault();
+        const comunidadCard = event.target.closest('.comunidad-card');
+        const comunidadId = comunidadCard.getAttribute('data-comunidad-id');
+        
+        // Redirigir a Comunidad/Details con el ID de la comunidad
+        window.location.href = '/Comunidad/Details/' + comunidadId;
+    }
+
+    function entrarEquipo(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const equipoCard = event.target.closest('.equipo-card');
+        const equipoId = equipoCard.getAttribute('data-equipo-id');
+        
+        // Redirigir a Equipo/Details con el ID del equipo
+        window.location.href = '/Equipo/Details/' + equipoId;
     }
 
     function verDetallesJuego(event) {
