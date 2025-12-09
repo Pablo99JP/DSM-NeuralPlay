@@ -10,6 +10,10 @@
         font-style: normal;
     }
 
+    :root {
+        --np-red: #e50a46;
+    }
+
     .sidebar-left {
         position: fixed;
         left: 0;
@@ -24,6 +28,8 @@
         align-items: center;
         padding-top: 40px;
         z-index: 100;
+        justify-content: space-between;
+        padding-bottom: 40px;
     }
 
     .sidebar-logo {
@@ -58,14 +64,24 @@
         color: #fff;
     }
 
+    .sidebar-link.active {
+        color: var(--np-red, #e50a46);
+        background: var(--np-dark-grey, #242424);
+        padding: 10px 0;
+        margin: 0 -20px 35px -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        transform: none;
+    }
+
     .sidebar-link-main {
         font-size: 1.3rem;
-        margin-bottom: 30px;
+        margin-bottom: 50px;
     }
 
     .sidebar-link-secondary {
         font-size: 0.95rem;
-        margin-bottom: 20px;
+        margin-bottom: 35px;
         padding: 0 20px;
         text-align: left;
         width: 100%;
@@ -77,12 +93,16 @@
     .sidebar-notification {
         color: #fff;
         position: relative;
-        margin-top: 80px;
+        margin-top: 30px;
         text-decoration: none;
         display: flex;
         flex-direction: column;
         align-items: center;
         transition: transform 0.3s ease;
+    }
+
+    .sidebar-bottom .sidebar-notification:first-child {
+        margin-top: 0;
     }
 
     .sidebar-notification:hover {
@@ -113,17 +133,42 @@
     .sidebar-notification:hover .sidebar-profile-image {
         transform: scale(1.1);
     }
+
+    .sidebar-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
 </style>
 
 <div class="sidebar-left">
-    <a href="/" class="sidebar-logo" ><img src="~/Recursos/LOGO_BLANCO.png" alt="NeuralPlay Logo" /></a>
-    <div class="sidebar-divider"></div>
-    <a href="/" class="sidebar-link sidebar-link-main">EXPLORAR</a>
-    <a asp-controller="Comunidad" asp-action="MisComunidades" class="sidebar-link sidebar-link-secondary">MIS COMUNIDADES</a>
-    <a href="/Equipos" class="sidebar-link sidebar-link-secondary">MIS EQUIPOS</a>
-    <a asp-controller="Crear" asp-action="Index" class="sidebar-link sidebar-link-secondary">CREAR</a>
-    
-    @if (UsuarioAuth?.GetUsuarioActual() != null)
+    <div class="sidebar-top">
+        <a href="/" class="sidebar-logo" ><img src="~/Recursos/LOGO_BLANCO.png" alt="NeuralPlay Logo" /></a>
+        <div class="sidebar-divider"></div>
+        @{
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+            var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+            var isExplorar = currentController == "Home" || currentController == "" || (currentController == "Home" && currentAction == "Index");
+            var isComunidades = currentController == "Comunidad" && currentAction == "MisComunidades";
+            var isEquipos = currentController == "Equipos";
+            var isCrear = currentController == "Crear";
+        }
+        <a href="/" class="sidebar-link sidebar-link-main @(isExplorar ? "active" : "")">EXPLORAR</a>
+        <a asp-controller="Comunidad" asp-action="MisComunidades" class="sidebar-link sidebar-link-secondary @(isComunidades ? "active" : "")">MIS COMUNIDADES</a>
+        <a href="/Equipos" class="sidebar-link sidebar-link-secondary @(isEquipos ? "active" : "")">MIS EQUIPOS</a>
+        <a asp-controller="Crear" asp-action="Index" class="sidebar-link sidebar-link-secondary @(isCrear ? "active" : "")">CREAR</a>
+    </div>
+
+    <div class="sidebar-bottom">
+        @if (UsuarioAuth?.GetUsuarioActual() != null)
     {
         var current = UsuarioAuth.GetUsuarioActual();
         var unread = 0;
@@ -160,9 +205,10 @@
                 }
             </a>
         }
-    }
-    else
-    {
-        <a href="@Url.Action("Login", "Usuario")" class="sidebar-link sidebar-link-secondary">INICIAR SESIÓN</a>
-    }
+        }
+        else
+        {
+            <a href="@Url.Action("Login", "Usuario")" class="sidebar-link sidebar-link-secondary">INICIAR SESIÓN</a>
+        }
+    </div>
 </div>
