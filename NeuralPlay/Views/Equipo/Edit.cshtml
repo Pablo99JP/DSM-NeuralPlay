@@ -34,27 +34,48 @@
     }
 
     body {
-        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
-        background-size: cover;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
         color: white;
     }
 
-    .page-wrapper {
-        margin: 0 auto;
-        padding: 40px 60px 60px 60px;
-        max-width: 1200px;
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
     }
 
-    .team-hero {
+    .content-container {
+        position: absolute;
+        left: 11%;
+        top: 0;
+        width: 83%;
+        min-height: 100vh;
+        z-index: 2;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
         display: flex;
         align-items: center;
-        gap: 22px;
-        margin-bottom: 18px;
+        gap: 18px;
+        width: 100%;
+        max-width: 1000px;
     }
 
     .team-avatar {
-        width: 120px;
-        height: 120px;
+        width: 110px;
+        height: 110px;
         border-radius: 18px;
         overflow: hidden;
         background: var(--np-red);
@@ -62,116 +83,211 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        flex-shrink: 0;
     }
 
     .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .team-header-text h1 {
+    .page-title {
         font-family: 'Neue', sans-serif;
-        font-size: 4.4rem;
+        font-size: 6rem;
         color: white;
-        margin: 0 0 12px 0;
+        text-transform: uppercase;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+        margin: 0;
+        letter-spacing: 2px;
+        line-height: 0.95;
     }
 
-    .team-header-text .team-subtitle {
+    .page-subtitle {
         font-family: 'Lexend', sans-serif;
         color: #d7d7d7;
-        margin: 0;
+        margin: 6px 0 0 0;
         font-size: 1rem;
     }
 
-    .card-edit {
-        background: rgba(36, 36, 36, 0.92);
-        border-radius: 16px;
-        padding: 28px 32px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-        border: 1px solid rgba(255,255,255,0.08);
+    .form-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 1000px;
+        width: 100%;
     }
 
-    label { font-family: 'Lexend', sans-serif; color: #f5f5f5; }
-    input, select, textarea {
-        background: #1c1c1d;
-        border: 1px solid rgba(255,255,255,0.12);
+    .form-group { margin-bottom: 26px; }
+
+    .form-label {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: var(--np-red);
+        margin-bottom: 10px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-input,
+    .form-select,
+    textarea.form-input {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.15rem;
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
         color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    textarea.form-input:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
+
+    .form-select option { background: var(--np-dark-grey); color: white; padding: 10px; }
+
+    .readonly-input {
+        background: rgba(229, 10, 70, 0.12);
+        border-color: var(--np-red);
+        color: white;
+    }
+
+    .validation-panel {
+        color: var(--np-red);
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(229, 10, 70, 0.1);
+        border-radius: 8px;
+        border-left: 4px solid var(--np-red);
     }
 
     .actions {
         display: flex;
         gap: 12px;
-        margin-top: 12px;
+        flex-wrap: wrap;
     }
 
-    .btn-primary {
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        padding: 14px 34px;
         background: var(--np-red);
-        border: 1px solid var(--np-red);
-    }
-    .btn-primary:hover { filter: brightness(1.05); }
-
-    .btn-secondary {
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.25);
         color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
 
-    .text-danger { font-size: 0.9rem; }
+    .btn-submit:hover {
+        background: transparent;
+        color: var(--np-red);
+        transform: scale(1.03);
+    }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        padding: 14px 34px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: white;
+        color: var(--np-dark-grey);
+    }
+
+    .form-note { font-family: 'Lexend', sans-serif; font-size: 0.95rem; color: #aaa; font-style: italic; margin-top: 5px; }
 </style>
 
-<div class="page-wrapper">
-    <div class="team-hero">
+<div class="main-container"></div>
+
+<div class="content-container">
+    <header class="page-header">
         <div class="team-avatar">
             <img src="@logo" alt="Logo equipo" />
         </div>
-        <div class="team-header-text">
-            <h1><i class="bi bi-pencil-square"></i> Editar equipo</h1>
-            <p class="team-subtitle">Actualiza la información de tu equipo.</p>
+        <div>
+            <h1 class="page-title">Editar Equipo</h1>
+            <p class="page-subtitle">Actualiza la información de tu equipo</p>
         </div>
-    </div>
+    </header>
 
-    <div class="card-edit">
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="form-card">
+        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="IdEquipo" />
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label asp-for="Nombre" class="form-label">Nombre</label>
-                <input asp-for="Nombre" class="form-control" />
+                <input asp-for="Nombre" class="form-input" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label asp-for="Descripcion" class="form-label">Descripción</label>
-                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                <textarea asp-for="Descripcion" class="form-input" rows="3"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label asp-for="Actividad" class="form-label">Actividad</label>
                 <select asp-for="Actividad" class="form-select" asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.Actividad>()"></select>
                 <span asp-validation-for="Actividad" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label asp-for="Pais" class="form-label">País</label>
-                <input asp-for="Pais" class="form-control" />
+                <input asp-for="Pais" class="form-input" />
                 <span asp-validation-for="Pais" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label asp-for="Idioma" class="form-label">Idioma</label>
-                <input asp-for="Idioma" class="form-control" />
+                <input asp-for="Idioma" class="form-input" />
                 <span asp-validation-for="Idioma" class="text-danger"></span>
             </div>
 
-            <div class="mb-4">
+            <div class="form-group">
                 <label class="form-label">Fecha de Creación</label>
-                <input class="form-control" value="@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")" readonly />
+                <input class="form-input readonly-input" value="@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")" readonly />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Logo del equipo</label>
+                <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                    <div class="team-avatar" style="width:90px; height:90px;">
+                        <img src="@logo" alt="Logo actual" />
+                    </div>
+                    <div style="flex:1; min-width:220px;">
+                        <input asp-for="ImagenArchivo" type="file" accept="image/*" class="form-input" />
+                        <p class="form-note">Puedes subir una nueva imagen (png/jpg/webp). Si no seleccionas ninguna, se mantiene el logo actual.</p>
+                    </div>
+                </div>
+                <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
             </div>
 
             <div class="actions">
-                <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                <a asp-controller="Equipos" asp-action="Index" class="btn btn-secondary">Volver</a>
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+                <a asp-controller="Equipos" asp-action="Index" class="btn-cancel">Volver</a>
             </div>
         </form>
-    </div>
+    </section>
 </div>

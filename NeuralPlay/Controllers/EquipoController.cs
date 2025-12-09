@@ -6,6 +6,8 @@ using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 using ApplicationCore.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 using System.Linq;
 
 namespace NeuralPlay.Controllers
@@ -20,6 +22,11 @@ namespace NeuralPlay.Controllers
         private readonly ParticipacionTorneoCEN _participacionTorneoCEN;
         private readonly PropuestaTorneoCEN _propuestaCEN;
         private readonly IMiembroEquipoRepository _miembroEquipoRepository;
+        private readonly MiembroEquipoCEN _miembroEquipoCEN;
+        private readonly MiembroComunidadCEN _miembroComunidadCEN;
+        private readonly InvitacionCEN _invitacionCEN;
+        private readonly SolicitudIngresoCEN _solicitudIngresoCEN;
+        private readonly IWebHostEnvironment _env;
 
         public EquipoController(
             UsuarioCEN usuarioCEN,
@@ -31,7 +38,12 @@ namespace NeuralPlay.Controllers
             MensajeChatCEN mensajeChatCEN,       // NUEVO
             ParticipacionTorneoCEN participacionTorneoCEN,
             PropuestaTorneoCEN propuestaCEN,
-            IMiembroEquipoRepository miembroEquipoRepository
+            IMiembroEquipoRepository miembroEquipoRepository,
+            MiembroEquipoCEN miembroEquipoCEN,
+            MiembroComunidadCEN miembroComunidadCEN,
+            InvitacionCEN invitacionCEN,
+            SolicitudIngresoCEN solicitudIngresoCEN,
+            IWebHostEnvironment env
         )
             : base(usuarioCEN, usuarioRepository)
         {
@@ -43,6 +55,11 @@ namespace NeuralPlay.Controllers
             _participacionTorneoCEN = participacionTorneoCEN;
             _propuestaCEN = propuestaCEN;
             _miembroEquipoRepository = miembroEquipoRepository;
+            _miembroEquipoCEN = miembroEquipoCEN;
+            _miembroComunidadCEN = miembroComunidadCEN;
+            _invitacionCEN = invitacionCEN;
+            _solicitudIngresoCEN = solicitudIngresoCEN;
+            _env = env;
         }
 
         // GET: /Equipo
@@ -268,6 +285,24 @@ namespace NeuralPlay.Controllers
         // GET: /Equipo/Create
         public IActionResult Create()
         {
+            // El usuario debe estar autenticado y pertenecer a alguna comunidad activa
+            var userId = HttpContext.Session.GetInt32("UsuarioId");
+            if (!userId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión para crear un equipo.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            var isInCommunity = _miembroComunidadCEN.ReadAll_MiembroComunidad()
+                .Any(m => m.Usuario != null && m.Usuario.IdUsuario == userId.Value &&
+                          m.Estado == EstadoMembresia.ACTIVA);
+
+            if (!isInCommunity)
+            {
+                TempData["ErrorMessage"] = "Debes pertenecer a una comunidad activa para crear un equipo.";
+                return RedirectToAction("Index", "Comunidad");
+            }
+
             return View();
         }
 
@@ -280,10 +315,61 @@ namespace NeuralPlay.Controllers
 
             try
             {
+                var userId = HttpContext.Session.GetInt32("UsuarioId");
+                if (!userId.HasValue)
+                {
+                    TempData["ErrorMessage"] = "Debes iniciar sesión para crear un equipo.";
+                    return RedirectToAction("Login", "Usuario");
+                }
+
+                // Validar pertenencia a una comunidad activa
+                var isInCommunity = _miembroComunidadCEN.ReadAll_MiembroComunidad()
+                    .Any(m => m.Usuario != null && m.Usuario.IdUsuario == userId.Value &&
+                              m.Estado == EstadoMembresia.ACTIVA);
+
+                if (!isInCommunity)
+                {
+                    TempData["ErrorMessage"] = "Debes pertenecer a una comunidad activa para crear un equipo.";
+                    return RedirectToAction("Index", "Comunidad");
+                }
+
+                var usuario = _usuarioRepository.ReadById(userId.Value);
+                if (usuario == null)
+                {
+                    TempData["ErrorMessage"] = "No se pudo identificar al usuario.";
+                    return RedirectToAction("Login", "Usuario");
+                }
+
+                string? imagenPath = null;
+
+                if (model.ImagenArchivo != null && model.ImagenArchivo.Length > 0)
+                {
+                    var ext = Path.GetExtension(model.ImagenArchivo.FileName);
+                    var fileName = $"{Guid.NewGuid()}{ext}";
+                    var folder = Path.Combine(_env.WebRootPath, "Recursos", "Equipos");
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                    var fullPath = Path.Combine(folder, fileName);
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        model.ImagenArchivo.CopyTo(stream);
+                    }
+                    imagenPath = $"/Recursos/Equipos/{fileName}";
+                }
+
                 var cen = new EquipoCEN(_equipoRepository);
-                cen.NewEquipo(model.Nombre ?? string.Empty, model.Descripcion, model.Actividad, model.Pais, model.Idioma);
+                var equipo = cen.NewEquipo(model.Nombre ?? string.Empty, model.Descripcion, model.Actividad, model.Pais, model.Idioma);
+
+                if (imagenPath != null)
+                {
+                    equipo.ImagenUrl = imagenPath;
+                    _equipoCEN.ModifyEquipo(equipo);
+                }
+
+                // Añadir creador como miembro ADMIN del equipo
+                _miembroEquipoCEN.NewMiembroEquipo(usuario, equipo, RolEquipo.ADMIN);
+
                 try { _unitOfWork?.SaveChanges(); } catch { }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Equipos");
             }
             catch (System.Exception ex)
             {
@@ -327,9 +413,24 @@ namespace NeuralPlay.Controllers
                 en.Idioma = model.Idioma;
                 // FechaCreacion no se modifica normalmente
 
+                // Guardar nuevo logo si se envía
+                if (model.ImagenArchivo != null && model.ImagenArchivo.Length > 0)
+                {
+                    var ext = Path.GetExtension(model.ImagenArchivo.FileName);
+                    var fileName = $"{Guid.NewGuid()}{ext}";
+                    var folder = Path.Combine(_env.WebRootPath, "Recursos", "Equipos");
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                    var fullPath = Path.Combine(folder, fileName);
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        model.ImagenArchivo.CopyTo(stream);
+                    }
+                    en.ImagenUrl = $"/Recursos/Equipos/{fileName}";
+                }
+
                 _equipoCEN.ModifyEquipo(en);
                 try { _unitOfWork?.SaveChanges(); } catch { }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Equipos");
             }
             catch (System.Exception ex)
             {
@@ -363,9 +464,59 @@ namespace NeuralPlay.Controllers
         {
             try
             {
+                var equipo = _equipoCEN.ReadOID_Equipo(id);
+                if (equipo == null) return NotFound();
+
+                // Eliminar dependencias que tienen FK al equipo
+                var invitaciones = _invitacionCEN.ReadAll_Invitacion()
+                    .Where(i => i.Equipo != null && i.Equipo.IdEquipo == id)
+                    .ToList();
+                foreach (var inv in invitaciones)
+                {
+                    _invitacionCEN.DestroyInvitacion(inv.IdInvitacion);
+                }
+
+                var solicitudes = _solicitudIngresoCEN.ReadAll_SolicitudIngreso()
+                    .Where(s => s.Equipo != null && s.Equipo.IdEquipo == id)
+                    .ToList();
+                foreach (var sol in solicitudes)
+                {
+                    _solicitudIngresoCEN.DestroySolicitudIngreso(sol.IdSolicitud);
+                }
+
+                var participaciones = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
+                    .Where(p => p.Equipo != null && p.Equipo.IdEquipo == id)
+                    .ToList();
+                foreach (var par in participaciones)
+                {
+                    _participacionTorneoCEN.DestroyParticipacionTorneo(par.IdParticipacion);
+                }
+
+                var propuestas = _propuestaCEN.ReadAll_PropuestaTorneo()
+                    .Where(p => p.EquipoProponente != null && p.EquipoProponente.IdEquipo == id)
+                    .ToList();
+                foreach (var pro in propuestas)
+                {
+                    _propuestaCEN.DestroyPropuestaTorneo(pro.IdPropuesta);
+                }
+
+                var miembros = _miembroEquipoRepository.ReadAll()
+                    .Where(m => m.Equipo != null && m.Equipo.IdEquipo == id)
+                    .ToList();
+                foreach (var mem in miembros)
+                {
+                    _miembroEquipoCEN.DestroyMiembroEquipo(mem.IdMiembroEquipo);
+                }
+
+                // Chat del equipo (los mensajes se borran por cascade all-delete-orphan)
+                if (equipo.Chat != null)
+                {
+                    _chatEquipoCEN.DestroyChatEquipo(equipo.Chat.IdChatEquipo);
+                }
+
                 _equipoCEN.DestroyEquipo(id);
                 try { _unitOfWork?.SaveChanges(); } catch { }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Equipos");
             }
             catch (System.Exception ex)
             {

@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using ApplicationCore.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace NeuralPlay.Models
 {
@@ -30,6 +31,9 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Imagen")]
         public string? ImagenUrl { get; set; }
+
+        // Archivo de imagen para carga (opcional)
+        public IFormFile? ImagenArchivo { get; set; }
 
         // Indica si el usuario actual es admin del equipo
         public bool IsLeader { get; set; }
