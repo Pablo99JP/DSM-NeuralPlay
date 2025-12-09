@@ -187,7 +187,8 @@ namespace NeuralPlay.Controllers
 
                 _miembroEquipoCEN.ModifyMiembroEquipo(en);
                 try { _unitOfWork?.SaveChanges(); } catch { }
-                return RedirectToAction(nameof(Index));
+                var equipoId = en.Equipo?.IdEquipo ?? model.IdEquipo;
+                return RedirectToAction("Details", "Equipo", new { id = equipoId });
             }
             catch (System.Exception ex)
             {
@@ -223,8 +224,15 @@ namespace NeuralPlay.Controllers
         {
             try
             {
+                var en = _miembroEquipoCEN.ReadOID_MiembroEquipo(id);
+                var equipoId = en?.Equipo?.IdEquipo;
+
                 _miembroEquipoCEN.DestroyMiembroEquipo(id);
                 try { _unitOfWork?.SaveChanges(); } catch { }
+                if (equipoId.HasValue)
+                {
+                    return RedirectToAction("Details", "Equipo", new { id = equipoId.Value });
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (System.Exception ex)

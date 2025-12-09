@@ -385,10 +385,16 @@
         margin-bottom: 14px;
     }
 
+    .member-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+    }
+
     .member-actions-admin {
         display: flex;
         gap: 8px;
-        margin-left: auto;
     }
 
     .member-btn {
@@ -423,6 +429,16 @@
     .member-btn-delete:hover {
         background: white;
         color: #f44336;
+        transform: scale(1.05);
+    }
+
+    .member-btn-view {
+        background: #00b894;
+    }
+
+    .member-btn-view:hover {
+        background: white;
+        color: #00b894;
         transform: scale(1.05);
     }
 
@@ -490,20 +506,25 @@
                             <span class="member-role">@miembro.Rol</span>
                             <span class="member-name">@miembro.NombreUsuario</span>
                         </div>
-                        @if (isLeader)
-                        {
-                            <div class="member-actions-admin">
-                                <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </a>
-                                @if (miembro.IdUsuario != currentUserId)
-                                {
-                                    <a href="@Url.Action("Delete", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-delete" title="Expulsar miembro">
-                                        <i class="bi bi-trash-fill"></i>
+                        <div class="member-actions">
+                            <a href="@Url.Action("Details", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-view" title="Ver detalles del miembro">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            @if (isLeader)
+                            {
+                                <div class="member-actions-admin">
+                                    <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
+                                        <i class="bi bi-pencil-fill"></i>
                                     </a>
-                                }
-                            </div>
-                        }
+                                    @if (miembro.IdUsuario != currentUserId)
+                                    {
+                                        <a href="@Url.Action("Delete", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-delete" title="Expulsar miembro">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
             </div>

@@ -2,35 +2,180 @@
 
 @{
     ViewData["Title"] = "Eliminar Miembro del Equipo";
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>@ViewData["Title"]</h1>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 
-<div class="alert alert-warning">
-    ¿Seguro que quieres expulsar a este usuario del equipo?
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<dl class="row">
-    <dt class="col-sm-3">Equipo</dt>
-    <dd class="col-sm-9">@Model.NombreEquipo</dd>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
 
-    <dt class="col-sm-3">Usuario</dt>
-    <dd class="col-sm-9">@Model.NombreUsuario</dd>
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
 
-    <dt class="col-sm-3">Rol</dt>
-    <dd class="col-sm-9">@Model.Rol</dd>
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
 
-    <dt class="col-sm-3">Estado</dt>
-    <dd class="col-sm-9">@Model.Estado</dd>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        color: white;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
 
-    <dt class="col-sm-3">Fecha de Alta</dt>
-    <dd class="col-sm-9">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</dd>
-</dl>
+    .content-container {
+        position: relative;
+        left: 11%;
+        width: 83%;
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+    }
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="IdMiembroEquipo" />
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn btn-secondary">Cancelar</a>
+    .page-header { display: flex; align-items: center; gap: 12px; }
+
+    .page-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 4.2rem;
+        color: white;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .alert-card {
+        background: rgba(229, 10, 70, 0.12);
+        border: 1px solid rgba(229, 10, 70, 0.5);
+        border-radius: 12px;
+        padding: 18px;
+        font-family: 'Lexend', sans-serif;
+        color: #ffdce6;
+    }
+
+    .info-card {
+        background: rgba(36, 36, 36, 0.94);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .info-block {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .info-label {
+        font-family: 'Neue', sans-serif;
+        font-size: 1rem;
+        color: var(--np-red);
+        margin: 0 0 6px 0;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .info-value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.05rem;
+        margin: 0;
+        color: white;
+    }
+
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+
+    .btn-danger-custom {
+        font-family: 'Lexend', sans-serif;
+        padding: 12px 24px;
+        border-radius: 24px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .btn-danger-custom:hover { background: transparent; color: var(--np-red); }
+
+    .btn-secondary-custom {
+        font-family: 'Lexend', sans-serif;
+        padding: 12px 24px;
+        border-radius: 24px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .btn-secondary-custom:hover { background: white; color: var(--np-dark-grey); }
+</style>
+
+<div class="content-container">
+    <header class="page-header">
+        <h1 class="page-title">Expulsar miembro</h1>
+    </header>
+
+    <div class="alert-card">
+        ¿Seguro que quieres expulsar a este usuario del equipo?
     </div>
-</form>
+
+    <section class="info-card">
+        <div class="info-grid">
+            <div class="info-block">
+                <p class="info-label">Equipo</p>
+                <p class="info-value">@Model.NombreEquipo</p>
+            </div>
+            <div class="info-block">
+                <p class="info-label">Usuario</p>
+                <p class="info-value">@Model.NombreUsuario</p>
+            </div>
+            <div class="info-block">
+                <p class="info-label">Rol</p>
+                <p class="info-value">@Model.Rol</p>
+            </div>
+            <div class="info-block">
+                <p class="info-label">Estado</p>
+                <p class="info-value">@Model.Estado</p>
+            </div>
+            <div class="info-block">
+                <p class="info-label">Fecha de alta</p>
+                <p class="info-value">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </div>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="IdMiembroEquipo" />
+            <div class="actions">
+                <button type="submit" class="btn-danger-custom"><i class="bi bi-trash-fill"></i> Eliminar</button>
+                <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
