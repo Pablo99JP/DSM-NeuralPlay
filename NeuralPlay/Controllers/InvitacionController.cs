@@ -37,8 +37,24 @@ namespace NeuralPlay.Controllers
 
  public IActionResult Index()
  {
- var list = _invitacionCEN.ReadAll_Invitacion().Select(InvitacionAssembler.ConvertENToViewModel).ToList();
- return View(list);
+ // Obtener el usuario de sesi贸n
+ var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
+ if (!usuarioId.HasValue)
+ {
+ TempData["ErrorMessage"] = "Debes iniciar sesi贸n para ver tus invitaciones.";
+ return RedirectToAction("Login", "Usuario");
+ }
+
+ // Obtener solo las invitaciones donde el usuario es emisor o receptor
+ var invitaciones = _invitacionCEN.ReadAll_Invitacion()
+ .Where(inv => 
+ (inv.Emisor != null && inv.Emisor.IdUsuario == usuarioId.Value) ||
+ (inv.Destinatario != null && inv.Destinatario.IdUsuario == usuarioId.Value)
+ )
+ .Select(InvitacionAssembler.ConvertENToViewModel)
+ .ToList();
+
+ return View(invitaciones);
  }
 
  public IActionResult Details(long id)
@@ -52,39 +68,154 @@ namespace NeuralPlay.Controllers
  [HttpGet]
  public IActionResult Create()
  {
- ViewBag.Usuarios = _usuarioRepo.ReadAll().Select(u => new { Id = u.IdUsuario, Name = u.Nick }).ToList();
- ViewBag.Comunidades = _comRepo.ReadAll().Select(c => new { Id = c.IdComunidad, Name = c.Nombre }).ToList();
- ViewBag.Equipos = _equipoRepo.ReadAll().Select(e => new { Id = e.IdEquipo, Name = e.Nombre }).ToList();
+ // Obtener el usuario de sesi贸n como emisor
+ var emisorId = HttpContext.Session.GetInt32("UsuarioId");
+ if (!emisorId.HasValue)
+ {
+ TempData["ErrorMessage"] = "Debes iniciar sesi贸n para enviar invitaciones.";
+ return RedirectToAction("Login", "Usuario");
+ }
+
+ var emisor = _usuarioRepo.ReadById(emisorId.Value);
+ if (emisor == null)
+ {
+ TempData["ErrorMessage"] = "Usuario no encontrado.";
+ return RedirectToAction("Index", "Home");
+ }
+
+ // Pasar informaci贸n del emisor
+ ViewBag.EmisorId = emisor.IdUsuario;
+ ViewBag.EmisorNick = emisor.Nick;
+
+ // Obtener usuarios (excluyendo el emisor)
+ ViewBag.Usuarios = _usuarioRepo.ReadAll()
+ .Where(u => u.IdUsuario != emisorId.Value)
+ .Select(u => new { Id = u.IdUsuario, Name = u.Nick })
+ .ToList();
+
+ // Obtener solo las comunidades y equipos donde el emisor es miembro
+ var comunidadesEmisor = _miembroComunidadRepo.ReadAll()
+ .Where(mc => mc.Usuario != null && mc.Usuario.IdUsuario == emisorId.Value && mc.Comunidad != null)
+ .Select(mc => new { Id = mc.Comunidad!.IdComunidad, Name = mc.Comunidad.Nombre })
+ .ToList();
+
+ var equiposEmisor = _miembroEquipoRepo.ReadAll()
+ .Where(me => me.Usuario != null && me.Usuario.IdUsuario == emisorId.Value && me.Equipo != null)
+ .Select(me => new { Id = me.Equipo!.IdEquipo, Name = me.Equipo.Nombre })
+ .ToList();
+
+ ViewBag.Comunidades = comunidadesEmisor;
+ ViewBag.Equipos = equiposEmisor;
+
  return View();
  }
 
  [HttpPost]
  [ValidateAntiForgeryToken]
- public IActionResult Create(long emisorId, long destinatarioId, ApplicationCore.Domain.Enums.TipoInvitacion tipo, long? comunidadId, long? equipoId)
+ public IActionResult Create(long destinatarioId, ApplicationCore.Domain.Enums.TipoInvitacion tipo, long? comunidadId, long? equipoId)
  {
- // server-side validation
- if (emisorId == destinatarioId)
+ // Obtener el usuario de sesi贸n como emisor
+ var emisorId = HttpContext.Session.GetInt32("UsuarioId");
+ if (!emisorId.HasValue)
  {
- ModelState.AddModelError(string.Empty, "El emisor y destinatario no pueden ser el mismo usuario.");
+ TempData["ErrorMessage"] = "Debes iniciar sesi贸n para enviar invitaciones.";
+ return RedirectToAction("Login", "Usuario");
  }
- var emisor = _usuarioRepo.ReadById(emisorId);
+
+ // Validar que el emisor no sea el destinatario
+ if (emisorId.Value == destinatarioId)
+ {
+ ModelState.AddModelError(string.Empty, "No puedes enviarte una invitaci贸n a ti mismo.");
+ }
+
+ // Validar que el tipo requiera el campo correspondiente
+ if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && !equipoId.HasValue)
+ {
+ ModelState.AddModelError(string.Empty, "Debes seleccionar un equipo para invitaciones de tipo EQUIPO.");
+ }
+
+ if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && !comunidadId.HasValue)
+ {
+ ModelState.AddModelError(string.Empty, "Debes seleccionar una comunidad para invitaciones de tipo COMUNIDAD.");
+ }
+
+ var emisor = _usuarioRepo.ReadById(emisorId.Value);
  var destinatario = _usuarioRepo.ReadById(destinatarioId);
  if (emisor == null || destinatario == null)
  {
- ModelState.AddModelError(string.Empty, "Emisor o destinatario no v醠idos.");
+ ModelState.AddModelError(string.Empty, "Emisor o destinatario no v谩lidos.");
  }
- Comunidad? com = null; Equipo? eq = null;
- if (comunidadId.HasValue) com = _comRepo.ReadById(comunidadId.Value);
- if (equipoId.HasValue) eq = _equipoRepo.ReadById(equipoId.Value);
+
+ Comunidad? com = null; 
+ Equipo? eq = null;
+ 
+ // Validar membres铆a existente
+ if (comunidadId.HasValue)
+ {
+ com = _comRepo.ReadById(comunidadId.Value);
+ // Verificar si el destinatario ya es miembro de la comunidad
+ var yaMiembro = _miembroComunidadRepo.ReadAll()
+ .Any(mc => mc.Usuario != null && mc.Usuario.IdUsuario == destinatarioId 
+ && mc.Comunidad != null && mc.Comunidad.IdComunidad == comunidadId.Value);
+ 
+ if (yaMiembro)
+ {
+ ModelState.AddModelError(string.Empty, $"El usuario {destinatario?.Nick} ya pertenece a esta comunidad.");
+ }
+ }
+ 
+ if (equipoId.HasValue)
+ {
+ eq = _equipoRepo.ReadById(equipoId.Value);
+ // Verificar si el destinatario ya es miembro del equipo
+ var yaMiembro = _miembroEquipoRepo.ReadAll()
+ .Any(me => me.Usuario != null && me.Usuario.IdUsuario == destinatarioId 
+ && me.Equipo != null && me.Equipo.IdEquipo == equipoId.Value);
+ 
+ if (yaMiembro)
+ {
+ ModelState.AddModelError(string.Empty, $"El usuario {destinatario?.Nick} ya pertenece a este equipo.");
+ }
+ }
+
  if (!ModelState.IsValid)
  {
- ViewBag.Usuarios = _usuarioRepo.ReadAll().Select(u => new { Id = u.IdUsuario, Name = u.Nick }).ToList();
- ViewBag.Comunidades = _comRepo.ReadAll().Select(c => new { Id = c.IdComunidad, Name = c.Nombre }).ToList();
- ViewBag.Equipos = _equipoRepo.ReadAll().Select(e => new { Id = e.IdEquipo, Name = e.Nombre }).ToList();
+ // Re-cargar ViewBag data para la vista
+ ViewBag.EmisorId = emisor?.IdUsuario;
+ ViewBag.EmisorNick = emisor?.Nick;
+ ViewBag.Usuarios = _usuarioRepo.ReadAll()
+ .Where(u => u.IdUsuario != emisorId.Value)
+ .Select(u => new { Id = u.IdUsuario, Name = u.Nick })
+ .ToList();
+ 
+ var comunidadesEmisor = _miembroComunidadRepo.ReadAll()
+ .Where(mc => mc.Usuario != null && mc.Usuario.IdUsuario == emisorId.Value && mc.Comunidad != null)
+ .Select(mc => new { Id = mc.Comunidad!.IdComunidad, Name = mc.Comunidad.Nombre })
+ .ToList();
+
+ var equiposEmisor = _miembroEquipoRepo.ReadAll()
+ .Where(me => me.Usuario != null && me.Usuario.IdUsuario == emisorId.Value && me.Equipo != null)
+ .Select(me => new { Id = me.Equipo!.IdEquipo, Name = me.Equipo.Nombre })
+ .ToList();
+
+ ViewBag.Comunidades = comunidadesEmisor;
+ ViewBag.Equipos = equiposEmisor;
+ 
  return View();
  }
+
  var inv = _invitacionCEN.NewInvitacion(tipo, emisor!, destinatario!, com, eq);
- try { _uow?.SaveChanges(); } catch { }
+ try 
+ { 
+ _uow?.SaveChanges();
+ TempData["SuccessMessage"] = "Invitaci贸n enviada exitosamente.";
+ } 
+ catch (Exception ex)
+ {
+ TempData["ErrorMessage"] = $"Error al enviar la invitaci贸n: {ex.Message}";
+ return RedirectToAction(nameof(Create));
+ }
+ 
  return RedirectToAction(nameof(Index));
  }
 
@@ -119,7 +250,7 @@ namespace NeuralPlay.Controllers
  if (inv.Tipo == TipoInvitacion.EQUIPO)
  {
  // create MiembroEquipo directly instead of CP to avoid CP-specific issues
- if (inv.Destinatario == null || inv.Equipo == null) throw new InvalidOperationException("Invitaci髇 inv醠ida para equipo.");
+ if (inv.Destinatario == null || inv.Equipo == null) throw new InvalidOperationException("Invitaci锟絥 inv锟絣ida para equipo.");
  var miembro = new MiembroEquipo
  {
  Usuario = inv.Destinatario,
@@ -134,11 +265,11 @@ namespace NeuralPlay.Controllers
  inv.FechaRespuesta = DateTime.UtcNow;
  _invitacionCEN.ModifyInvitacion(inv);
  _uow.SaveChanges();
- TempData["SuccessMessage"] = "Invitaci髇 aceptada y miembro a馻dido al equipo.";
+ TempData["SuccessMessage"] = "Invitaci锟絥 aceptada y miembro a锟絘dido al equipo.";
  }
  else if (inv.Tipo == TipoInvitacion.COMUNIDAD)
  {
- if (inv.Destinatario == null || inv.Comunidad == null) throw new InvalidOperationException("Invitaci髇 inv醠ida para comunidad.");
+ if (inv.Destinatario == null || inv.Comunidad == null) throw new InvalidOperationException("Invitaci锟絥 inv锟絣ida para comunidad.");
  var miembro = new MiembroComunidad
  {
  Usuario = inv.Destinatario,
@@ -153,11 +284,11 @@ namespace NeuralPlay.Controllers
  inv.FechaRespuesta = DateTime.UtcNow;
  _invitacionCEN.ModifyInvitacion(inv);
  _uow.SaveChanges();
- TempData["SuccessMessage"] = "Invitaci髇 a comunidad aceptada y miembro a馻dido.";
+ TempData["SuccessMessage"] = "Invitaci锟絥 a comunidad aceptada y miembro a锟絘dido.";
  }
  else
  {
- throw new InvalidOperationException("Tipo de invitaci髇 no soportado para aceptar.");
+ throw new InvalidOperationException("Tipo de invitaci锟絥 no soportado para aceptar.");
  }
  }
  catch (Exception ex)
@@ -180,7 +311,7 @@ namespace NeuralPlay.Controllers
  inv.FechaRespuesta = DateTime.UtcNow;
  _invitacionCEN.ModifyInvitacion(inv);
  try { _uow?.SaveChanges(); } catch { }
- TempData["SuccessMessage"] = "Invitaci髇 rechazada.";
+ TempData["SuccessMessage"] = "Invitaci锟絥 rechazada.";
  return RedirectToAction(nameof(Index));
  }
  }

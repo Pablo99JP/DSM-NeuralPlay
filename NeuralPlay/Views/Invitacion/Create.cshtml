@@ -1,41 +1,359 @@
 @{
- ViewData["Title"] = "Crear Invitacion";
+    ViewData["Title"] = "Enviar Invitación";
+    ViewBag.OcultarNavbar = true;
 }
 
-<h1>Crear Invitacion</h1>
-<form asp-action="Create" method="post">
- <div class="mb-3">
- <label class="form-label">Emisor</label>
- <select name="emisorId" class="form-select">
- @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) { <option value="@u.Id">@u.Name</option> }
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Destinatario</label>
- <select name="destinatarioId" class="form-select">
- @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) { <option value="@u.Id">@u.Name</option> }
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Tipo</label>
- <select name="tipo" class="form-select">
- <option value="0">COMUNIDAD</option>
- <option value="1">EQUIPO</option>
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Comunidad (opcional)</label>
- <select name="comunidadId" class="form-select">
- <option value="">--</option>
- @foreach(var c in (IEnumerable<dynamic>)ViewBag.Comunidades) { <option value="@c.Id">@c.Name</option> }
- </select>
- </div>
- <div class="mb-3">
- <label class="form-label">Equipo (opcional)</label>
- <select name="equipoId" class="form-select">
- <option value="">--</option>
- @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) { <option value="@e.Id">@e.Name</option> }
- </select>
- </div>
- <button type="submit" class="btn btn-primary">Crear</button>
-</form>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-transp: #21020a7a;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        color: white;
+    }
+
+    .main-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+        z-index: 1;
+    }
+
+    .content-container {
+        position: absolute;
+        left: 11%;
+        top: 0;
+        width: 83%;
+        min-height: 100vh;
+        z-index: 2;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        width: 100%;
+        max-width: 1000px;
+    }
+
+    .page-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 5rem;
+        color: white;
+        text-transform: uppercase;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+        margin: 0;
+        letter-spacing: 2px;
+        line-height: 0.95;
+    }
+
+    .page-subtitle {
+        font-family: 'Lexend', sans-serif;
+        color: #d7d7d7;
+        margin: 6px 0 0 0;
+        font-size: 1rem;
+    }
+
+    .form-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 1000px;
+        width: 100%;
+    }
+
+    .form-group { margin-bottom: 26px; }
+
+    .form-label {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: var(--np-red);
+        margin-bottom: 10px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-input,
+    .form-select {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.15rem;
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
+
+    .form-select option { 
+        background: var(--np-dark-grey); 
+        color: white; 
+        padding: 10px; 
+    }
+
+    .pill-badge {
+        display: inline-block;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        padding: 12px 24px;
+        background: rgba(229, 10, 70, 0.2);
+        color: var(--np-red);
+        border: 2px solid var(--np-red);
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .validation-panel {
+        color: var(--np-red);
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(229, 10, 70, 0.1);
+        border-radius: 8px;
+        border-left: 4px solid var(--np-red);
+    }
+
+    .actions { 
+        display: flex; 
+        gap: 12px; 
+        flex-wrap: wrap; 
+        margin-top: 30px;
+    }
+
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        padding: 14px 34px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover { 
+        background: transparent; 
+        color: var(--np-red); 
+        transform: scale(1.03); 
+    }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        padding: 14px 34px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover { 
+        background: white; 
+        color: var(--np-dark-grey); 
+    }
+
+    .text-danger {
+        color: var(--np-red);
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.95rem;
+        display: block;
+        margin-top: 6px;
+    }
+
+    .form-note {
+        font-family: 'Lexend', sans-serif;
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    .dynamic-group {
+        display: none;
+    }
+
+    .dynamic-group.show {
+        display: block;
+    }
+</style>
+
+<div class="main-container"></div>
+
+<div class="content-container">
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">Enviar Invitación</h1>
+            <p class="page-subtitle">Invita a un usuario a unirse a tu equipo o comunidad</p>
+        </div>
+    </header>
+
+    <section class="form-card">
+        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="validation-panel">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label class="form-label">Emisor</label>
+                <div class="pill-badge">
+                    <i class="bi bi-person-fill"></i> @ViewBag.EmisorNick
+                </div>
+                <p class="form-note">Estás enviando esta invitación como @ViewBag.EmisorNick</p>
+            </div>
+
+            <div class="form-group">
+                <label for="destinatarioId" class="form-label">Destinatario</label>
+                <select name="destinatarioId" id="destinatarioId" class="form-select" required>
+                    <option value="">-- Selecciona un usuario --</option>
+                    @foreach(var u in (IEnumerable<dynamic>)ViewBag.Usuarios) 
+                    { 
+                        <option value="@u.Id">@u.Name</option> 
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo" class="form-label">Tipo de Invitación</label>
+                <select name="tipo" id="tipo" class="form-select" required>
+                    <option value="">-- Selecciona el tipo --</option>
+                    <option value="1">Invitación a Equipo</option>
+                    <option value="0">Invitación a Comunidad</option>
+                </select>
+            </div>
+
+            <div class="form-group dynamic-group" id="equipoGroup">
+                <label for="equipoId" class="form-label">Equipo</label>
+                <select name="equipoId" id="equipoId" class="form-select">
+                    <option value="">-- Selecciona un equipo --</option>
+                    @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) 
+                    { 
+                        <option value="@e.Id">@e.Name</option> 
+                    }
+                </select>
+                <p class="form-note">Selecciona el equipo al que deseas invitar al usuario</p>
+            </div>
+
+            <div class="form-group dynamic-group" id="comunidadGroup">
+                <label for="comunidadId" class="form-label">Comunidad</label>
+                <select name="comunidadId" id="comunidadId" class="form-select">
+                    <option value="">-- Selecciona una comunidad --</option>
+                    @foreach(var c in (IEnumerable<dynamic>)ViewBag.Comunidades) 
+                    { 
+                        <option value="@c.Id">@c.Name</option> 
+                    }
+                </select>
+                <p class="form-note">Selecciona la comunidad a la que deseas invitar al usuario</p>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-send-fill"></i> Enviar Invitación
+                </button>
+                <a asp-action="Index" class="btn-cancel">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('tipo');
+        const equipoGroup = document.getElementById('equipoGroup');
+        const comunidadGroup = document.getElementById('comunidadGroup');
+        const equipoSelect = document.getElementById('equipoId');
+        const comunidadSelect = document.getElementById('comunidadId');
+
+        tipoSelect.addEventListener('change', function() {
+            const tipo = this.value;
+
+            // Ocultar ambos grupos
+            equipoGroup.classList.remove('show');
+            comunidadGroup.classList.remove('show');
+
+            // Limpiar selecciones
+            equipoSelect.value = '';
+            comunidadSelect.value = '';
+
+            // Mostrar el grupo correspondiente
+            if (tipo === '1') { // EQUIPO
+                equipoGroup.classList.add('show');
+                equipoSelect.setAttribute('required', 'required');
+                comunidadSelect.removeAttribute('required');
+            } else if (tipo === '0') { // COMUNIDAD
+                comunidadGroup.classList.add('show');
+                comunidadSelect.setAttribute('required', 'required');
+                equipoSelect.removeAttribute('required');
+            } else {
+                equipoSelect.removeAttribute('required');
+                comunidadSelect.removeAttribute('required');
+            }
+        });
+
+        // Trigger en caso de que haya un valor pre-seleccionado (validación fallida)
+        if (tipoSelect.value) {
+            tipoSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+
+@@section Scripts {
+    @@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

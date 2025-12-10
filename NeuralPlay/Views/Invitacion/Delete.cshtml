@@ -1,21 +1,237 @@
 @model NeuralPlay.Models.InvitacionViewModel
 
 @{
- ViewData["Title"] = "Eliminar Invitacion";
+	ViewData["Title"] = "Eliminar invitacion";
+	ViewBag.OcultarNavbar = true;
 }
 
-<h1>Eliminar Invitacion</h1>
-<div>
- <h4>Confirmar eliminación de invitación @Model.IdInvitacion</h4>
- <dl class="row">
- <dt class="col-sm-2">Emisor</dt>
- <dd class="col-sm-10">@Model.EmisorNick</dd>
- <dt class="col-sm-2">Destinatario</dt>
- <dd class="col-sm-10">@Model.DestinatarioNick</dd>
- </dl>
- <form asp-action="Delete" method="post">
- <input type="hidden" name="id" value="@Model.IdInvitacion" />
- <button type="submit" class="btn btn-danger">Eliminar</button>
- <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
- </form>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+	:root {
+		--np-red: #e50a46;
+		--np-grey: #454545;
+		--np-dark-grey: #242424;
+	}
+
+	@@font-face {
+		font-family: 'Neue';
+		src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@@font-face {
+		font-family: 'Lexend';
+		src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	body {
+		margin: 0;
+		padding: 0;
+		overflow-x: hidden;
+		color: white;
+		background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+		background-size: cover;
+	}
+
+	.content-container {
+		width: 78%;
+		margin: 0 auto;
+		min-height: 100vh;
+		padding: 60px 0 60px 0;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.page-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	.page-title {
+		font-family: 'Neue', sans-serif;
+		font-size: 3.8rem;
+		color: white;
+		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+	}
+
+	.page-subtitle {
+		font-family: 'Lexend', sans-serif;
+		color: #d7d7d7;
+		margin: 6px 0 0 0;
+		font-size: 1.05rem;
+	}
+
+	.card-panel {
+		background: rgba(36, 36, 36, 0.94);
+		border-radius: 12px;
+		padding: 24px;
+		box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		width: 100%;
+	}
+
+	.highlight-box {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 14px;
+		padding: 16px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 10px;
+		margin-top: 8px;
+	}
+
+	.meta-label {
+		font-family: 'Lexend', sans-serif;
+		color: #9fb1c1;
+		font-size: 0.95rem;
+		margin-bottom: 4px;
+	}
+
+	.meta-value {
+		font-family: 'Lexend', sans-serif;
+		color: white;
+		font-size: 1.05rem;
+		word-break: break-word;
+	}
+
+	.badge-pill {
+		padding: 8px 14px;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
+		font-size: 0.85rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		white-space: nowrap;
+	}
+
+	.badge-estado-pendiente {
+		background: rgba(255, 152, 0, 0.1);
+		border-color: #ff9800;
+		color: #fff3cd;
+	}
+
+	.badge-estado-aceptada {
+		background: rgba(76, 175, 80, 0.1);
+		border-color: #4caf50;
+		color: #d4edda;
+	}
+
+	.badge-estado-rechazada {
+		background: rgba(244, 67, 54, 0.1);
+		border-color: #f44336;
+		color: #ffe3e0;
+	}
+
+	.warning-box {
+		margin-top: 16px;
+		padding: 14px 16px;
+		border-radius: 10px;
+		background: rgba(229, 10, 70, 0.08);
+		border: 1px solid rgba(229, 10, 70, 0.4);
+		color: #f7c6d5;
+		font-family: 'Lexend', sans-serif;
+	}
+
+	.actions {
+		display: flex;
+		gap: 12px;
+		flex-wrap: wrap;
+		margin-top: 18px;
+	}
+
+	.btn-primary-ghost,
+	.btn-danger-solid,
+	.btn-secondary-ghost {
+		font-family: 'Lexend', sans-serif;
+		padding: 12px 18px;
+		border-radius: 12px;
+		text-decoration: none;
+		border: 1px solid transparent;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		color: white;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.btn-secondary-ghost { border-color: rgba(255, 255, 255, 0.2); }
+	.btn-secondary-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+
+	.btn-danger-solid { background: var(--np-red); border-color: var(--np-red); }
+	.btn-danger-solid:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+	.btn-primary-ghost { border-color: #00b894; color: #d1fff2; }
+	.btn-primary-ghost:hover { background: #00b894; color: #0d1b2a; }
+</style>
+
+<div class="content-container">
+	<div class="page-header">
+		<div>
+			<h1 class="page-title">Eliminar invitacion</h1>
+			<p class="page-subtitle">Confirma antes de borrar definitivamente</p>
+		</div>
+		<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
+	</div>
+
+	<section class="card-panel">
+		<div class="highlight-box">
+			<div>
+				<div class="meta-label">Estado</div>
+				@if (Model.Estado.ToString() == "PENDIENTE")
+				{
+					<span class="badge-pill badge-estado-pendiente"><i class="bi bi-hourglass-split"></i> Pendiente</span>
+				}
+				else if (Model.Estado.ToString() == "ACEPTADA")
+				{
+					<span class="badge-pill badge-estado-aceptada"><i class="bi bi-check-circle"></i> Aceptada</span>
+				}
+				else
+				{
+					<span class="badge-pill badge-estado-rechazada"><i class="bi bi-x-circle"></i> Rechazada</span>
+				}
+			</div>
+			<div>
+				<div class="meta-label">Emisor</div>
+				<div class="meta-value">@Model.EmisorNick</div>
+			</div>
+			<div>
+				<div class="meta-label">Destinatario</div>
+				<div class="meta-value">@Model.DestinatarioNick</div>
+			</div>
+			<div>
+				<div class="meta-label">Tipo</div>
+				<div class="meta-value">@Model.Tipo</div>
+			</div>
+		</div>
+
+		<div class="warning-box">
+			<i class="bi bi-exclamation-triangle-fill"></i>
+			Esta accion eliminara la invitacion de forma permanente. No podras recuperarla.
+		</div>
+
+		<form asp-action="Delete" method="post">
+			<input type="hidden" name="id" value="@Model.IdInvitacion" />
+			<div class="actions">
+				<button type="submit" class="btn-danger-solid"><i class="bi bi-trash"></i> Eliminar definitivamente</button>
+				<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-x-circle"></i> Cancelar</a>
+			</div>
+		</form>
+	</section>
 </div>
