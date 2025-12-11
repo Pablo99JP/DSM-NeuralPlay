@@ -199,7 +199,29 @@
         display: inline-block;
     }
 
-    .btn-cancel:hover { 
+    .btn-cancel:hover { background: white; color: var(--np-dark-grey); }
+
+    /* Ajustes tablet: layout y espaciados especificos */
+    @@media (max-width: 1024px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 110px 24px 40px;
+        }
+
+        .page-title { font-size: 3.6rem; }
+        .page-subtitle { font-size: 0.95rem; }
+        .page-header { margin-bottom: 30px; }
+
+        .form-card { padding: 28px; }
+        .form-label { font-size: 1.2rem; }
+        .form-input,
+        .form-select { font-size: 1rem; padding: 12px 14px; }
+
+        .btn-submit, .btn-cancel { font-size: 1.05rem; padding: 12px 26px; }
+
+        .pill-badge { font-size: 1rem; padding: 10px 16px; }
+    }
         background: white; 
         color: var(--np-dark-grey); 
     }
