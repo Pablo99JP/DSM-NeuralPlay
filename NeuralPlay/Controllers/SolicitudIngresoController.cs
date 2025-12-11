@@ -123,6 +123,10 @@ namespace NeuralPlay.Controllers
  {
  return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
  }
+ else if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && equipoId.HasValue)
+ {
+ return RedirectToAction("Index", "Home");
+ }
  }
  catch (Exception ex)
  {
@@ -170,6 +174,9 @@ namespace NeuralPlay.Controllers
  if (!uid.HasValue) return Forbid();
  if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
 
+ // Capturar si es equipo ANTES de modificar
+ bool esEquipo = s.Equipo != null;
+
  if (s.Equipo != null)
  {
  var miembro = new MiembroEquipo { Usuario = s.Solicitante!, Equipo = s.Equipo, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO, FechaAccion = DateTime.UtcNow };
@@ -184,6 +191,12 @@ namespace NeuralPlay.Controllers
  s.FechaResolucion = DateTime.UtcNow;
  _solCEN.ModifySolicitudIngreso(s);
  try { _uow?.SaveChanges(); } catch {}
+ 
+ // Si es una solicitud de equipo, redirigir al Home; si no, ir a la lista de solicitudes
+ if (esEquipo)
+ {
+     return RedirectToAction("Index", "Home");
+ }
  return RedirectToAction(nameof(Index));
  }
 
