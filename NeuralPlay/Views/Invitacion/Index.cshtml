@@ -373,9 +373,12 @@
                                     <a asp-action="Details" asp-route-id="@item.IdInvitacion" class="action-btn action-view">
                                         <i class="bi bi-eye"></i> Ver
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@item.IdInvitacion" class="action-btn action-delete">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </a>
+                                    @if (item.Estado.ToString() != "ACEPTADA")
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@item.IdInvitacion" class="action-btn action-delete">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                    }
                                 </div>
                             </td>
                         </tr>

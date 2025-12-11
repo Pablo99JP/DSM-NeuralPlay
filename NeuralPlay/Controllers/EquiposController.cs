@@ -35,9 +35,9 @@ namespace NeuralPlay.Controllers
                 
                 if (!userId.HasValue)
                 {
-                    // Usuario no autenticado
-                    ViewBag.NoAutenticado = true;
-                    return View(Enumerable.Empty<EquipoViewModel>());
+                    // Usuario no autenticado - redirigir al login
+                    TempData["ErrorMessage"] = "Debes iniciar sesión para ver tus equipos.";
+                    return RedirectToAction("Login", "Usuario");
                 }
 
                 // Obtener los equipos del usuario usando el método del CEN

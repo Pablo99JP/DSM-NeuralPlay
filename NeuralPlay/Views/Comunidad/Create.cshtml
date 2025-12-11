@@ -221,6 +221,26 @@
         align-items: center;
         cursor: pointer;
     }
+
+    /* Ajustes tablet: layout y espaciados especificos de esta vista */
+    @@media (max-width: 1024px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 110px 24px 40px;
+        }
+
+        .page-title { font-size: 3.6rem; }
+        .page-subtitle { font-size: 0.95rem; }
+
+        .form-card { padding: 28px; }
+        .form-label { font-size: 1.2rem; }
+        .form-input,
+        .form-select,
+        textarea.form-input { font-size: 1rem; padding: 12px 14px; }
+
+        .btn-submit, .btn-cancel { font-size: 1.05rem; padding: 12px 26px; }
+    }
 </style>
 
 <div class="main-container"></div>

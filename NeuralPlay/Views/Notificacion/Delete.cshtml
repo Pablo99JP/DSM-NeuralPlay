@@ -1,9 +1,175 @@
 @model NeuralPlay.Models.NotificacionViewModel
 
-<h2>Eliminar Notificación</h2>
-<p>¿Desea eliminar la notificación <strong>@Model.Texto</strong>?</p>
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+@{
+    ViewData["Title"] = "Eliminar notificacion";
+    ViewBag.OcultarNavbar = true;
+}
+
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
+    }
+
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        color: white;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .content-container {
+        width: 78%;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: 60px 0 60px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .page-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 3.8rem;
+        color: white;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .page-subtitle {
+        font-family: 'Lexend', sans-serif;
+        color: #d7d7d7;
+        margin: 6px 0 0 0;
+        font-size: 1.05rem;
+    }
+
+    .card-panel {
+        background: rgba(36, 36, 36, 0.94);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        width: 100%;
+    }
+
+    .highlight-box {
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        margin-top: 8px;
+    }
+
+    .meta-label {
+        font-family: 'Lexend', sans-serif;
+        color: #9fb1c1;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .meta-value {
+        font-family: 'Lexend', sans-serif;
+        color: white;
+        font-size: 1.05rem;
+        word-break: break-word;
+    }
+
+    .warning-box {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(229, 10, 70, 0.08);
+        border: 1px solid rgba(229, 10, 70, 0.4);
+        color: #f7c6d5;
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .btn-secondary-ghost,
+    .btn-danger-solid {
+        font-family: 'Lexend', sans-serif;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-secondary-ghost { border-color: rgba(255, 255, 255, 0.2); }
+    .btn-secondary-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+
+    .btn-danger-solid { background: var(--np-red); border-color: var(--np-red); }
+    .btn-danger-solid:hover { filter: brightness(1.05); transform: translateY(-1px); }
+</style>
+
+<div class="content-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Eliminar notificación</h1>
+            <p class="page-subtitle">Confirma antes de borrar definitivamente</p>
+        </div>
+        <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+
+    <section class="card-panel">
+        <div class="highlight-box">
+            <div class="meta-label">Texto</div>
+            <div class="meta-value">@Model.Texto</div>
+        </div>
+
+        <div class="warning-box">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Esta accion eliminara la notificacion de forma permanente. No podras recuperarla.
+        </div>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="actions">
+                <button type="submit" class="btn-danger-solid"><i class="bi bi-trash"></i> Eliminar definitivamente</button>
+                <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-x-circle"></i> Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
