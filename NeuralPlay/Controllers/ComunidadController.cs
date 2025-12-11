@@ -5,6 +5,9 @@ using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace NeuralPlay.Controllers
 {
@@ -17,6 +20,9 @@ namespace NeuralPlay.Controllers
         private readonly IRepository<Publicacion> _publicacionRepository;
         private readonly IReaccionRepository _reaccionRepository;
         private readonly IMiembroComunidadRepository _miembroComunidadRepository;
+        private readonly NeuralPlay.Services.IUsuarioAuth _usuarioAuth;
+        private readonly MiembroComunidadCEN _miembroComunidadCEN;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public ComunidadController(
             UsuarioCEN usuarioCEN,
@@ -26,7 +32,10 @@ namespace NeuralPlay.Controllers
             IUnitOfWork unitOfWork,
             IRepository<Publicacion> publicacionRepository,
             IReaccionRepository reaccionRepository,
-            IMiembroComunidadRepository miembroComunidadRepository)
+            IMiembroComunidadRepository miembroComunidadRepository,
+            NeuralPlay.Services.IUsuarioAuth usuarioAuth,
+            MiembroComunidadCEN miembroComunidadCEN,
+            IWebHostEnvironment webHostEnvironment)
             : base(usuarioCEN, usuarioRepository)
         {
             _comunidadCEN = comunidadCEN;
@@ -36,6 +45,9 @@ namespace NeuralPlay.Controllers
             _reaccionRepository = reaccionRepository;
             _publicacionCEN = new PublicacionCEN(publicacionRepository);
             _miembroComunidadRepository = miembroComunidadRepository;
+            _usuarioAuth = usuarioAuth;
+            _miembroComunidadCEN = miembroComunidadCEN;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: /Comunidad
@@ -95,8 +107,9 @@ namespace NeuralPlay.Controllers
                 if (en == null) return NotFound();
                 var vm = ComunidadAssembler.ConvertENToViewModel(en);
                 
-                // Cargar los miembros de la comunidad
+                // Cargar los miembros de la comunidad (solo activos)
                 var miembros = (en.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Where(m => m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
                     .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
                     .ToList();
                 
@@ -107,7 +120,8 @@ namespace NeuralPlay.Controllers
                 string rolUsuario = "Jugador"; // Valor por defecto
                 if (uid.HasValue)
                 {
-                    var miembroActual = en.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                    var miembroActual = en.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                        && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
                     if (miembroActual != null)
                     {
                         rolUsuario = miembroActual.Rol.ToString();
@@ -159,24 +173,74 @@ namespace NeuralPlay.Controllers
         // POST: /Comunidad/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ComunidadViewModel model)
+        public async Task<IActionResult> Create(ComunidadViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
             try
             {
-                // Instanciar explícitamente el CEN y pasar propiedades individuales del ViewModel
+                // Obtener el usuario actual
+                var usuarioActual = _usuarioAuth.GetUsuarioActual();
+                if (usuarioActual == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No se pudo obtener el usuario actual.");
+                    return View(model);
+                }
+
+                // Procesar la imagen si fue subida
+                string? rutaImagen = null;
+                if (model.ImagenArchivo != null && model.ImagenArchivo.Length > 0)
+                {
+                    // Validar tipo de archivo
+                    var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                    string extension = Path.GetExtension(model.ImagenArchivo.FileName).ToLowerInvariant();
+                    
+                    if (!extensionesPermitidas.Contains(extension))
+                    {
+                        ModelState.AddModelError("ImagenArchivo", "Solo se permiten imágenes (jpg, jpeg, png, gif, webp).");
+                        return View(model);
+                    }
+                    
+                    // Generar nombre único para el archivo
+                    string nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                    
+                    // Definir ruta de guardado
+                    string directorioComunidades = Path.Combine(_webHostEnvironment.WebRootPath, "Recursos", "Comunidades");
+                    
+                    // Crear directorio si no existe
+                    if (!Directory.Exists(directorioComunidades))
+                    {
+                        Directory.CreateDirectory(directorioComunidades);
+                    }
+                    
+                    string rutaCompleta = Path.Combine(directorioComunidades, nombreArchivo);
+                    
+                    // Guardar el archivo
+                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    {
+                        await model.ImagenArchivo.CopyToAsync(stream);
+                    }
+                    
+                    // Actualizar la ruta relativa para guardar en BD
+                    rutaImagen = $"/Recursos/Comunidades/{nombreArchivo}";
+                }
+
+                // Crear la comunidad
                 var cen = new ComunidadCEN(_comunidadRepository);
+                var nuevaComunidad = cen.NewComunidad(model.Nombre ?? string.Empty, model.Descripcion);
+                
+                // Asignar la imagen si fue subida
+                if (rutaImagen != null)
+                {
+                    nuevaComunidad.ImagenUrl = rutaImagen;
+                    _comunidadRepository.Modify(nuevaComunidad);
+                }
 
-                // Obtener el id del creador de la sesión si está disponible, o usar 1 por defecto
-                var idCreador = HttpContext.Session.GetInt32("UsuarioId") ?? 1;
-
-                // En este CEN actual no existe parámetro para el creador; se deja preparado por si se amplía el método.
-                // Llamada que NO pasa el ViewModel, solo propiedades primitivas requeridas por el CEN
-                cen.NewComunidad(model.Nombre ?? string.Empty, model.Descripcion);
+                // Agregar al creador como LIDER de la comunidad
+                _miembroComunidadCEN.NewMiembroComunidad(usuarioActual, nuevaComunidad, ApplicationCore.Domain.Enums.RolComunidad.LIDER);
 
                 try { _unitOfWork?.SaveChanges(); } catch { }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("MisComunidades");
             }
             catch (System.Exception ex)
             {
@@ -237,8 +301,9 @@ namespace NeuralPlay.Controllers
                 if (en == null) return NotFound();
                 var vm = ComunidadAssembler.ConvertENToViewModel(en);
                 
-                // Cargar los miembros de la comunidad
+                // Cargar los miembros de la comunidad (solo activos)
                 var miembros = (en.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Where(m => m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
                     .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
                     .Where(m => m != null)
                     .OrderBy(m => m?.FechaAlta ?? DateTime.MinValue)
@@ -251,6 +316,104 @@ namespace NeuralPlay.Controllers
             catch (System.Exception ex)
             {
                 return Problem(ex.Message);
+            }
+        }
+
+        // GET: /Comunidad/ListaNegra/5
+        public IActionResult ListaNegra(long id)
+        {
+            try
+            {
+                // Verificar que el usuario actual es líder de la comunidad
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return RedirectToAction("Login", "Usuario");
+                }
+
+                var en = _comunidadCEN.ReadOID_Comunidad(id);
+                if (en == null) return NotFound();
+
+                // Verificar que el usuario actual es LIDER, COLABORADOR o MODERADOR
+                var miembroActual = en.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                    && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+                if (miembroActual == null || 
+                    (miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+                     miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.COLABORADOR &&
+                     miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.MODERADOR))
+                {
+                    TempData["ErrorMessage"] = "No tienes permisos para acceder a la lista negra.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                var vm = ComunidadAssembler.ConvertENToViewModel(en);
+                
+                // Cargar los miembros expulsados de la comunidad
+                var miembrosExpulsados = (en.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Where(m => m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.EXPULSADA)
+                    .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
+                    .Where(m => m != null)
+                    .OrderByDescending(m => m?.FechaBaja ?? DateTime.MinValue)
+                    .ToList();
+                
+                ViewBag.MiembrosExpulsados = (object?)miembrosExpulsados;
+                
+                return View(vm);
+            }
+            catch (System.Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        // POST: /Comunidad/PermitirReingreso
+        [HttpPost]
+        public IActionResult PermitirReingreso(long miembroId)
+        {
+            try
+            {
+                // Verificar autenticación
+                var uid = HttpContext.Session.GetInt32("UsuarioId");
+                if (!uid.HasValue)
+                {
+                    return Json(new { success = false, message = "No autenticado" });
+                }
+
+                // Obtener el miembro expulsado
+                var miembro = _miembroComunidadRepository.ReadById(miembroId);
+                if (miembro == null)
+                {
+                    return Json(new { success = false, message = "Miembro no encontrado" });
+                }
+
+                // Verificar que está expulsado
+                if (miembro.Estado != ApplicationCore.Domain.Enums.EstadoMembresia.EXPULSADA)
+                {
+                    return Json(new { success = false, message = "Este usuario no está en la lista negra" });
+                }
+
+                // Verificar que el usuario actual es líder, colaborador o moderador de la comunidad
+                var comunidad = miembro.Comunidad;
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                    && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
+                if (miembroActual == null || 
+                    (miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.LIDER && 
+                     miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.COLABORADOR &&
+                     miembroActual.Rol != ApplicationCore.Domain.Enums.RolComunidad.MODERADOR))
+                {
+                    return Json(new { success = false, message = "No tienes permisos para realizar esta acción" });
+                }
+
+                // Cambiar el estado a ABANDONADA para permitir que el usuario pueda volver a unirse
+                miembro.Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ABANDONADA;
+                _miembroComunidadRepository.Modify(miembro);
+                _unitOfWork?.SaveChanges();
+
+                return Json(new { success = true, message = "El usuario ahora puede volver a unirse a la comunidad" });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

@@ -97,6 +97,9 @@ app.UseRouting();
 // Session middleware debe añadirse tras UseRouting y antes de UseAuthorization
 app.UseSession();
 
+// Authentication middleware: protege todas las rutas excepto login y registro
+app.UseMiddleware<NeuralPlay.Middleware.AuthenticationMiddleware>();
+
 // UnitOfWork middleware: commitea los cambios NHibernate al final de cada petición
 app.UseMiddleware<NeuralPlay.Middleware.UnitOfWorkMiddleware>();
 

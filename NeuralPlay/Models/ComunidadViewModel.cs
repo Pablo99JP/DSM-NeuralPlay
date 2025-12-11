@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace NeuralPlay.Models
 {
@@ -23,6 +24,10 @@ namespace NeuralPlay.Models
 
     // Ruta de la imagen asociada a la comunidad
     public string? ImagenUrl { get; set; }
+
+    // Archivo de imagen para subir
+    [Display(Name = "Imagen de la comunidad")]
+    public IFormFile? ImagenArchivo { get; set; }
 
         [Display(Name = "Propietario")]
         public string? Propietario { get; set; }

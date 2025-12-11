@@ -260,6 +260,65 @@
             margin-bottom: 1rem;
             border-radius: 4px;
         }
+
+        /* Ajustes tablet */
+        @@media (max-width: 1024px) {
+            .login-wrapper {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            aside.left-panel {
+                width: 100%;
+                min-height: 200px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            section.left-content {
+                width: 100%;
+                position: relative;
+                padding: 20px;
+            }
+
+            .brand-logo {
+                max-width: 300px;
+                margin-bottom: 10px;
+            }
+
+            h1.welcome-text {
+                font-size: 1.3rem;
+            }
+
+            section.right-panel {
+                width: 100%;
+                max-width: 400px;
+                padding: 20px;
+            }
+
+            .login-title {
+                font-size: 1.8rem;
+            }
+
+            .form-group input {
+                font-size: 0.95rem;
+                padding: 10px 12px;
+            }
+
+            button[type="submit"] {
+                font-size: 1.3rem;
+                padding: 12px 24px;
+            }
+
+            footer {
+                font-size: 1rem;
+            }
+
+            a {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>

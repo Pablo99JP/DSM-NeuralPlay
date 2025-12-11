@@ -506,6 +506,17 @@
         </div>
     }
 
+    <!-- Opciones para Líder y Colaboradores/Moderadores -->
+    @if (esLider || esModerador)
+    {
+        <div class="menu-section">
+            <button class="menu-btn" onclick="verListaNegra()">
+                <span>LISTA NEGRA</span>
+                <i class="bi bi-ban"></i>
+            </button>
+        </div>
+    }
+
     <!-- Opciones para Líder y Moderadores (Colaborador/Moderador) -->
     @if (esLider || esModerador)
     {
@@ -745,6 +756,11 @@
         function gestionarMiembros() {
             const comunidadId = @Model.IdComunidad;
             window.location.href = '/MiembroComunidad/Detalles?idComunidad=' + comunidadId;
+        }
+
+        function verListaNegra() {
+            const comunidadId = @Model.IdComunidad;
+            window.location.href = '/Comunidad/ListaNegra/' + comunidadId;
         }
 
         function verTorneos() {

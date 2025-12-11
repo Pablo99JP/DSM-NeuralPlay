@@ -285,22 +285,12 @@ namespace NeuralPlay.Controllers
         // GET: /Equipo/Create
         public IActionResult Create()
         {
-            // El usuario debe estar autenticado y pertenecer a alguna comunidad activa
+            // El usuario debe estar autenticado
             var userId = HttpContext.Session.GetInt32("UsuarioId");
             if (!userId.HasValue)
             {
                 TempData["ErrorMessage"] = "Debes iniciar sesión para crear un equipo.";
                 return RedirectToAction("Login", "Usuario");
-            }
-
-            var isInCommunity = _miembroComunidadCEN.ReadAll_MiembroComunidad()
-                .Any(m => m.Usuario != null && m.Usuario.IdUsuario == userId.Value &&
-                          m.Estado == EstadoMembresia.ACTIVA);
-
-            if (!isInCommunity)
-            {
-                TempData["ErrorMessage"] = "Debes pertenecer a una comunidad activa para crear un equipo.";
-                return RedirectToAction("Index", "Comunidad");
             }
 
             return View();
@@ -320,17 +310,6 @@ namespace NeuralPlay.Controllers
                 {
                     TempData["ErrorMessage"] = "Debes iniciar sesión para crear un equipo.";
                     return RedirectToAction("Login", "Usuario");
-                }
-
-                // Validar pertenencia a una comunidad activa
-                var isInCommunity = _miembroComunidadCEN.ReadAll_MiembroComunidad()
-                    .Any(m => m.Usuario != null && m.Usuario.IdUsuario == userId.Value &&
-                              m.Estado == EstadoMembresia.ACTIVA);
-
-                if (!isInCommunity)
-                {
-                    TempData["ErrorMessage"] = "Debes pertenecer a una comunidad activa para crear un equipo.";
-                    return RedirectToAction("Index", "Comunidad");
                 }
 
                 var usuario = _usuarioRepository.ReadById(userId.Value);

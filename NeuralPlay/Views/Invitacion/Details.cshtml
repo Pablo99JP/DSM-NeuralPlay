@@ -251,6 +251,11 @@
 					<button type="submit" class="btn-danger-solid"><i class="bi bi-x"></i> Rechazar</button>
 				</form>
 			}
+
+			@if (Model.Estado.ToString() != "ACEPTADA")
+			{
+				<a asp-action="Delete" asp-route-id="@Model.IdInvitacion" class="btn-danger-solid" style="margin-left: 12px;"><i class="bi bi-trash"></i> Eliminar</a>
+			}
 		</div>
 	</section>
 </div>
