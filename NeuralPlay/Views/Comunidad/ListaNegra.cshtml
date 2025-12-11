@@ -303,7 +303,7 @@
             <i class="bi bi-check-circle"></i>
             <p>No hay usuarios en la lista negra.</p>
             <p style="font-size: 1rem; color: #666; margin-top: 10px;">
-                Todos los miembros estÃ¡n en buenos tÃ©rminos con la comunidad.
+                Todos los miembros están en buenos términos con la comunidad.
             </p>
         </div>
     }
@@ -311,7 +311,7 @@
 
 <script>
     function permitirReingreso(miembroId, nombreUsuario) {
-        if (!confirm(`Â¿EstÃ¡s seguro de que quieres permitir que ${nombreUsuario} pueda volver a unirse a la comunidad?`)) {
+        if (!confirm(`¿Estás seguro de que quieres permitir que ${nombreUsuario} pueda volver a unirse a la comunidad?`)) {
             return;
         }
 
@@ -340,7 +340,7 @@
                     setTimeout(() => {
                         memberCard.remove();
                         
-                        // Si no quedan mÃ¡s miembros, mostrar mensaje
+                        // Si no quedan más miembros, mostrar mensaje
                         const membersGrid = document.querySelector('.members-grid');
                         if (membersGrid && membersGrid.children.length === 0) {
                             location.reload();
@@ -348,7 +348,7 @@
                     }, 500);
                 }
 
-                // Ocultar la alerta despuÃ©s de 3 segundos
+                // Ocultar la alerta después de 3 segundos
                 setTimeout(() => {
                     alertDiv.style.display = 'none';
                 }, 3000);

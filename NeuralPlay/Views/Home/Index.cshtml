@@ -10,22 +10,6 @@
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
-    :root {
-        --np-red: #e50a46;
-        --np-grey: #454545;
-        --np-dark-grey: #242424;
-    }
-    /* AÑADIDO: Prevenir scroll horizontal globalmente */
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-    }
-    body {
-        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
-        background-size: cover;
-    }
     .explore-header {
         text-align: center;
         margin-bottom: 15px;
@@ -511,11 +495,11 @@
 
         /* Ajustar contenedor principal */
         main.content-wrapper {
-            padding: 0 !important;
-            padding-bottom: calc(12vh + 20px) !important;
-            margin: 0 !important;
-            max-width: 100%;
             width: 100%;
+            padding: 0 0;
+            padding-bottom: calc(12vh + 20px) !important;
+            margin: 0 auto;
+            max-width: 100%;
         }
 
         /* Barra de búsqueda */
@@ -663,7 +647,7 @@
     <div class="explore-divider"></div>
 </header>
 
-<main class="content-wrapper" style="padding-right: 11%;">
+<main class="content-wrapper">
     <section class="container-fluid">
         <div class="row justify-content-center">
             <section class="col-12">

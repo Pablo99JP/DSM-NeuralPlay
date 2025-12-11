@@ -81,6 +81,15 @@
         display: block;
     }
 
+    /* Móvil: botón más en la esquina con menos padding */
+    @@media (max-width: 580px) {
+        .menu-toggle {
+            top: 10px;
+            right: 10px;
+            padding: 10px 12px;
+        }
+    }
+
     /* Menú lateral desplegable */
     .sidebar-menu {
         position: fixed;
@@ -99,6 +108,19 @@
 
     .sidebar-menu.active {
         right: 6%; /* Se despliega justo a la izquierda de la barra derecha (6%) */
+    }
+
+    /* Móvil: esconder menú 50px más a la derecha */
+    @@media (max-width: 580px) {
+        .sidebar-menu {
+            width: 80vw;
+            right: -85vw;
+            padding: 30px 0 40px 0;
+        }
+
+        .sidebar-menu.active {
+            right: 0;
+        }
     }
 
     /* Overlay cuando el menú está abierto */
@@ -162,7 +184,7 @@
         color: white;
         font-family: 'Neue', sans-serif;
         font-size: 1.3rem;
-        padding: 18px 25px;
+        padding: 12px 20px;
         margin-bottom: 15px;
         cursor: pointer;
         border-radius: 8px;
@@ -238,9 +260,20 @@
         position: absolute;
         left: 11%;
         top: 0;
-        width: 83%; /* 100% - 11% (izq) - 6% (der) */
+        width: 80%;
         min-height: 100vh;
         z-index: 2;
+    }
+
+    /* Móvil: ancho completo con márgenes mínimos */
+    @@media (max-width: 580px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            margin: 0;
+            position: relative;
+            padding: 0 3px;
+        }
     }
 
     /* Header con el nombre de la comunidad y banner */
@@ -280,6 +313,27 @@
         display: inline-block;
     }
 
+    /* Ajustes para móvil */
+    @@media (max-width: 580px) {
+        .community-header {
+            padding: 20px 0 20px 0;
+            margin-bottom: 15px;
+        }
+
+        .community-title-container {
+            padding-left: 4px;
+        }
+
+        .community-title {
+            font-size: 6.5rem;
+            letter-spacing: 2px;
+        }
+
+        .community-members-count {
+            font-size: 1.2rem;
+        }
+    }
+
     .community-members-count:hover {
         color: #ff4a7d;
         text-shadow: 0 2px 8px rgba(229, 10, 70, 0.6);
@@ -288,9 +342,19 @@
 
     /* Contenedor principal */
     .content-wrapper {
+        width: 90%;
         margin: 0 auto;
         padding: 0 20px;
-        max-width: 1200px;
+        box-sizing: border-box;
+    }
+
+    /* Móvil: ancho completo y márgenes mínimos */
+    @@media (max-width: 580px) {
+        .content-wrapper {
+            width: 100%;
+            padding: 0 2px;
+            margin: 0 0;
+        }
     }
 
     /* Cards de publicaciones y miembros */
@@ -434,6 +498,27 @@
     .btn-create-post:hover {
         transform: scale(1.1);
         box-shadow: 0 6px 30px rgba(229, 10, 70, 0.7);
+    }
+
+    .btn-create-post:hover i {
+        color: var(--np-dark-grey);
+    }
+
+    /* Tablet y PC: botón más grande */
+    @@media (min-width: 581px) {
+        .btn-create-post {
+            width: 90px;
+            height: 90px;
+            font-size: 2.5rem;
+        }
+    }
+
+    /* Móvil: posicionar botón por encima de la barra inferior */
+    @@media (max-width: 580px) {
+        .btn-create-post {
+            bottom: calc(12vh + 20px);
+            right: 20px;
+        }
     }
 
     /* Botón añadir amigo */
@@ -623,7 +708,7 @@
 
 @section Scripts {
     <script>
-        // FunciÃ³n para actualizar contadores de comentarios
+        // Función para actualizar contadores de comentarios
         function updateCommentCounts() {
             document.querySelectorAll('.comment-count').forEach(span => {
                 const publicacionId = span.getAttribute('data-publicacion-id');
@@ -646,27 +731,27 @@
             });
         }
 
-        // Actualizar contadores cuando la pÃ¡gina se muestra (incluye navegaciÃ³n con botÃ³n atrÃ¡s)
+        // Actualizar contadores cuando la página se muestra (incluye navegación con botón atrás)
         window.addEventListener('pageshow', function(event) {
-            // Si la pÃ¡gina viene del cache del navegador (bfcache)
+            // Si la página viene del cache del navegador (bfcache)
             if (event.persisted) {
                 updateCommentCounts();
             }
         });
 
-        // Actualizar contadores cuando la pÃ¡gina carga por primera vez o se recarga
+        // Actualizar contadores cuando la página carga por primera vez o se recarga
         window.addEventListener('load', function() {
             updateCommentCounts();
         });
 
-        // Actualizar contadores cuando la pÃ¡gina se vuelve visible (usuario regresa desde otra pestaÃ±a/pÃ¡gina)
+        // Actualizar contadores cuando la página se vuelve visible (usuario regresa desde otra pestaña/página)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 updateCommentCounts();
             }
         });
 
-        // Actualizar contadores cuando la pÃ¡gina recibe el foco
+        // Actualizar contadores cuando la página recibe el foco
         window.addEventListener('focus', function() {
             updateCommentCounts();
         });
@@ -680,7 +765,7 @@
                 const likeCountSpan = button.querySelector('.like-count');
                 const icon = button.querySelector('i');
                 
-                // Hacer peticiÃ³n al servidor
+                // Hacer petición al servidor
                 fetch('@Url.Action("TogglePublicacionLike", "Reaccion")', {
                     method: 'POST',
                     headers: {
@@ -703,7 +788,7 @@
                 .then(data => {
                     console.log('Response data:', data);
                     if (data.success) {
-                        // Actualizar UI segÃºn respuesta del servidor
+                        // Actualizar UI según respuesta del servidor
                         if (data.liked) {
                             button.classList.add('liked');
                             icon.style.color = '#e50a46';
@@ -724,9 +809,9 @@
             });
         });
 
-        // ===== FUNCIONES DEL MENÃš LATERAL =====
+        // ===== FUNCIONES DEL MENÚ LATERAL =====
 
-        // FunciÃ³n para abrir/cerrar el menÃº lateral
+        // Función para abrir/cerrar el menú lateral
         function toggleMenu() {
             const menu = document.querySelector('.sidebar-menu');
             const overlay = document.querySelector('.menu-overlay');
@@ -734,7 +819,7 @@
             menu.classList.toggle('active');
             overlay.classList.toggle('active');
             
-            // Prevenir scroll del body cuando el menÃº estÃ¡ abierto
+            // Prevenir scroll del body cuando el menú está abierto
             if (menu.classList.contains('active')) {
                 document.body.style.overflow = 'hidden';
             } else {
@@ -742,7 +827,7 @@
             }
         }
 
-        // Cerrar el menÃº al presionar ESC
+        // Cerrar el menú al presionar ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const menu = document.querySelector('.sidebar-menu');
@@ -752,7 +837,7 @@
             }
         });
 
-        // ===== FUNCIONES DE LOS BOTONES DEL MENÃš (sin implementar) =====
+        // ===== FUNCIONES DE LOS BOTONES DEL MENÚ (sin implementar) =====
 
         function gestionarMiembros() {
             const comunidadId = @Model.IdComunidad;
@@ -770,18 +855,18 @@
         }
 
         function crearTorneo() {
-            console.log('Crear torneo - FunciÃ³n pendiente de implementar');
-            // TODO: Implementar navegaciÃ³n a crear torneo
+            console.log('Crear torneo - Función pendiente de implementar');
+            // TODO: Implementar navegación a crear torneo
             alert('Funcionalidad en desarrollo: Crear Torneo');
         }
 
         function abandonarComunidad() {
-            console.log('Abandonar comunidad - FunciÃ³n pendiente de implementar');
-            // TODO: Implementar confirmaciÃ³n y lÃ³gica de abandono
-            const confirmar = confirm('Â¿EstÃ¡s seguro de que deseas abandonar esta comunidad?');
+            console.log('Abandonar comunidad - Función pendiente de implementar');
+            // TODO: Implementar confirmación y lógica de abandono
+            const confirmar = confirm('¿Estás seguro de que deseas abandonar esta comunidad?');
             if (confirmar) {
                 alert('Funcionalidad en desarrollo: Abandonar Comunidad');
-                // AquÃ­ irÃ­a la llamada al servidor
+                // Aquí iría la llamada al servidor
             }
         }
     </script>

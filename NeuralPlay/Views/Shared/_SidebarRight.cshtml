@@ -64,3 +64,19 @@
         </div>
     }
 </div>
+
+<style>
+    /* Ocultar sidebar-right en mobile (≤580px) */
+    @@media screen and (max-width: 580px) {
+        .sidebar-right {
+            display: none !important;
+        }
+    }
+
+    /* Mostrar sidebar-right en tablet y ordenador (≥581px) */
+    @@media screen and (min-width: 581px) {
+        .sidebar-right {
+            display: block !important;
+        }
+    }
+</style>

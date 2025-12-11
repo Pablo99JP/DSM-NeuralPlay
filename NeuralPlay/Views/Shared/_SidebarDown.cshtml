@@ -59,8 +59,11 @@
         }
     }
 
-    .sidebar-down {
-        display: none; /* Oculto por defecto en desktop y tablet */
+    /* Ocultar sidebar-down en tablet y ordenador (≥581px) */
+    @@media (min-width: 581px) {
+        .sidebar-down {
+            display: none !important;
+        }
     }
 
     /* Mostrar solo en móviles pequeños (≤580px) */
@@ -210,11 +213,14 @@
         border-color: #e50a46;
     }
 
-    /* Menú desplegable móvil - solo en móviles pequeños (≤580px) */
-    .mobile-menu {
-        display: none;
+    /* Ocultar menú móvil en tablet y ordenador (≥581px) */
+    @@media (min-width: 581px) {
+        .mobile-menu {
+            display: none !important;
+        }
     }
 
+    /* Menú desplegable móvil - solo en móviles pequeños (≤580px) */
     @@media (max-width: 580px) {
         .mobile-menu {
             display: block;

@@ -75,7 +75,7 @@
         display: none;
     }
 
-    /* PestaÃ±as horizontales */
+    /* Pestañas horizontales */
     .feed-tabs {
         display: flex;
         justify-content: flex-start;
@@ -444,10 +444,10 @@
         </div>
     </div>
 
-    <!-- LÃ­nea divisoria -->
+    <!-- Línea divisoria -->
     <div class="feed-divider"></div>
 
-    <!-- PestaÃ±as de navegaciÃ³n -->
+    <!-- Pestañas de navegación -->
     <div class="feed-tabs">
         <button class="feed-tab-btn active" onclick="showFeedTab('actividad')">
             <i class="bi bi-activity"></i>Actividad<span>@Model.Actividades.Count</span>
@@ -481,7 +481,7 @@
                                     {
                                         case NeuralPlay.Models.TipoActividad.Publicacion:
                                             <span class="timeline-item-type publicacion">
-                                                <i class="bi bi-file-text"></i> PublicaciÃ³n
+                                                <i class="bi bi-file-text"></i> Publicación
                                             </span>
                                             break;
                                         case NeuralPlay.Models.TipoActividad.Comentario:
@@ -491,7 +491,7 @@
                                             break;
                                         case NeuralPlay.Models.TipoActividad.MeGustanPublicacion:
                                             <span class="timeline-item-type megusta">
-                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta PublicaciÃ³n
+                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta Publicación
                                             </span>
                                             break;
                                         case NeuralPlay.Models.TipoActividad.MeGustanComentario:
@@ -519,7 +519,7 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-inbox"></i>
-                <p>No hay actividad aÃºn</p>
+                <p>No hay actividad aún</p>
             </div>
         }
     </div>
@@ -569,7 +569,7 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-file-earmark"></i>
-                <p>No hay publicaciones aÃºn</p>
+                <p>No hay publicaciones aún</p>
             </div>
         }
     </div>
@@ -620,7 +620,7 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-heart"></i>
-                <p>No has dado Me Gusta a ninguna publicaciÃ³n</p>
+                <p>No has dado Me Gusta a ninguna publicación</p>
             </div>
         }
     </div>
@@ -657,7 +657,7 @@
                         </div>
                         <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                             <p style="color: #999; font-size: 0.95rem; margin: 0 0 8px 0;">
-                                <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>PublicaciÃ³n original
+                                <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>Publicación original
                             </p>
                             <p class="feed-card-content" style="margin: 0; color: #bbb;">@com.ContenidoPublicacion</p>
                         </div>
@@ -682,18 +682,18 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-chat-dots"></i>
-                <p>No has comentado en ninguna publicaciÃ³n</p>
+                <p>No has comentado en ninguna publicación</p>
             </div>
         }
     </div>
 
-    <!-- Estados vacÃ­os si no hay nada -->
+    <!-- Estados vacíos si no hay nada -->
     @if (!Model.Actividades.Any() && !Model.Publicaciones.Any() && !Model.MeGustas.Any() && !Model.Comentarios.Any())
     {
         <div class="feed-empty" style="margin-top: 60px;">
             <i class="bi bi-inbox"></i>
-            <p>No hay contenido en el feed aÃºn</p>
-            <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerÃ¡ aquÃ­</small>
+            <p>No hay contenido en el feed aún</p>
+            <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerá aquí</small>
         </div>
     }
 </div>
@@ -714,7 +714,7 @@
             selectedTab.classList.add('active');
         }
         
-        // Activar el botÃ³n seleccionado
+        // Activar el botón seleccionado
         event.target.closest('.feed-tab-btn').classList.add('active');
     }
 </script>
