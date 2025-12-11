@@ -131,7 +131,7 @@
 
 <div class="page-content">
     <main class="add-game-wrapper">
-        <h1 class="add-game-title">AÃ±adir juego al perfil</h1>
+        <h1 class="add-game-title">Añadir juego al perfil</h1>
         <form asp-action="AnadirJuego" class="add-game-form">
             <div asp-validation-summary="ModelOnly" class="validation-error"></div>
             <input type="hidden" asp-for="IdPerfil" />
@@ -140,7 +140,7 @@
                 <option value="">-- Selecciona un juego --</option>
             </select>
             <span asp-validation-for="IdJuegoSeleccionado" class="validation-error"></span>
-            <button type="submit" class="btn-add-game">AÃ±adir</button>
+            <button type="submit" class="btn-add-game">Añadir</button>
         </form>
         <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="cancel-link">Cancelar</a>
     </main>

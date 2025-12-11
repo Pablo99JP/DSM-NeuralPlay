@@ -579,10 +579,10 @@
                 <!-- NavegaciÃ³n de pestaÃ±as -->
                 <div class="tabs-nav" role="tablist">
                     <button class="active" data-tab="descripcion" role="tab">
-                        <i class="bi bi-file-text"></i> DescripciÃ³n
+                        <i class="bi bi-file-text"></i> Descripción
                     </button>
                     <button data-tab="clasificacion" role="tab">
-                        <i class="bi bi-trophy"></i> ClasificaciÃ³n
+                        <i class="bi bi-trophy"></i> Clasificación
                     </button>
                     <button data-tab="premios" role="tab">
                         <i class="bi bi-gift"></i> Premios
@@ -609,7 +609,7 @@
 
                     <!-- PestaÃ±a ClasificaciÃ³n -->
                     <div id="tab-clasificacion" class="tab-pane" style="display: none;">
-                        <h2 class="tab-pane-title">ClasificaciÃ³n para este torneo:</h2>
+                        <h2 class="tab-pane-title">Clasificación para este torneo:</h2>
                         @if (Model.Participaciones.Any())
                         {
                             <div class="classification-list">
@@ -635,7 +635,7 @@
                                             <h3 class="classification-team-name">@(p.Equipo?.Nombre ?? "-")</h3>
                                         </div>
                                         <div class="classification-ranking">
-                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">PosiciÃ³n</div>
+                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Posición</div>
                                             @posicion
                                         </div>
                                     </div>
@@ -645,7 +645,7 @@
                         }
                         else
                         {
-                            <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aÃºn.</p>
+                            <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aún.</p>
                         }
                     </div>
 
@@ -664,22 +664,22 @@
 
                     <!-- PestaÃ±a Unirse -->
                     <div id="tab-unirse" class="tab-pane" style="display: none;">
-                        <h2 class="tab-pane-title">Proponer ParticipaciÃ³n</h2>
+                        <h2 class="tab-pane-title">Proponer Participación</h2>
                         @if (currentUser == null)
                         {
                             <div class="alert-custom alert-custom-info">
-                                <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesiÃ³n</a> para proponer la participaciÃ³n de tus equipos.
+                                <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesión</a> para proponer la participación de tus equipos.
                             </div>
                         }
                         else if (!Model.EquiposUsuario.Any())
                         {
                             <div class="alert-custom alert-custom-warning">
-                                <i class="bi bi-exclamation-triangle"></i> No perteneces a ningÃºn equipo. Ãšnete o crea un equipo para participar.
+                                <i class="bi bi-exclamation-triangle"></i> No perteneces a ningún equipo. Únete o crea un equipo para participar.
                             </div>
                         }
                         else
                         {
-                            <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participaciÃ³n en este torneo:</p>
+                            <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participación en este torneo:</p>
                             <div class="team-list">
                                 @foreach (var equipo in Model.EquiposUsuario)
                                 {
@@ -689,7 +689,7 @@
                                     <div class="team-item">
                                         <div class="team-info">
                                             <h6>@equipo.Nombre</h6>
-                                            <small>@(equipo.Descripcion ?? "Sin descripciÃ³n")</small>
+                                            <small>@(equipo.Descripcion ?? "Sin descripción")</small>
                                         </div>
                                         <div class="team-action">
                                             @if (yaParticipando)

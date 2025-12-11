@@ -54,7 +54,7 @@
         z-index: 1;
     }
 
-    /* BotÃ³n hamburguesa para el menÃº lateral */
+    /* Botón hamburguesa para el menú lateral */
     .menu-toggle {
         position: fixed;
         top: 20px;
@@ -81,11 +81,11 @@
         display: block;
     }
 
-    /* MenÃº lateral desplegable */
+    /* Menú lateral desplegable */
     .sidebar-menu {
         position: fixed;
         top: 0;
-        right: -400px; /* Oculto inicialmente mÃ¡s allÃ¡ de la barra derecha */
+        right: -400px; /* Oculto inicialmente más allá de la barra derecha */
         width: 400px;
         height: 100vh;
         background: rgba(36, 36, 36, 0.98);
@@ -101,7 +101,7 @@
         right: 6%; /* Se despliega justo a la izquierda de la barra derecha (6%) */
     }
 
-    /* Overlay cuando el menÃº estÃ¡ abierto */
+    /* Overlay cuando el menú está abierto */
     .menu-overlay {
         position: fixed;
         top: 0;
@@ -120,7 +120,7 @@
         visibility: visible;
     }
 
-    /* TÃ­tulo del nombre de la comunidad en el menÃº */
+    /* Título del nombre de la comunidad en el menú */
     .sidebar-menu-header {
         padding: 0 30px 30px 30px;
         border-bottom: 2px solid rgba(229, 10, 70, 0.3);
@@ -138,7 +138,7 @@
         word-wrap: break-word;
     }
 
-    /* SecciÃ³n del menÃº */
+    /* Sección del menú */
     .menu-section {
         padding: 0 30px;
         margin-bottom: 20px;
@@ -154,7 +154,7 @@
         font-weight: 600;
     }
 
-    /* Botones del menÃº */
+    /* Botones del menú */
     .menu-btn {
         width: 100%;
         background: transparent;
@@ -185,7 +185,7 @@
         font-size: 1.5rem;
     }
 
-    /* BotÃ³n de informaciÃ³n (rol del usuario) */
+    /* Botón de información (rol del usuario) */
     .menu-info-btn {
         width: 100%;
         background: rgba(69, 69, 69, 0.6);
@@ -214,7 +214,7 @@
         font-size: 1.5rem;
     }
 
-    /* BotÃ³n de abandonar (estilo peligroso) */
+    /* Botón de abandonar (estilo peligroso) */
     .menu-btn-danger {
         border-color: #dc3545;
         color: #dc3545;
@@ -302,7 +302,7 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    /* PublicaciÃ³n individual */
+    /* Publicación individual */
     .publication-item {
         background: rgba(69, 69, 69, 0.6);
         border-left: 4px solid var(--np-red);
@@ -410,7 +410,7 @@
         color: white;
     }
 
-    /* BotÃ³n flotante para crear publicaciÃ³n */
+    /* Botón flotante para crear publicación */
     .btn-create-post {
         position: fixed;
         bottom: 40px;
@@ -436,7 +436,7 @@
         box-shadow: 0 6px 30px rgba(229, 10, 70, 0.7);
     }
 
-    /* BotÃ³n aÃ±adir amigo */
+    /* Botón añadir amigo */
     .btn-add-friend {
         background: var(--np-red);
         color: white;
@@ -468,15 +468,15 @@
     }
 </style>
 
-<!-- BotÃ³n hamburguesa para abrir el menÃº -->
+<!-- Botón hamburguesa para abrir el menú -->
 <button class="menu-toggle" onclick="toggleMenu()">
     <i class="bi bi-list"></i>
 </button>
 
-<!-- Overlay oscuro cuando el menÃº estÃ¡ abierto -->
+<!-- Overlay oscuro cuando el menú está abierto -->
 <div class="menu-overlay" onclick="toggleMenu()"></div>
 
-<!-- MenÃº lateral desplegable -->
+<!-- Menú lateral desplegable -->
 <aside class="sidebar-menu">
     <div class="sidebar-menu-header">
         <h2 class="sidebar-menu-title">@Model.Nombre</h2>
@@ -496,7 +496,7 @@
         </button>
     </div>
 
-    <!-- Opciones para LÃ­der en exclusiva -->
+    <!-- Opciones para Líder en exclusiva -->
     @if (esLider)
     {
         <div class="menu-section">
@@ -507,7 +507,7 @@
         </div>
     }
 
-    <!-- Opciones para LÃ­der y Colaboradores/Moderadores -->
+    <!-- Opciones para Líder y Colaboradores/Moderadores -->
     @if (esLider || esModerador)
     {
         <div class="menu-section">
@@ -518,7 +518,7 @@
         </div>
     }
 
-    <!-- Opciones para LÃ­der y Moderadores (Colaborador/Moderador) -->
+    <!-- Opciones para Líder y Moderadores (Colaborador/Moderador) -->
     @if (esLider || esModerador)
     {
         <div class="menu-section">
@@ -531,7 +531,7 @@
 
     <div class="menu-divider"></div>
 
-    <!-- InformaciÃ³n del rol del usuario -->
+    <!-- Información del rol del usuario -->
     <div class="menu-section">
         <div class="menu-info-btn">
             <span class="role-label">TU ROL:</span>
@@ -541,7 +541,7 @@
 
     <div class="menu-divider"></div>
 
-    <!-- OpciÃ³n de abandonar comunidad -->
+    <!-- Opción de abandonar comunidad -->
     <div class="menu-section">
         <button class="menu-btn menu-btn-danger" onclick="abandonarComunidad()">
             <span>ABANDONAR COMUNIDAD</span>
@@ -587,7 +587,7 @@
                     
                     <p class="publication-content">@pub.contenido</p>
                     
-                    @* AquÃ­ puedes agregar hashtags si los tienes en el modelo *@
+                    @* Aquí puedes agregar hashtags si los tienes en el modelo *@
                     @* <p class="publication-hashtags">#ejemplo #hashtag</p> *@
                     
                     <p class="publication-meta">@pub.fechaCreacion.ToString("HH:mm") Â· @pub.fechaCreacion.ToString("dd/MM/yyyy")</p>
@@ -608,16 +608,16 @@
         else
         {
             <div class="no-content">
-                <p>Esta comunidad aÃºn no tiene publicaciones.</p>
-                <p>Â¡SÃ© el primero en publicar!</p>
+                <p>Esta comunidad aún no tiene publicaciones.</p>
+                <p>¡Sé el primero en publicar!</p>
             </div>
         }
     </section>
 </main>
 </div>
 
-<!-- BotÃ³n flotante para crear publicaciÃ³n -->
-<a asp-controller="Publicacion" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn-create-post" title="Crear publicaciÃ³n">
+<!-- Botón flotante para crear publicación -->
+<a asp-controller="Publicacion" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn-create-post" title="Crear publicación">
     <i class="bi bi-pencil-fill"></i>
 </a>
 
