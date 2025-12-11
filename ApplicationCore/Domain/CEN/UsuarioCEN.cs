@@ -44,6 +44,7 @@ namespace ApplicationCore.Domain.CEN
                 VisibilidadActividad = Visibilidad.PRIVADO
             };
 
+//Hola
             // 2. Asignar el perfil al usuario
             u.Perfil = perfil;
             // --- FIN DE LA CORRECCIÓN ---
