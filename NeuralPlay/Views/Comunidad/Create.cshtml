@@ -250,23 +250,10 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="ImagenUrl" class="form-label">Logo de la comunidad</label>
-                @if (!string.IsNullOrEmpty(Model?.ImagenUrl))
-                {
-                    <div style="margin-bottom: 12px;">
-                        <img src="@Model.ImagenUrl" alt="Logo actual" style="max-width: 150px; max-height: 150px; border-radius: 10px; border: 2px solid var(--np-red);" />
-                        <p style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Logo actual</p>
-                    </div>
-                }
-                <div class="form-note">Opcional: el logo aparecerá en futuras implementaciones.</div>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <label asp-for="EsPublica">
-                    <input asp-for="EsPublica" type="checkbox" />
-                    <span>Es pública</span>
-                </label>
-                <span asp-validation-for="EsPublica" class="text-danger"></span>
+                <label asp-for="ImagenArchivo" class="form-label">Logo de la comunidad</label>
+                <input asp-for="ImagenArchivo" type="file" class="form-input" accept="image/*" style="padding: 10px;" />
+                <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
+                <div class="form-note">Opcional: Sube una imagen para el logo de la comunidad (jpg, png, gif, webp).</div>
             </div>
 
             <div class="actions">
