@@ -260,6 +260,111 @@
             margin-bottom: 1rem;
             border-radius: 4px;
         }
+
+        /* Estilos para validación de contraseña */
+        .password-requirements {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--np-grey);
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .password-requirements.show {
+            display: block;
+        }
+
+        .password-requirements h4 {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin: 0 0 0.75rem 0;
+            font-family: 'Lexend', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+
+        .requirement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .requirement-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            flex-shrink: 0;
+        }
+
+        .requirement-item.met .requirement-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        .requirement-item.met {
+            color: #28a745;
+        }
+
+        .password-strength {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            background: #888;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-fill.weak {
+            width: 25%;
+            background: #e50a46;
+        }
+
+        .strength-fill.fair {
+            width: 50%;
+            background: #ff9800;
+        }
+
+        .strength-fill.good {
+            width: 75%;
+            background: #2196f3;
+        }
+
+        .strength-fill.strong {
+            width: 100%;
+            background: #28a745;
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -294,8 +399,44 @@
                     </div>
 
                     <div class="form-group">
-                        <input asp-for="Password" type="password" placeholder="Contraseña" required />
+                        <input asp-for="Password" type="password" id="passwordInput" placeholder="Contraseña" required />
                         <span asp-validation-for="Password" class="validation-error"></span>
+                        
+                        <!-- Requisitos de contraseña -->
+                        <div class="password-requirements" id="passwordRequirements">
+                            <h4>Requisitos de Contraseña</h4>
+                            <div class="requirement-item" id="req-length">
+                                <span class="requirement-icon">✕</span>
+                                <span>Mínimo 8 caracteres</span>
+                            </div>
+                            <div class="requirement-item" id="req-uppercase">
+                                <span class="requirement-icon">✕</span>
+                                <span>Contiene mayúscula (A-Z)</span>
+                            </div>
+                            <div class="requirement-item" id="req-lowercase">
+                                <span class="requirement-icon">✕</span>
+                                <span>Contiene minúscula (a-z)</span>
+                            </div>
+                            <div class="requirement-item" id="req-number">
+                                <span class="requirement-icon">✕</span>
+                                <span>Contiene número (0-9)</span>
+                            </div>
+                            <div class="requirement-item" id="req-special">
+                                <span class="requirement-icon">✕</span>
+                                <span>Contiene carácter especial</span>
+                            </div>
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <div class="strength-text" id="strengthText">Fortaleza: Débil</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" id="passwordConfirm" placeholder="Confirmar Contraseña" required />
+                        <span class="validation-error" id="confirmError"></span>
                     </div>
                 </fieldset>
 
@@ -312,5 +453,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/password-validator.js"></script>
 </body>
 </html>
