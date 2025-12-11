@@ -1,4 +1,9 @@
 @model NeuralPlay.Models.PropuestaTorneoDetailsViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Detalles de Propuesta";
+    ViewBag.OcultarNavbar = true;
+}
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
