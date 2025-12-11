@@ -1,0 +1,392 @@
+@using NHibernate.Linq
+@using ApplicationCore.Domain.EN
+@using Infrastructure.NHibernate
+@inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+
+@{
+    var currentUser = UsuarioAuth.GetUsuarioActual();
+    
+    // Obtener compañeros de equipo
+    List<NeuralPlay.Models.CompaneroEquipoViewModel> companeros = new List<NeuralPlay.Models.CompaneroEquipoViewModel>();
+    
+    if (currentUser != null)
+    {
+        try
+        {
+            using (var session = NHibernateHelper.OpenSession())
+            {
+                var equiposDelUsuario = session.Query<MiembroEquipo>()
+                    .Where(me => me.Usuario.IdUsuario == currentUser.IdUsuario)
+                    .Select(me => me.Equipo.IdEquipo)
+                    .ToList();
+                
+                var usuariosCompaneros = session.Query<MiembroEquipo>()
+                    .Where(me => equiposDelUsuario.Contains(me.Equipo.IdEquipo) && me.Usuario.IdUsuario != currentUser.IdUsuario)
+                    .Select(me => me.Usuario)
+                    .Distinct()
+                    .Fetch(u => u.Perfil)
+                    .ToList();
+                
+                companeros = usuariosCompaneros
+                    .Select(u => new NeuralPlay.Models.CompaneroEquipoViewModel
+                    {
+                        IdUsuario = u.IdUsuario,
+                        Nick = u.Nick,
+                        FotoPerfilUrl = u.Perfil?.FotoPerfilUrl ?? "/Recursos/Perfiles/Default.png"
+                    })
+                    .ToList();
+            }
+        }
+        catch { }
+    }
+}
+
+<style>
+    /* Prevenir comportamiento de scroll que oculta barras */
+    html {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        height: 100%;
+    }
+
+    /* Asegurar que el body tenga espacio para la barra */
+    body {
+        padding-bottom: 12vh !important;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    .sidebar-down {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100vw !important;
+        height: 12vh;
+        min-height: 70px;
+        background-color: #252525;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 30px;
+        z-index: 99999 !important;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
+        margin: 0;
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        pointer-events: auto;
+    }
+
+    /* Prevenir que el contenido empuje la barra */
+    .sidebar-down::before {
+        content: '';
+        position: absolute;
+        top: -100vh;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        pointer-events: none;
+    }
+
+    .sidebar-down-icon {
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .sidebar-down-logo {
+        width: 33.33%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sidebar-down-profile {
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .notification-icon {
+        color: white;
+        font-size: 2.5rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+
+    .notification-icon:hover {
+        color: #e50a46;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #e50a46;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+
+    .sidebar-down-logo img {
+        height: 70%;
+        max-height: 70px;
+        width: auto;
+        cursor: pointer;
+    }
+
+    .profile-picture-bottom {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+        cursor: pointer;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .profile-picture-bottom:hover {
+        transform: scale(1.1);
+        border-color: #e50a46;
+    }
+
+    /* Menú desplegable móvil */
+    .mobile-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        background-color: rgba(229, 10, 70, 0.95);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        z-index: 99998;
+        padding: 30px;
+        padding-bottom: calc(12vh + 30px);
+        box-sizing: border-box;
+        overflow-y: auto;
+        max-height: 80vh;
+    }
+
+    .mobile-menu.active {
+        transform: translateY(0);
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2.5rem;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .menu-toggle img {
+        pointer-events: none;
+    }
+
+    .mobile-menu-links {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .mobile-menu-link {
+        color: white;
+        text-decoration: none;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.8rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 15px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+        text-align: center;
+    }
+
+    .mobile-menu-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .mobile-menu-link.active {
+        background: rgba(36, 36, 36, 0.9);
+    }
+
+    .mobile-menu-divider {
+        width: 100%;
+        height: 2px;
+        background-color: white;
+        margin: 20px 0;
+    }
+
+    .mobile-menu-companions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mobile-menu-companions-title {
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+    }
+
+    .mobile-menu-companions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 20px;
+        width: 100%;
+        justify-items: center;
+    }
+
+    .companion-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .companion-avatar:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<!-- Menú desplegable móvil -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-links">
+        @{
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+            var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+            var isExplorar = currentController == "Home" || currentController == "" || (currentController == "Home" && currentAction == "Index");
+            var isComunidades = currentController == "Comunidad" && currentAction == "MisComunidades";
+            var isEquipos = currentController == "Equipos";
+            var isCrear = currentController == "Crear";
+        }
+        
+        <a href="/" class="mobile-menu-link @(isExplorar ? "active" : "")">EXPLORAR</a>
+        <a href="@Url.Action("MisComunidades", "Comunidad")" class="mobile-menu-link @(isComunidades ? "active" : "")">MIS COMUNIDADES</a>
+        <a href="/Equipos" class="mobile-menu-link @(isEquipos ? "active" : "")">MIS EQUIPOS</a>
+        <a href="@Url.Action("Index", "Crear")" class="mobile-menu-link @(isCrear ? "active" : "")">CREAR</a>
+    </div>
+
+    @if (companeros.Any())
+    {
+        <div class="mobile-menu-divider"></div>
+        <div class="mobile-menu-companions">
+            <div class="mobile-menu-companions-title">COMPAÑEROS</div>
+            <div class="mobile-menu-companions-grid">
+                @foreach (var companero in companeros)
+                {
+                    <a href="@Url.Action("Details", "Perfiles", new { id = companero.IdUsuario })" title="@companero.Nick">
+                        <img src="@companero.FotoPerfilUrl" alt="@companero.Nick" class="companion-avatar" />
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<div class="sidebar-down">
+    <!-- Icono de notificaciones -->
+    <div class="sidebar-down-icon">
+        <a href="@Url.Action("Index", "Notificacion")" class="notification-icon">
+            <i class="bi bi-bell-fill"></i>
+        </a>
+    </div>
+
+    <!-- Logo de NeuralPlay con función de menú -->
+    <div class="sidebar-down-logo">
+        <button class="menu-toggle" onclick="toggleMobileMenu()" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <img src="~/Recursos/LOGO_ROJO.png" alt="NeuralPlay Logo" style="height: 70%; max-height: 70px; width: auto;" />
+        </button>
+    </div>
+
+    <!-- Foto de perfil del usuario -->
+    <div class="sidebar-down-profile">
+        @if (currentUser != null)
+        {
+            @if (currentUser.Perfil != null)
+            {
+                <a href="@Url.Action("Details", "Perfiles", new { id = currentUser.Perfil.IdPerfil })">
+                    <img src="@(string.IsNullOrEmpty(currentUser.Perfil?.FotoPerfilUrl) ? "/Recursos/Perfiles/Default.png" : currentUser.Perfil.FotoPerfilUrl)" 
+                         alt="Foto de perfil" 
+                         class="profile-picture-bottom" />
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Usuario")">
+                    <img src="/Recursos/Perfiles/Default.png" 
+                         alt="Foto de perfil" 
+                         class="profile-picture-bottom" />
+                </a>
+            }
+        }
+        else
+        {
+            <a href="@Url.Action("Login", "Usuario")">
+                <img src="/Recursos/Perfiles/Default.png" 
+                     alt="Foto de perfil" 
+                     class="profile-picture-bottom" />
+            </a>
+        }
+    </div>
+</div>
+
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('active');
+    }
+
+    // Cerrar menú al hacer clic en un enlace
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.remove('active');
+        });
+    });
+
+    // Cerrar menú al hacer clic fuera de él
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('mobileMenu');
+        const menuToggle = document.querySelector('.menu-toggle');
+        
+        if (menu.classList.contains('active') && 
+            !menu.contains(event.target) && 
+            !menuToggle.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+</script>

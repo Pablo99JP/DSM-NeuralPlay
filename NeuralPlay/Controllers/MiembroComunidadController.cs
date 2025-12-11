@@ -40,7 +40,8 @@ namespace NeuralPlay.Controllers
         {
             try
             {
-                var list = _miembroComunidadCEN.ReadAll_MiembroComunidad();
+                var list = _miembroComunidadCEN.ReadAll_MiembroComunidad()
+                    .Where(m => m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
                 var vms = MiembroComunidadAssembler.ConvertListENToViewModel(list);
                 return View(vms);
             }
@@ -83,14 +84,16 @@ namespace NeuralPlay.Controllers
                 if (comunidad == null) return NotFound();
 
                 // Verificar que el usuario actual tiene permisos (es LIDER)
-                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                    && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
                 if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
                 {
                     return Forbid();
                 }
 
-                // Obtener todos los miembros de la comunidad
+                // Obtener todos los miembros de la comunidad (solo activos)
                 var miembros = (comunidad.Miembros ?? Enumerable.Empty<MiembroComunidad>())
+                    .Where(m => m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
                     .Select(m => MiembroComunidadAssembler.ConvertENToViewModel(m))
                     .OrderBy(m => m.Rol)
                     .ThenBy(m => m.NombreUsuario)
@@ -261,7 +264,8 @@ namespace NeuralPlay.Controllers
 
                 // Verificar que el usuario actual es líder de la comunidad
                 var comunidad = miembro.Comunidad;
-                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                    && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
                 if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
                 {
                     return Json(new { success = false, message = "No tienes permisos para realizar esta acción" });
@@ -307,7 +311,8 @@ namespace NeuralPlay.Controllers
 
                 // Verificar que el usuario actual es líder de la comunidad
                 var comunidad = miembro.Comunidad;
-                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value);
+                var miembroActual = comunidad.Miembros?.FirstOrDefault(m => m.Usuario.IdUsuario == uid.Value 
+                    && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA);
                 if (miembroActual == null || miembroActual.Rol != RolComunidad.LIDER)
                 {
                     return Json(new { success = false, message = "No tienes permisos para realizar esta acción" });
