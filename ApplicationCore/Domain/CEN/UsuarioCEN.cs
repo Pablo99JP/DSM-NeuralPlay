@@ -20,11 +20,15 @@ namespace ApplicationCore.Domain.CEN
 
         public Usuario NewUsuario(string nick, string correo, string password)
         {
+            // Si la contraseña ya está hasheada (formato PBKDF2), usarla directamente
+            // Si no, hashearla primero
+            var passwordHash = LooksLikeHashed(password) ? password : PasswordHasher.Hash(password);
+            
             var u = new Usuario
             {
                 Nick = nick,
                 CorreoElectronico = correo,
-                ContrasenaHash = PasswordHasher.Hash(password),
+                ContrasenaHash = passwordHash,
                 FechaRegistro = System.DateTime.UtcNow,
                 EstadoCuenta = ApplicationCore.Domain.Enums.EstadoCuenta.ACTIVA
             };

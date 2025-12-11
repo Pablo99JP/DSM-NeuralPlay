@@ -655,8 +655,8 @@ END
                             var existing = usuarioRepo.ReadByNick(nick);
                             if (existing == null)
                             {
-                                // No existe, lo creamos con contraseña hasheada (segura)
-                                var user = usuarioCEN.NewUsuario(nick, email, PasswordHasher.Hash(password));
+                                // No existe, lo creamos con contraseña en claro (NewUsuario se encarga del hashing)
+                                var user = usuarioCEN.NewUsuario(nick, email, password);
                                 logger.LogInformation("Created user {nick} (id={id})", nick, user.IdUsuario);
                                 Console.WriteLine($"✓ Created user: {nick}");
                                 return user;
