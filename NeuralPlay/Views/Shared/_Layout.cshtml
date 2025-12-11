@@ -215,59 +215,30 @@
         }
 
         .btn-submit {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.25rem;
+            padding: 14px 40px;
             background: var(--np-red);
             color: white;
             border: 2px solid var(--np-red);
-            padding: 14px 32px;
-            font-size: 1.2rem;
-            .form-group {
-                margin-bottom: 26px;
-            }
-            .btn-submit {
-                font-family: 'Lexend', sans-serif;
-                font-size: 1.25rem;
-                padding: 14px 34px;
-                background: var(--np-red);
-                color: white;
-                border: 2px solid var(--np-red);
-                border-radius: 25px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-            .btn-submit:hover {
-                background: transparent;
-                color: var(--np-red);
-                transform: scale(1.03);
-            }
-            .btn-cancel {
-                font-family: 'Lexend', sans-serif;
-                font-size: 1.25rem;
-                padding: 14px 34px;
-                background: transparent;
-                color: white;
-                border: 2px solid white;
-                border-radius: 25px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .btn-cancel:hover {
-                background: white;
-                color: var(--np-dark-grey);
-            }
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(229, 10, 70, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid var(--np-red);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .btn-submit:hover {
+            background: transparent;
+            color: var(--np-red);
+            transform: scale(1.03);
         }
 
         .btn-cancel {
             background: transparent;
             color: white;
             border: 2px solid white;
-            padding: 14px 32px;
+            padding: 14px 40px;
             font-size: 1.2rem;
             font-family: 'Neue', sans-serif;
             text-transform: uppercase;
@@ -277,6 +248,8 @@
             display: inline-block;
             transition: all 0.3s;
             letter-spacing: 1px;
+            min-width: 160px;
+            text-align: center;
         }
 
         .btn-cancel:hover {
