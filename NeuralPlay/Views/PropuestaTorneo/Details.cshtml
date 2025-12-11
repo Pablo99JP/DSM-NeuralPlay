@@ -1,5 +1,9 @@
 @model NeuralPlay.Models.PropuestaTorneoDetailsViewModel
 
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
+
 @{
     var votosTotales = Model.Propuesta.Votos?.Count() ?? 0;
     var votosDistinct = Model.Propuesta.Votos?

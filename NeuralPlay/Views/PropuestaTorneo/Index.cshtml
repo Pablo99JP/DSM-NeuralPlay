@@ -1,5 +1,9 @@
 @model IEnumerable<ApplicationCore.Domain.EN.PropuestaTorneo>
 
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
+
 <h2>Propuestas de Torneo</h2>
 <p class="text-muted">Incluye pendientes, aceptadas y rechazadas. Un estado ACEPTADA implica creación automática de participación.</p>
 <table class="table">

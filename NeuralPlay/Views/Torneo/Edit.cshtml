@@ -1,5 +1,9 @@
 @model NeuralPlay.Models.TorneoCreateViewModel
 
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
+
 <h2>Editar Torneo</h2>
 
 @if (TempData["ErrorMessage"] != null)

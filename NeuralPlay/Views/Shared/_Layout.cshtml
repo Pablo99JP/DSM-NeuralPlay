@@ -235,8 +235,8 @@
             color: var(--np-dark-grey);
         }
 
-        /* Global tablet adjustments: proportional scaling for all pages */
-        @@media (max-width: 1024px) {
+        /* Global tablet/mobile adjustments: proportional scaling for smaller devices only */
+        @@media (max-width: 768px) {
             body {
                 font-size: 14px;
             }

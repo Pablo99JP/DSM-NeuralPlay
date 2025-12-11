@@ -148,8 +148,8 @@
         width: 100%;
     }
 
-    /* Tablet: la barra pasa a top bar y se ajustan tamaños */
-    @@media (max-width: 1024px) {
+    /* Tablet (581px - 1024px): la barra pasa a top bar horizontal */
+    @@media (min-width: 581px) and (max-width: 1024px) {
         body { padding-top: 88px; padding-left: 0; }
 
         .sidebar-left {
@@ -182,7 +182,7 @@
         .sidebar-profile-image { width: 60px; height: 60px; }
     }
 
-    /* Mobile: barra lateral oculta, espacio para sidebar-down */
+    /* Mobile (≤580px): ocultar sidebar-left, mostrar sidebar-down */
     @@media screen and (max-width: 580px) {
         /* Resetear body y html para móvil */
         html, body {
