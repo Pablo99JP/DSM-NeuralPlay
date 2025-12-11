@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.FeedViewModel
+﻿@model NeuralPlay.Models.FeedViewModel
 @{
     ViewData["Title"] = $"Feed de {Model.NickUsuario}";
     ViewBag.OcultarNavbar = true;
@@ -6,27 +6,9 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
-    :root {
-        --np-red: #e50a46;
-        --np-grey: #454545;
-        --np-dark-grey: #242424;
-    }
-
-    /* Prevenir scroll horizontal */
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
-        background-size: cover;
-    }
-
     .feed-container {
         padding-right: 20%;
         padding-left: 6vw;
@@ -93,7 +75,7 @@
         display: none;
     }
 
-    /* Pestañas horizontales */
+    /* PestaÃ±as horizontales */
     .feed-tabs {
         display: flex;
         justify-content: flex-start;
@@ -405,23 +387,20 @@
             text-align: center;
             gap: 16px;
         }
+        .feed-username { font-size: 2.2rem; }
+        .feed-section-title { font-size: 1.6rem; }
+        .feed-tabs { gap: 12px; }
+    }
 
-        .feed-username {
-            font-size: 2.2rem;
-        }
-
-        .feed-section-title {
-            font-size: 1.6rem;
-        }
-
-        .feed-tabs {
-            gap: 12px;
-        }
-
-        .feed-tab-btn {
-            font-size: 1.1rem;
-            padding: 8px 14px;
-        }
+    /* Responsivo - Mobile */
+    @@media (max-width: 580px) {
+        .feed-container { padding-top: 80px; padding-bottom: 120px; }
+        .feed-header { padding: 16px 12px; }
+        .feed-username { font-size: 1.6rem; }
+        .feed-section-title { font-size: 1.2rem; padding: 0 12px; }
+        .feed-tabs { gap: 8px; overflow-x: auto; padding: 0 12px; }
+        .feed-tab-btn { white-space: nowrap; }
+        .feed-feed-item { margin: 12px 8px; }
     }
 </style>
 
@@ -445,10 +424,10 @@
         </div>
     </div>
 
-    <!-- Línea divisoria -->
+    <!-- LÃ­nea divisoria -->
     <div class="feed-divider"></div>
 
-    <!-- Pestañas de navegación -->
+    <!-- PestaÃ±as de navegaciÃ³n -->
     <div class="feed-tabs">
         <button class="feed-tab-btn active" onclick="showFeedTab('actividad')">
             <i class="bi bi-activity"></i>Actividad<span>@Model.Actividades.Count</span>
@@ -464,7 +443,7 @@
         </button>
     </div>
 
-    <!-- SECCIÓN 1: ACTIVIDAD -->
+    <!-- SECCIÃ“N 1: ACTIVIDAD -->
     <div id="actividad-tab" class="feed-tab-content active">
         @if (Model.Actividades.Any())
         {
@@ -482,7 +461,7 @@
                                     {
                                         case NeuralPlay.Models.TipoActividad.Publicacion:
                                             <span class="timeline-item-type publicacion">
-                                                <i class="bi bi-file-text"></i> Publicación
+                                                <i class="bi bi-file-text"></i> PublicaciÃ³n
                                             </span>
                                             break;
                                         case NeuralPlay.Models.TipoActividad.Comentario:
@@ -492,7 +471,7 @@
                                             break;
                                         case NeuralPlay.Models.TipoActividad.MeGustanPublicacion:
                                             <span class="timeline-item-type megusta">
-                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta Publicación
+                                                <i class="bi bi-hand-thumbs-up"></i> Me Gusta PublicaciÃ³n
                                             </span>
                                             break;
                                         case NeuralPlay.Models.TipoActividad.MeGustanComentario:
@@ -520,12 +499,12 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-inbox"></i>
-                <p>No hay actividad aún</p>
+                <p>No hay actividad aÃºn</p>
             </div>
         }
     </div>
 
-    <!-- SECCIÓN 2: PUBLICACIONES -->
+    <!-- SECCIÃ“N 2: PUBLICACIONES -->
     <div id="publicaciones-tab" class="feed-tab-content">
         @if (Model.Publicaciones.Any())
         {
@@ -570,12 +549,12 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-file-earmark"></i>
-                <p>No hay publicaciones aún</p>
+                <p>No hay publicaciones aÃºn</p>
             </div>
         }
     </div>
 
-    <!-- SECCIÓN 3: ME GUSTA -->
+    <!-- SECCIÃ“N 3: ME GUSTA -->
     <div id="megustas-tab" class="feed-tab-content">
         @if (Model.MeGustas.Any())
         {
@@ -621,12 +600,12 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-heart"></i>
-                <p>No has dado Me Gusta a ninguna publicación</p>
+                <p>No has dado Me Gusta a ninguna publicaciÃ³n</p>
             </div>
         }
     </div>
 
-    <!-- SECCIÓN 4: COMENTARIOS -->
+    <!-- SECCIÃ“N 4: COMENTARIOS -->
     <div id="comentarios-tab" class="feed-tab-content">
         @if (Model.Comentarios.Any())
         {
@@ -658,7 +637,7 @@
                         </div>
                         <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                             <p style="color: #999; font-size: 0.95rem; margin: 0 0 8px 0;">
-                                <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>Publicación original
+                                <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>PublicaciÃ³n original
                             </p>
                             <p class="feed-card-content" style="margin: 0; color: #bbb;">@com.ContenidoPublicacion</p>
                         </div>
@@ -683,18 +662,18 @@
         {
             <div class="feed-empty">
                 <i class="bi bi-chat-dots"></i>
-                <p>No has comentado en ninguna publicación</p>
+                <p>No has comentado en ninguna publicaciÃ³n</p>
             </div>
         }
     </div>
 
-    <!-- Estados vacíos si no hay nada -->
+    <!-- Estados vacÃ­os si no hay nada -->
     @if (!Model.Actividades.Any() && !Model.Publicaciones.Any() && !Model.MeGustas.Any() && !Model.Comentarios.Any())
     {
         <div class="feed-empty" style="margin-top: 60px;">
             <i class="bi bi-inbox"></i>
-            <p>No hay contenido en el feed aún</p>
-            <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerá aquí</small>
+            <p>No hay contenido en el feed aÃºn</p>
+            <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerÃ¡ aquÃ­</small>
         </div>
     }
 </div>
@@ -715,7 +694,8 @@
             selectedTab.classList.add('active');
         }
         
-        // Activar el botón seleccionado
+        // Activar el botÃ³n seleccionado
         event.target.closest('.feed-tab-btn').classList.add('active');
     }
 </script>
+

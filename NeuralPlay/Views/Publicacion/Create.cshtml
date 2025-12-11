@@ -1,13 +1,14 @@
-ï»¿@model NeuralPlay.Models.PublicacionViewModel
+@model NeuralPlay.Models.PublicacionViewModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Nueva PublicaciÃ³n";
+    ViewData["Title"] = "Nueva Publicación";
     ViewBag.OcultarNavbar = true;
 }
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -63,7 +64,7 @@
         align-items: center;
     }
 
-    /* TÃ­tulo principal */
+    /* Título principal */
     .page-header {
         margin-bottom: 30px;
         text-align: center;
@@ -99,20 +100,7 @@
         width: 100%;
     }
 
-    /* Campos del formulario */
-    .form-group {
-        margin-bottom: 30px;
-    }
-
-    .form-label {
-        font-family: 'Neue', sans-serif;
-        font-size: 1.5rem;
-        color: var(--np-red);
-        margin-bottom: 10px;
-        display: block;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+    /* Estilos especificos de formulario */
 
     .form-textarea {
         font-family: 'Lexend', sans-serif;
@@ -140,7 +128,7 @@
         font-style: italic;
     }
 
-    /* Mensajes de validaciÃ³n */
+    /* Mensajes de validación */
     .text-danger {
         font-family: 'Lexend', sans-serif;
         font-size: 1rem;
@@ -171,17 +159,12 @@
     }
 
     .validation-summary-errors li::before {
-        content: 'âš  ';
+        content: '? ';
         margin-right: 8px;
     }
 
     /* Botones */
-    .form-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 30px;
-    }
+    .form-actions { justify-content: center; }
 
     .btn-submit {
         font-family: 'Lexend', sans-serif;
@@ -236,7 +219,7 @@
 <!-- Contenedor de contenido: TODO EL CONTENIDO -->
 <div class="content-container">
     <div class="page-header">
-        <h1 class="page-title">Nueva PublicaciÃ³n</h1>
+        <h1 class="page-title">Nueva Publicación</h1>
         @if (!string.IsNullOrEmpty(Model.NombreComunidad))
         {
             <p class="page-subtitle">En la comunidad: @Model.NombreComunidad</p>
@@ -257,7 +240,7 @@
                 <label asp-for="contenido" class="form-label">Contenido</label>
                 <textarea asp-for="contenido" 
                           class="form-textarea" 
-                          placeholder="Escribe el contenido de tu publicaciÃ³n..."></textarea>
+                          placeholder="Escribe el contenido de tu publicación..."></textarea>
                 <span asp-validation-for="contenido" class="text-danger"></span>
                 <p class="form-note">Comparte tus ideas, logros o preguntas con la comunidad</p>
             </div>
@@ -280,3 +263,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

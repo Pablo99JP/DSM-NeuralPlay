@@ -1,4 +1,4 @@
-@model IEnumerable<NeuralPlay.Models.InvitacionViewModel>
+﻿@model IEnumerable<NeuralPlay.Models.InvitacionViewModel>
 
 @{
     ViewData["Title"] = "Invitaciones";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -271,7 +272,7 @@
             <h1 class="page-title">Invitaciones</h1>
             <p class="page-subtitle">Gestiona tus invitaciones enviadas y recibidas</p>
         </div>
-        <a asp-action="Create" class="cta-add"><i class="bi bi-send-plus"></i> Nueva invitación</a>
+        <a asp-action="Create" class="cta-add"><i class="bi bi-send-plus"></i> Nueva invitaciÃ³n</a>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -297,9 +298,9 @@
                 </div>
                 <p class="empty-state-text">No tienes invitaciones por el momento.</p>
                 <p class="empty-state-text" style="font-size: 0.95rem; color: rgba(255, 255, 255, 0.4);">
-                    Crea una nueva invitación para compartir tu equipo o comunidad con otros usuarios.
+                    Crea una nueva invitaciÃ³n para compartir tu equipo o comunidad con otros usuarios.
                 </p>
-                <a asp-action="Create" class="cta-add"><i class="bi bi-send-plus"></i> Enviar invitación</a>
+                <a asp-action="Create" class="cta-add"><i class="bi bi-send-plus"></i> Enviar invitaciÃ³n</a>
             </div>
         }
         else
@@ -392,4 +393,5 @@
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
+
 

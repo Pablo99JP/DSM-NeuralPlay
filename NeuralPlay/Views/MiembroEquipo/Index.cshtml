@@ -1,4 +1,4 @@
-@model IEnumerable<NeuralPlay.Models.MiembroEquipoViewModel>
+﻿@model IEnumerable<NeuralPlay.Models.MiembroEquipoViewModel>
 
 @{
     ViewData["Title"] = "Miembros de Equipo";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -179,7 +180,7 @@
             <h1 class="page-title">Miembros de equipo</h1>
             <p class="page-subtitle">Gestiona roles y estados de los miembros</p>
         </div>
-        <a asp-action="Create" class="cta-add"><i class="bi bi-person-plus"></i> Añadir miembro</a>
+        <a asp-action="Create" class="cta-add"><i class="bi bi-person-plus"></i> AÃ±adir miembro</a>
     </div>
 
     @if (TempData["Error"] != null)
@@ -221,3 +222,4 @@
         </table>
     </section>
 </div>
+

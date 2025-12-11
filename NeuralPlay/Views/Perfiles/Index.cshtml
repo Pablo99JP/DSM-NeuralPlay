@@ -1,4 +1,4 @@
-@model IEnumerable<NeuralPlay.Models.PerfilViewModel>
+﻿@model IEnumerable<NeuralPlay.Models.PerfilViewModel>
 
 @{
     ViewData["Title"] = "Perfiles de Usuario";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -38,7 +39,7 @@
     .index-header {
         margin-bottom: 15px;
         padding-top: 10px;
-        /* Sin text-align para permitir alineación personalizada */
+        /* Sin text-align para permitir alineaciÃ³n personalizada */
     }
 
     .index-header .index-title-align {

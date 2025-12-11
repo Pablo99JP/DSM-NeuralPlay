@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.UsuarioViewModel
+﻿@model NeuralPlay.Models.UsuarioViewModel
 
 @{
     ViewData["Title"] = "Editar Usuario";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -180,7 +181,7 @@
 
 <main class="content-wrapper">
     <article class="edit-card">
-        <h2>Información del Usuario</h2>
+        <h2>InformaciÃ³n del Usuario</h2>
         <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="Id" />
 
@@ -197,7 +198,7 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Password" class="control-label">Contraseña</label>
+                <label asp-for="Password" class="control-label">ContraseÃ±a</label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>

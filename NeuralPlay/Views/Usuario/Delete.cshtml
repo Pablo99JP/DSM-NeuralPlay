@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.UsuarioViewModel
+﻿@model NeuralPlay.Models.UsuarioViewModel
 
 @{
     ViewData["Title"] = "Eliminar Usuario";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -155,8 +156,8 @@
 
 <main class="content-wrapper">
     <article class="delete-card">
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Desea eliminar al usuario <strong>@Model.Nombre</strong>?</p>
+        <h2>Confirmar EliminaciÃ³n</h2>
+        <p>Â¿Desea eliminar al usuario <strong>@Model.Nombre</strong>?</p>
         <form asp-action="Delete" method="post">
             <input type="hidden" asp-for="Id" />
             <div class="form-actions">

@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.PerfilEditViewModel
+﻿@model NeuralPlay.Models.PerfilEditViewModel
 
 @{
     ViewData["Title"] = "Editar Perfil";
@@ -194,6 +194,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <header class="edit-header">
     <h1 class="edit-section-title">Actualizar Datos</h1>
@@ -202,7 +203,7 @@
 
 <main class="content-wrapper">
     <article class="edit-card">
-        <h2>Información del Perfil</h2>
+        <h2>InformaciÃ³n del Perfil</h2>
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
             <input type="hidden" asp-for="IdPerfil" />
@@ -215,7 +216,7 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Descripcion" class="control-label">Descripción</label>
+                <label asp-for="Descripcion" class="control-label">DescripciÃ³n</label>
                 <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>

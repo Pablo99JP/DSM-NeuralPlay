@@ -181,6 +181,32 @@
         .sidebar-notification { margin-top: 0; }
         .sidebar-profile-image { width: 60px; height: 60px; }
     }
+
+    /* Mobile: barra lateral oculta, espacio para sidebar-down */
+    @@media screen and (max-width: 580px) {
+        /* Resetear body y html para móvil */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding-bottom: 12vh !important;
+        }
+
+        /* Ocultar barras laterales en móvil */
+        .sidebar-left,
+        .sidebar-right {
+            display: none !important;
+        }
+
+        /* Mostrar barra inferior en móvil */
+        .sidebar-down {
+            display: flex !important;
+        }
+    }
 </style>
 
 <div class="sidebar-left">

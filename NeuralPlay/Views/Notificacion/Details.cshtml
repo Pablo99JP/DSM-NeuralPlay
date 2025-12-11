@@ -1,4 +1,4 @@
-@using ApplicationCore.Domain.Enums;
+﻿@using ApplicationCore.Domain.Enums;
 
 @model NeuralPlay.Models.NotificacionViewModel
 
@@ -9,6 +9,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -170,7 +171,7 @@
 <div class="content-container">
     <div class="page-header">
         <div>
-            <h1 class="page-title">Notificación</h1>
+            <h1 class="page-title">NotificaciÃ³n</h1>
             <p class="page-subtitle">Detalle del aviso seleccionado</p>
         </div>
         <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
@@ -190,19 +191,19 @@
                 <div class="meta-label">Estado</div>
                 @if (Model.Leido)
                 {
-                    <span class="badge-pill badge-leido"><i class="bi bi-check-circle"></i> Leído</span>
+                    <span class="badge-pill badge-leido"><i class="bi bi-check-circle"></i> LeÃ­do</span>
                 }
                 else
                 {
-                    <span class="badge-pill badge-no-leido"><i class="bi bi-envelope"></i> No leído</span>
+                    <span class="badge-pill badge-no-leido"><i class="bi bi-envelope"></i> No leÃ­do</span>
                 }
             </div>
         </div>
 
         <div class="actions">
-            @if (Model.Tipo == ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA && Model.Texto.Contains("invitación"))
+            @if (Model.Tipo == ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA && Model.Texto.Contains("invitaciÃ³n"))
             {
-                <a asp-controller="Invitacion" asp-action="Index" class="btn-primary-ghost"><i class="bi bi-envelope-arrow-up"></i> Ir a invitación</a>
+                <a asp-controller="Invitacion" asp-action="Index" class="btn-primary-ghost"><i class="bi bi-envelope-arrow-up"></i> Ir a invitaciÃ³n</a>
             }
             else
             {

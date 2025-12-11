@@ -1,7 +1,7 @@
-@model NeuralPlay.Models.AnadirJuegoViewModel
+﻿@model NeuralPlay.Models.AnadirJuegoViewModel
 
 @{
-    ViewData["Title"] = "A�adir Juego a la Biblioteca";
+    ViewData["Title"] = "Aï¿½adir Juego a la Biblioteca";
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.OcultarNavbar = true;
 }
@@ -127,10 +127,11 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <div class="page-content">
     <main class="add-game-wrapper">
-        <h1 class="add-game-title">Añadir juego al perfil</h1>
+        <h1 class="add-game-title">AÃ±adir juego al perfil</h1>
         <form asp-action="AnadirJuego" class="add-game-form">
             <div asp-validation-summary="ModelOnly" class="validation-error"></div>
             <input type="hidden" asp-for="IdPerfil" />
@@ -139,7 +140,7 @@
                 <option value="">-- Selecciona un juego --</option>
             </select>
             <span asp-validation-for="IdJuegoSeleccionado" class="validation-error"></span>
-            <button type="submit" class="btn-add-game">Añadir</button>
+            <button type="submit" class="btn-add-game">AÃ±adir</button>
         </form>
         <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="cancel-link">Cancelar</a>
     </main>

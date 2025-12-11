@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.ComunidadViewModel
+﻿@model NeuralPlay.Models.ComunidadViewModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,6 +9,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -240,7 +241,8 @@
     else
     {
         <div class="no-members">
-            <p>Esta comunidad aún no tiene miembros.</p>
+            <p>Esta comunidad aÃºn no tiene miembros.</p>
         </div>
     }
 </div>
+

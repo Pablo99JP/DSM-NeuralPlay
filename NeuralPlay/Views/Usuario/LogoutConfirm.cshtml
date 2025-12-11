@@ -1,10 +1,11 @@
-@{
-    ViewData["Title"] = "Confirmar Cierre de Sesión";
+﻿@{
+    ViewData["Title"] = "Confirmar Cierre de SesiÃ³n";
     ViewBag.OcultarNavbar = true;
 }
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -147,19 +148,20 @@
 </style>
 
 <header class="delete-header">
-    <h1>Cerrar Sesión</h1>
+    <h1>Cerrar SesiÃ³n</h1>
     <div class="delete-divider"></div>
 </header>
 
 <main class="content-wrapper">
     <article class="delete-card">
-        <h2>Confirmar Cierre de Sesión</h2>
-        <p>¿Desea cerrar sesión?</p>
+        <h2>Confirmar Cierre de SesiÃ³n</h2>
+        <p>Â¿Desea cerrar sesiÃ³n?</p>
         <form asp-action="Logout" method="post">
             <div class="form-actions">
-                <button type="submit" class="btn-eliminar">Cerrar Sesión</button>
+                <button type="submit" class="btn-eliminar">Cerrar SesiÃ³n</button>
                 <a asp-action="Index" asp-controller="Home" class="btn-cancelar">Cancelar</a>
             </div>
         </form>
     </article>
 </main>
+

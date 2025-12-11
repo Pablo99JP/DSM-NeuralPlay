@@ -319,6 +319,51 @@
                 font-size: 1rem;
             }
         }
+
+        /* Ajustes mobile */
+        @@media (max-width: 580px) {
+            .login-wrapper {
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            aside.left-panel {
+                width: 100%;
+                min-height: 150px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            section.left-content {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .brand-logo {
+                max-width: 200px;
+                margin-bottom: 8px;
+            }
+
+            h1.welcome-text {
+                font-size: 1rem;
+            }
+
+            section.right-panel {
+                width: 100%;
+                max-width: 100%;
+                padding: 12px;
+                margin-bottom: 60px;
+            }
+
+            .login-title {
+                font-size: 1.4rem;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>

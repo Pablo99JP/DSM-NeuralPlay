@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.TorneoDetailsViewModel
+﻿@model NeuralPlay.Models.TorneoDetailsViewModel
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
 
 @{
@@ -11,6 +11,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -66,7 +67,7 @@
         z-index: 2;
     }
 
-    /* Título principal del torneo */
+    /* TÃ­tulo principal del torneo */
     .torneo-header {
         text-align: left;
         margin-bottom: 30px;
@@ -111,7 +112,7 @@
         width: 100%;
     }
 
-    /* Contenedor de tarjetas de información */
+    /* Contenedor de tarjetas de informaciÃ³n */
     .info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -177,7 +178,7 @@
         color: white;
     }
 
-    /* Sección de pestañas */
+    /* SecciÃ³n de pestaÃ±as */
     .tabs-section {
         margin-bottom: 40px;
         padding: 0 32px;
@@ -283,7 +284,7 @@
         margin-right: 8px;
     }
 
-    /* Lista de clasificación */
+    /* Lista de clasificaciÃ³n */
     .classification-list {
         display: flex;
         flex-direction: column;
@@ -446,7 +447,7 @@
         color: white;
     }
 
-    /* Sección de acciones */
+    /* SecciÃ³n de acciones */
     .actions-section {
         margin-bottom: 60px;
         padding: 0 32px;
@@ -518,7 +519,7 @@
 
             <div class="torneo-divider"></div>
 
-            <!-- Tarjetas de información -->
+            <!-- Tarjetas de informaciÃ³n -->
             <div class="info-grid">
                 <div class="info-card">
                     <div class="info-card-title"><i class="bi bi-calendar-event"></i> Fecha de Inicio</div>
@@ -555,7 +556,7 @@
                 </div>
             </div>
 
-            <!-- Mensajes de éxito/error -->
+            <!-- Mensajes de Ã©xito/error -->
             @if (TempData["SuccessMessage"] != null)
             {
                 <div style="margin-bottom: 20px;">
@@ -573,15 +574,15 @@
                 </div>
             }
 
-            <!-- Sección de pestañas -->
+            <!-- SecciÃ³n de pestaÃ±as -->
             <div class="tabs-section">
-                <!-- Navegación de pestañas -->
+                <!-- NavegaciÃ³n de pestaÃ±as -->
                 <div class="tabs-nav" role="tablist">
                     <button class="active" data-tab="descripcion" role="tab">
-                        <i class="bi bi-file-text"></i> Descripción
+                        <i class="bi bi-file-text"></i> DescripciÃ³n
                     </button>
                     <button data-tab="clasificacion" role="tab">
-                        <i class="bi bi-trophy"></i> Clasificación
+                        <i class="bi bi-trophy"></i> ClasificaciÃ³n
                     </button>
                     <button data-tab="premios" role="tab">
                         <i class="bi bi-gift"></i> Premios
@@ -591,9 +592,9 @@
                     </button>
                 </div>
 
-                <!-- Contenido de pestañas -->
+                <!-- Contenido de pestaÃ±as -->
                 <div class="tabs-content">
-                    <!-- Pestaña Descripción -->
+                    <!-- PestaÃ±a DescripciÃ³n -->
                     <div id="tab-descripcion" class="tab-pane active">
                         <h2 class="tab-pane-title">Reglas del Torneo</h2>
                         @if (!string.IsNullOrWhiteSpace(Model.Torneo.Reglas))
@@ -606,9 +607,9 @@
                         }
                     </div>
 
-                    <!-- Pestaña Clasificación -->
+                    <!-- PestaÃ±a ClasificaciÃ³n -->
                     <div id="tab-clasificacion" class="tab-pane" style="display: none;">
-                        <h2 class="tab-pane-title">Clasificación para este torneo:</h2>
+                        <h2 class="tab-pane-title">ClasificaciÃ³n para este torneo:</h2>
                         @if (Model.Participaciones.Any())
                         {
                             <div class="classification-list">
@@ -634,7 +635,7 @@
                                             <h3 class="classification-team-name">@(p.Equipo?.Nombre ?? "-")</h3>
                                         </div>
                                         <div class="classification-ranking">
-                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Posición</div>
+                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">PosiciÃ³n</div>
                                             @posicion
                                         </div>
                                     </div>
@@ -644,11 +645,11 @@
                         }
                         else
                         {
-                            <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aún.</p>
+                            <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aÃºn.</p>
                         }
                     </div>
 
-                    <!-- Pestaña Premios -->
+                    <!-- PestaÃ±a Premios -->
                     <div id="tab-premios" class="tab-pane" style="display: none;">
                         <h2 class="tab-pane-title">Premios del Torneo</h2>
                         @if (!string.IsNullOrWhiteSpace(Model.Torneo.Premios))
@@ -661,24 +662,24 @@
                         }
                     </div>
 
-                    <!-- Pestaña Unirse -->
+                    <!-- PestaÃ±a Unirse -->
                     <div id="tab-unirse" class="tab-pane" style="display: none;">
-                        <h2 class="tab-pane-title">Proponer Participación</h2>
+                        <h2 class="tab-pane-title">Proponer ParticipaciÃ³n</h2>
                         @if (currentUser == null)
                         {
                             <div class="alert-custom alert-custom-info">
-                                <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesión</a> para proponer la participación de tus equipos.
+                                <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesiÃ³n</a> para proponer la participaciÃ³n de tus equipos.
                             </div>
                         }
                         else if (!Model.EquiposUsuario.Any())
                         {
                             <div class="alert-custom alert-custom-warning">
-                                <i class="bi bi-exclamation-triangle"></i> No perteneces a ningún equipo. Únete o crea un equipo para participar.
+                                <i class="bi bi-exclamation-triangle"></i> No perteneces a ningÃºn equipo. Ãšnete o crea un equipo para participar.
                             </div>
                         }
                         else
                         {
-                            <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participación en este torneo:</p>
+                            <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participaciÃ³n en este torneo:</p>
                             <div class="team-list">
                                 @foreach (var equipo in Model.EquiposUsuario)
                                 {
@@ -688,7 +689,7 @@
                                     <div class="team-item">
                                         <div class="team-info">
                                             <h6>@equipo.Nombre</h6>
-                                            <small>@(equipo.Descripcion ?? "Sin descripción")</small>
+                                            <small>@(equipo.Descripcion ?? "Sin descripciÃ³n")</small>
                                         </div>
                                         <div class="team-action">
                                             @if (yaParticipando)
@@ -715,7 +716,7 @@
                 </div>
             </div>
 
-            <!-- Sección de acciones -->
+            <!-- SecciÃ³n de acciones -->
             <div class="actions-section">
                 <a class="btn-custom btn-outline" asp-action="Index">
                     <i class="bi bi-arrow-left"></i> Volver
@@ -735,18 +736,19 @@
 </div>
 
 <script>
-    // Sistema de pestañas interactivo
+    // Sistema de pestaÃ±as interactivo
     document.querySelectorAll('.tabs-nav button').forEach(button => {
         button.addEventListener('click', function() {
             const tabId = this.dataset.tab;
             
-            // Remover clase activa de todos los botones y pestañas
+            // Remover clase activa de todos los botones y pestaÃ±as
             document.querySelectorAll('.tabs-nav button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(pane => pane.style.display = 'none');
             
-            // Agregar clase activa al botón y mostrar pestaña
+            // Agregar clase activa al botÃ³n y mostrar pestaÃ±a
             this.classList.add('active');
             document.getElementById(`tab-${tabId}`).style.display = 'block';
         });
     });
 </script>
+

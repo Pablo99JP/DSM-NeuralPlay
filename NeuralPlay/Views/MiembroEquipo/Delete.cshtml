@@ -1,4 +1,4 @@
-@model NeuralPlay.Models.MiembroEquipoViewModel
+﻿@model NeuralPlay.Models.MiembroEquipoViewModel
 
 @{
     ViewData["Title"] = "Eliminar Miembro del Equipo";
@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -143,7 +144,7 @@
     </header>
 
     <div class="alert-card">
-        ¿Seguro que quieres expulsar a este usuario del equipo?
+        Â¿Seguro que quieres expulsar a este usuario del equipo?
     </div>
 
     <section class="info-card">
@@ -179,3 +180,4 @@
         </form>
     </section>
 </div>
+

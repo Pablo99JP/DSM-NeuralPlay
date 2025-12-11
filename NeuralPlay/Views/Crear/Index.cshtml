@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Crear Neural";
     ViewBag.OcultarNavbar = true;
@@ -6,41 +6,11 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
-    :root {
-        --np-red: #e50a46;
-        --np-grey: #454545;
-        --np-dark-grey: #242424;
-    }
 
-    @@font-face {
-        font-family: 'Neue';
-        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-    }
-
-    @@font-face {
-        font-family: 'Lexend';
-        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-    }
-
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
-        background-size: cover;
-    }
-
-    /* Header con el título */
+    /* Header con el tÃ­tulo */
     .create-header {
         text-align: center;
         margin-bottom: 15px;
@@ -194,6 +164,19 @@
         .create-card-title { font-size: 2.8rem; }
         .create-card-action { font-size: 2.8rem; }
     }
+
+    /* Mobile: ajustes específicos para pantallas pequeñas */
+    @@media (max-width: 580px) {
+        .content-wrapper { padding: 80px 16px 110px; }
+        .create-header h1 { font-size: 2.4rem; }
+        .create-subtitle { font-size: 1rem; }
+        .create-divider { width: 80%; margin-bottom: 20px; }
+
+        .create-grid { gap: 16px; }
+        .create-card { height: 180px; }
+        .create-card-title { font-size: 1.8rem; bottom: 12px; left: 12px; }
+        .create-card-action { font-size: 1.8rem; }
+    }
 </style>
 
 <header class="create-header">
@@ -223,3 +206,4 @@
         </a>
     </div>
 </main>
+
