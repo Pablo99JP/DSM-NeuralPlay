@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using NeuralPlay.Validators;
 
 namespace NeuralPlay.Models
 {
@@ -15,7 +16,8 @@ namespace NeuralPlay.Models
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]
-        [Display(Name = "Contraseña")]
+        [Display(Name = "contraseña")]
+        [StrongPassword]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
