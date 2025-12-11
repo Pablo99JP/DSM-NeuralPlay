@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 @using System.Linq
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
 @inject ApplicationCore.Domain.CEN.NotificacionCEN NotificacionCEN
 
 <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -76,6 +77,54 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        /* Tablet (581px - 1024px): SidebarLeft horizontal arriba, SidebarRight lateral */
+        @@media (min-width: 581px) and (max-width: 1024px) {
+            .content-container {
+                left: 0 !important;
+                width: 94% !important;
+                padding-top: 100px !important;
+                padding-left: 0 !important;
+                padding-right: 20px !important;
+                margin-left: 0 !important;
+            }
+
+            footer {
+                margin-left: 0 !important;
+                margin-right: 7vw !important;
+            }
+
+            footer .container {
+                margin-left: 0 !important;
+                max-width: 100% !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: auto !important;
+            }
+        }
+
+        /* Mobile (≤580px): Solo SidebarDown abajo */
+        @@media (max-width: 580px) {
+            .content-container {
+                left: 0 !important;
+                width: 100% !important;
+                padding: 20px 16px 60px 16px !important;
+                margin-left: 0 !important;
+            }
+
+            .container {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                max-width: 100% !important;
+            }
         }
 
         /* Header de página */
@@ -235,66 +284,7 @@
             color: var(--np-dark-grey);
         }
 
-        /* Global tablet/mobile adjustments: proportional scaling for smaller devices only */
-        @@media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-
-            .content-container {
-                left: 0;
-                width: 100%;
-                padding: 110px 24px 40px;
-            }
-
-            .form-card { padding: 28px; }
-
-            h1 { font-size: 1.8rem; }
-            h2 { font-size: 1.5rem; }
-            h3 { font-size: 1.3rem; }
-            h4, h5, h6 { font-size: 1.1rem; }
-
-            p, label, span { font-size: 0.95rem; }
-
-            button, .btn {
-                padding: 8px 16px;
-                font-size: 0.95rem;
-            }
-
-            input, textarea, select {
-                font-size: 0.95rem;
-                padding: 8px 12px;
-            }
-
-            .container, .container-fluid {
-                margin-left: 0;
-                margin-right: 0;
-                padding: 0 16px;
-            }
-
-            header {
-                margin-left: 0;
-                margin-right: 0;
-            }
-
-            footer {
-                margin-left: 0;
-                margin-right: 0;
-                font-size: 0.85rem;
-            }
-
-            table { font-size: 0.9rem; }
-            .table td, .table th { padding: 0.6rem; }
-
-            .card { margin-bottom: 12px; }
-            .card-body { padding: 12px; }
-
-            .mb-3, .mb-4, .mb-5 { margin-bottom: 12px !important; }
-            .mt-3, .mt-4, .mt-5 { margin-top: 12px !important; }
-            .p-3, .p-4, .p-5 { padding: 12px !important; }
-
-            .gap-2, .gap-3, .gap-4 { gap: 8px !important; }
-        }
+        /* Mobile adjustments: proportional scaling only for mobile devices (≤580px) */
         @@media (max-width: 580px) {
             body {
                 font-size: 10px;
@@ -329,9 +319,17 @@
             }
 
             footer {
-                margin-left: 0;
-                margin-right: 0;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 11vh !important;
                 font-size: 0.85rem;
+            }
+
+            footer .container {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
 
             table { font-size: 0.9rem; }
@@ -452,7 +450,7 @@
     </div>
 
     <footer class="border-top footer text-muted" style="margin-left: 13vw; margin-right: 7vw;">
-        <div class="container">
+        <div class="container" style="max-width: 100%; padding: 0 20px;">
             &copy; 2025 - NeuralPlay - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>

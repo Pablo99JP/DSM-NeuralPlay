@@ -13,7 +13,7 @@
         padding-right: 20%;
         padding-left: 6vw;
         padding-top: 20px;
-        padding-bottom: 150px;
+        padding-bottom: 80px;
     }
 
     .feed-header {
@@ -380,22 +380,42 @@
         opacity: 0.5;
     }
 
-    /* Responsivo - Tablet */
-    @@media (max-width: 1024px) {
-        .feed-header {
-            flex-direction: column;
-            text-align: center;
-            gap: 16px;
+    /* Responsivo - Tablet (581px - 1024px) - Mantener diseño desktop */
+    @@media (min-width: 581px) and (max-width: 1024px) {
+        .feed-container {
+            padding-right: 8%;
+            padding-left: 0;
+            margin-left: 0;
+            padding-top: 110px;
+            padding-bottom: 60px;
         }
-        .feed-username { font-size: 2.2rem; }
-        .feed-section-title { font-size: 1.6rem; }
-        .feed-tabs { gap: 12px; }
+        .feed-header {
+            flex-direction: row !important;
+            text-align: left !important;
+            gap: 30px !important;
+        }
+        .feed-username { font-size: 2.5rem !important; }
+        .feed-section-title { font-size: 1.8rem !important; }
+        .feed-tabs { 
+            gap: 20px !important;
+            flex-direction: row !important;
+        }
     }
 
-    /* Responsivo - Mobile */
+    /* Responsivo - Mobile (≤580px) */
     @@media (max-width: 580px) {
-        .feed-container { padding-top: 80px; padding-bottom: 120px; }
-        .feed-header { padding: 16px 12px; }
+        .feed-container { 
+            padding-top: 30px; 
+            padding-bottom: 80px;
+            padding-left: 4vw;
+            padding-right: 4vw;
+        }
+        .feed-header { 
+            padding: 16px 12px;
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 16px !important;
+        }
         .feed-username { font-size: 1.6rem; }
         .feed-section-title { font-size: 1.2rem; padding: 0 12px; }
         .feed-tabs { gap: 8px; overflow-x: auto; padding: 0 12px; }
