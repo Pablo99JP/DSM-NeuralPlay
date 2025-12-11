@@ -377,6 +377,23 @@
         font-size: 1.2rem;
         margin: 0;
     }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .content-wrapper { left: 0; width: 100%; }
+        .content-inner { max-width: 100%; padding: 0 16px; }
+        .torneos-header { padding-left: 12px; padding-right: 12px; }
+        .torneos-header h1 { font-size: 2.6rem; }
+        .torneos-header-subtitle { font-size: 1.2rem; }
+        .torneos-header-actions { flex-direction: column; gap: 12px; }
+        .actions-left, .actions-right { width: 100%; }
+        .btn-custom { font-size: 1rem; padding: 10px 16px; }
+        .torneos-grid { grid-template-columns: 1fr; }
+        .torneo-card { padding: 16px; }
+        .torneo-card-title { font-size: 1.4rem; }
+        .torneo-card-body { font-size: 0.95rem; }
+        .btn-small { font-size: 0.9rem; padding: 6px 12px; }
+    }
 </style>
 
 <!-- Contenedor principal -->

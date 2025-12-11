@@ -147,6 +147,40 @@
         align-items: center;
         width: 100%;
     }
+
+    /* Tablet: la barra pasa a top bar y se ajustan tamaños */
+    @@media (max-width: 1024px) {
+        body { padding-top: 88px; padding-left: 0; }
+
+        .sidebar-left {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 74px;
+            min-width: unset;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            z-index: 1100;
+        }
+
+        .sidebar-top, .sidebar-bottom {
+            flex-direction: row;
+            align-items: center;
+            width: auto;
+            gap: 12px;
+        }
+
+        .sidebar-divider { display: none; }
+        .sidebar-logo { width: 120px; margin: 0; }
+        .sidebar-link-main { margin-bottom: 0; font-size: 1.1rem; }
+        .sidebar-link-secondary { margin-bottom: 0; padding: 0 10px; font-size: 0.9rem; width: auto; text-align: center; }
+        .sidebar-notification { margin-top: 0; }
+        .sidebar-profile-image { width: 60px; height: 60px; }
+    }
 </style>
 
 <div class="sidebar-left">

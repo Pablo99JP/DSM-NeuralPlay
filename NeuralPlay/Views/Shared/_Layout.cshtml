@@ -6,11 +6,124 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>@ViewData["Title"] - NeuralPlay</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NeuralPlay.styles.css" asp-append-version="true" />
+    <style>
+        /* Global tablet adjustments: proportional scaling for all pages */
+        @@media (max-width: 1024px) {
+            body {
+                font-size: 14px;
+            }
+
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+            h4, h5, h6 { font-size: 1.1rem; }
+
+            p, label, span { font-size: 0.95rem; }
+
+            button, .btn {
+                padding: 8px 16px;
+                font-size: 0.95rem;
+            }
+
+            input, textarea, select {
+                font-size: 0.95rem;
+                padding: 8px 12px;
+            }
+
+            .container, .container-fluid {
+                margin-left: 0;
+                margin-right: 0;
+                padding: 0 16px;
+            }
+
+            header {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            footer {
+                margin-left: 0;
+                margin-right: 0;
+                font-size: 0.85rem;
+            }
+
+            table { font-size: 0.9rem; }
+            .table td, .table th { padding: 0.6rem; }
+
+            .card { margin-bottom: 12px; }
+            .card-body { padding: 12px; }
+
+            .mb-3, .mb-4, .mb-5 { margin-bottom: 12px !important; }
+            .mt-3, .mt-4, .mt-5 { margin-top: 12px !important; }
+            .p-3, .p-4, .p-5 { padding: 12px !important; }
+
+            .gap-2, .gap-3, .gap-4 { gap: 8px !important; }
+        }
+        @@media (max-width: 580px) {
+            body {
+                font-size: 10px;
+            }
+
+            h1 { font-size: 3rem !important; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+            h4, h5, h6 { font-size: 1.1rem; }
+
+            p, label, span { font-size: 0.95rem; }
+
+            button, .btn {
+                padding: 8px 16px;
+                font-size: 0.95rem;
+            }
+
+            input, textarea, select {
+                font-size: 0.95rem;
+                padding: 8px 12px;
+            }
+
+            .container, .container-fluid {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding: 0 16px;
+            }
+
+            header {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            footer {
+                margin-left: 0;
+                margin-right: 0;
+                font-size: 0.85rem;
+            }
+
+            table { font-size: 0.9rem; }
+            .table td, .table th { padding: 0.6rem; }
+
+            .card { margin-bottom: 12px; }
+            .card-body { padding: 12px; }
+
+            .mb-3, .mb-4, .mb-5 { margin-bottom: 12px !important; }
+            .mt-3, .mt-4, .mt-5 { margin-top: 12px !important; }
+            .p-3, .p-4, .p-5 { padding: 12px !important; }
+
+            .gap-2, .gap-3, .gap-4 { gap: 8px !important; }
+        }
+        .container{
+            margin-left: 13vw;
+            margin-right: 7vw;
+            padding-top: @(ViewBag.OcultarNavbar == true ? "0" : "100px");
+        }
+    </style>
 </head>
 <body>
     @if (ViewBag.OcultarNavbar == null || ViewBag.OcultarNavbar == false)
@@ -104,7 +217,7 @@
             </nav>
         </header>
     }
-    <div class="container" style="margin-left: 13vw; margin-right: 7vw; padding-top: @(ViewBag.OcultarNavbar == true ? "0" : "100px");">
+    <div class="container" style="">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

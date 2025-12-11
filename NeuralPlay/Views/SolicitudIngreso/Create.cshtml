@@ -197,6 +197,24 @@
         font-style: italic;
         margin-top: 5px;
     }
+
+    /* Ajustes tablet: layout y espaciados especificos */
+    @@media (max-width: 1024px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 110px 24px 40px;
+        }
+
+        .page-title { font-size: 3.6rem; }
+        .page-header { margin-bottom: 30px; }
+
+        .form-card { padding: 28px; }
+        .form-label { font-size: 1.2rem; }
+        .form-select { font-size: 1rem; padding: 12px 14px; }
+
+        .btn-submit, .btn-cancel { font-size: 1.05rem; padding: 12px 26px; }
+    }
 </style>
 
 <!-- Contenedor principal - solo fondo -->

@@ -7,6 +7,7 @@
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
     :root {
@@ -126,6 +127,12 @@
     main {
         padding-bottom: 150px;
     }
+    
+    /* Ocultar barra inferior en escritorio */
+    .sidebar-down {
+        display: none;
+    }
+    
     /* Comunidades */
     .comunidades-grid {
         display: grid;
@@ -476,6 +483,197 @@
         color: white;
         font-size: 1.5rem;
         font-family: 'Neue', sans-serif;
+    }
+
+    /* Media Query para móvil */
+    @@media screen and (max-width: 580px) {
+        /* Resetear body y html para móvil */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Ocultar barras laterales en móvil */
+        .sidebar-left,
+        .sidebar-right {
+            display: none !important;
+        }
+
+        /* Mostrar barra inferior en móvil */
+        .sidebar-down {
+            display: flex !important;
+        }
+
+        /* Ajustar header */
+        .explore-header {
+            padding-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .explore-header h1 {
+            font-size: 2rem;
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 8px;
+            padding: 0 15px;
+            text-align: left;
+        }
+
+        .explore-divider {
+            width: calc(100% - 30px);
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 20px;
+        }
+
+        /* Ajustar contenedor principal */
+        main.content-wrapper {
+            padding: 0 !important;
+            padding-bottom: calc(12vh + 20px) !important;
+            margin: 0 !important;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Barra de búsqueda */
+        .search-bar {
+            flex-direction: column;
+            padding: 0 15px;
+            margin-bottom: 20px;
+            margin-left: 0;
+            margin-right: 0;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            font-size: 1rem;
+            padding: 12px 18px;
+        }
+
+        .btn-search {
+            width: 100%;
+            font-size: 1.3rem;
+            padding: 10px 20px;
+        }
+
+        /* Tabs */
+        .tab-selector {
+            margin-left: 0;
+            margin-right: 0;
+            padding: 0 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            justify-content: flex-start;
+        }
+
+        .tab-btn {
+            font-size: 1.1rem;
+            padding: 8px 14px;
+        }
+
+        .tab-content {
+            padding: 0;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        /* Grids a 1 columna */
+        .comunidades-grid,
+        .juegos-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 0 15px;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .comunidad-card,
+        .juego-card {
+            height: 180px;
+            border-radius: 10px;
+        }
+
+        .comunidad-title,
+        .juego-title {
+            font-size: 1.6rem;
+            bottom: 12px;
+            left: 12px;
+            max-width: 90%;
+        }
+
+        .comunidad-unirse,
+        .juego-unirse {
+            font-size: 2rem;
+        }
+
+        /* Equipos */
+        .equipos-list {
+            padding: 0 15px;
+            gap: 20px;
+            margin: 0;
+        }
+
+        .equipo-card {
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .equipo-header {
+            gap: 12px;
+        }
+
+        .equipo-logo {
+            width: 55px;
+            height: 55px;
+            margin-right: 12px;
+        }
+
+        .equipo-nombre {
+            font-size: 1.3rem;
+        }
+
+        .btn-vermas {
+            font-size: 1rem;
+            padding: 8px 14px;
+        }
+
+        .equipo-card.expanded {
+            padding: 18px;
+        }
+
+        .equipo-card.expanded .equipo-info {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+        }
+
+        .equipo-card.expanded .equipo-detalles {
+            flex-direction: column;
+            gap: 15px;
+            font-size: 1rem;
+        }
+
+        .equipo-detalles-item {
+            margin-bottom: 12px;
+        }
+
+        .equipo-detalles-label {
+            font-size: 1.05rem;
+        }
+
+        .btn-solicitar {
+            font-size: 1.3rem;
+            padding: 10px 20px;
+            width: 100%;
+        }
+
+        .empty-message {
+            font-size: 1.1rem;
+            padding: 25px 15px;
+        }
     }
 </style>
 

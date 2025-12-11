@@ -21,8 +21,9 @@ namespace NeuralPlay.Controllers
  private readonly ApplicationCore.Domain.Repositories.IUnitOfWork _uow;
  private readonly IMiembroEquipoRepository _miembroEquipoRepo;
  private readonly IMiembroComunidadRepository _miembroComunidadRepo;
+ private readonly MiembroComunidadCEN _miembroComunidadCEN;
 
- public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo)
+ public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo, MiembroComunidadCEN miembroComunidadCEN)
  {
  _solCEN = solCEN;
  _usuarioRepo = usuarioRepo;
@@ -31,6 +32,7 @@ namespace NeuralPlay.Controllers
  _uow = uow;
  _miembroEquipoRepo = miembroEquipoRepo;
  _miembroComunidadRepo = miembroComunidadRepo;
+ _miembroComunidadCEN = miembroComunidadCEN;
  }
 
  public IActionResult Index()
@@ -110,16 +112,8 @@ namespace NeuralPlay.Controllers
  // Si es una solicitud de comunidad, se aprueba automáticamente y se crea el miembro
  if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && com != null)
  {
- var miembro = new MiembroComunidad 
- { 
- Usuario = solicitante!, 
- Comunidad = com, 
- Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, 
- FechaAlta = DateTime.UtcNow, 
- Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO, 
- FechaAccion = DateTime.UtcNow 
- };
- _miembroComunidadRepo.New(miembro);
+ // Usar el CEN para crear el miembro, aplicando todas las validaciones
+ _miembroComunidadCEN.NewMiembroComunidad(solicitante!, com, ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO);
  }
  
  try { _uow?.SaveChanges(); } catch {}
@@ -128,6 +122,10 @@ namespace NeuralPlay.Controllers
  if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && comunidadId.HasValue)
  {
  return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+ }
+ else if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && equipoId.HasValue)
+ {
+ return RedirectToAction("Index", "Home");
  }
  }
  catch (Exception ex)
@@ -176,6 +174,9 @@ namespace NeuralPlay.Controllers
  if (!uid.HasValue) return Forbid();
  if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
 
+ // Capturar si es equipo ANTES de modificar
+ bool esEquipo = s.Equipo != null;
+
  if (s.Equipo != null)
  {
  var miembro = new MiembroEquipo { Usuario = s.Solicitante!, Equipo = s.Equipo, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO, FechaAccion = DateTime.UtcNow };
@@ -190,6 +191,12 @@ namespace NeuralPlay.Controllers
  s.FechaResolucion = DateTime.UtcNow;
  _solCEN.ModifySolicitudIngreso(s);
  try { _uow?.SaveChanges(); } catch {}
+ 
+ // Si es una solicitud de equipo, redirigir al Home; si no, ir a la lista de solicitudes
+ if (esEquipo)
+ {
+     return RedirectToAction("Index", "Home");
+ }
  return RedirectToAction(nameof(Index));
  }
 
