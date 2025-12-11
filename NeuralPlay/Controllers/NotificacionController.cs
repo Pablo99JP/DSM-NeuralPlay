@@ -31,34 +31,6 @@ namespace NeuralPlay.Controllers
             return View(vm);
         }
 
-        // GET: /Notificacion/Create
-        public IActionResult Create()
-        {
-            var userId = HttpContext?.Session?.GetInt32("UsuarioId");
-            if (!userId.HasValue) return RedirectToAction("Login", "Usuario");
-
-            return View();
-        }
-
-        // POST: /Notificacion/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(NotificacionViewModel model)
-        {
-            var userId = HttpContext?.Session?.GetInt32("UsuarioId");
-            if (!userId.HasValue) return RedirectToAction("Login", "Usuario");
-
-            if (!ModelState.IsValid) return View(model);
-
-            var usuario = _usuarioCEN.ReadOID_Usuario(userId.Value);
-            if (usuario == null) return NotFound();
-
-            // Crear notificacion tipo SISTEMA por defecto
-            _notificacionCEN.NewNotificacion(TipoNotificacion.SISTEMA, model.Texto ?? string.Empty, usuario);
-
-            return RedirectToAction(nameof(Index));
-        }
-
         // GET: /Notificacion/Delete/5
         [HttpGet]
         [ActionName("Delete")]
@@ -101,44 +73,15 @@ namespace NeuralPlay.Controllers
             if (n == null) return NotFound();
             if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
 
-            var vm = NotificacionAssembler.ConvertENToViewModel(n);
-            return View(vm);
-        }
-
-        // GET: /Notificacion/Edit/5
-        public IActionResult Edit(long id)
-        {
-            var userId = HttpContext?.Session?.GetInt32("UsuarioId");
-            if (!userId.HasValue) return RedirectToAction("Login", "Usuario");
-
-            var n = _notificacionCEN.ReadOID_Notificacion(id);
-            if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
+            // Mark notification as read
+            if (!n.Leida)
+            {
+                n.Leida = true;
+                _notificacionCEN.ModifyNotificacion(n);
+            }
 
             var vm = NotificacionAssembler.ConvertENToViewModel(n);
             return View(vm);
-        }
-
-        // POST: /Notificacion/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(NotificacionViewModel model)
-        {
-            var userId = HttpContext?.Session?.GetInt32("UsuarioId");
-            if (!userId.HasValue) return RedirectToAction("Login", "Usuario");
-
-            if (!ModelState.IsValid) return View(model);
-
-            var n = _notificacionCEN.ReadOID_Notificacion(model.Id);
-            if (n == null) return NotFound();
-            if (n.Destinatario == null || n.Destinatario.IdUsuario != userId.Value) return StatusCode(403);
-
-            // Update allowed fields
-            n.Mensaje = model.Texto ?? string.Empty;
-            n.Leida = model.Leido;
-            _notificacionCEN.ModifyNotificacion(n);
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }

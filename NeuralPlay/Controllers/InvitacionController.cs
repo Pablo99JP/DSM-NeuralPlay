@@ -22,8 +22,9 @@ namespace NeuralPlay.Controllers
  private readonly AceptarInvitacionCP _aceptarInvitacionCP;
  private readonly IMiembroComunidadRepository _miembroComunidadRepo;
  private readonly IMiembroEquipoRepository _miembroEquipoRepo;
+ private readonly NotificacionCEN _notificacionCEN;
 
- public InvitacionController(InvitacionCEN invitacionCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, AceptarInvitacionCP aceptarInvitacionCP, IMiembroComunidadRepository miembroComunidadRepo, IMiembroEquipoRepository miembroEquipoRepo)
+ public InvitacionController(InvitacionCEN invitacionCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, AceptarInvitacionCP aceptarInvitacionCP, IMiembroComunidadRepository miembroComunidadRepo, IMiembroEquipoRepository miembroEquipoRepo, NotificacionCEN notificacionCEN)
  {
  _invitacionCEN = invitacionCEN;
  _usuarioRepo = usuarioRepo;
@@ -33,6 +34,7 @@ namespace NeuralPlay.Controllers
  _aceptarInvitacionCP = aceptarInvitacionCP;
  _miembroComunidadRepo = miembroComunidadRepo;
  _miembroEquipoRepo = miembroEquipoRepo;
+ _notificacionCEN = notificacionCEN;
  }
 
  public IActionResult Index()
@@ -209,6 +211,12 @@ namespace NeuralPlay.Controllers
  { 
  _uow?.SaveChanges();
  TempData["SuccessMessage"] = "Invitación enviada exitosamente.";
+ // Notificar al destinatario de la invitación
+ var destinoNombre = tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO ? eq?.Nombre : com?.Nombre;
+ var mensajeInv = tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO
+	 ? $"Has recibido una invitación para unirte al equipo '{destinoNombre}'."
+	 : $"Has recibido una invitación para unirte a la comunidad '{destinoNombre}'.";
+ _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, mensajeInv, destinatario!);
  } 
  catch (Exception ex)
  {
@@ -264,6 +272,20 @@ namespace NeuralPlay.Controllers
  inv.Estado = EstadoSolicitud.ACEPTADA;
  inv.FechaRespuesta = DateTime.UtcNow;
  _invitacionCEN.ModifyInvitacion(inv);
+ // Notificar al destinatario que se ha unido al equipo
+ _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Te has unido al equipo '{inv.Equipo.Nombre}'.", inv.Destinatario);
+
+ // Notificar a los miembros del equipo que hay un nuevo miembro
+ var miembrosEquipo = _miembroEquipoRepo.ReadAll()
+ .Where(m => m.Equipo != null && m.Equipo.IdEquipo == inv.Equipo.IdEquipo && m.Usuario != null && m.Usuario.IdUsuario != inv.Destinatario.IdUsuario)
+ .Select(m => m.Usuario)
+ .ToList();
+
+ foreach (var miembroExistente in miembrosEquipo)
+ {
+ _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Se ha unido un nuevo miembro '{inv.Destinatario.Nick}' a tu equipo '{inv.Equipo.Nombre}'.", miembroExistente);
+ }
+
  _uow.SaveChanges();
  TempData["SuccessMessage"] = "Invitaci�n aceptada y miembro a�adido al equipo.";
  }
@@ -283,6 +305,8 @@ namespace NeuralPlay.Controllers
  inv.Estado = EstadoSolicitud.ACEPTADA;
  inv.FechaRespuesta = DateTime.UtcNow;
  _invitacionCEN.ModifyInvitacion(inv);
+ // Notificar al destinatario que se ha unido a la comunidad
+ _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Te has unido a la comunidad '{inv.Comunidad.Nombre}'.", inv.Destinatario);
  _uow.SaveChanges();
  TempData["SuccessMessage"] = "Invitaci�n a comunidad aceptada y miembro a�adido.";
  }

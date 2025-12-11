@@ -17,6 +17,7 @@ namespace NeuralPlay.Assemblers
                 Texto = en.Mensaje ?? string.Empty,
                 Fecha = en.FechaCreacion,
                 Leido = en.Leida,
+                Tipo = en.Tipo,
                 UsuarioId = en.Destinatario != null ? (int)en.Destinatario.IdUsuario : 0
             };
         }

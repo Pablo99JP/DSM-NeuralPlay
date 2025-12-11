@@ -17,6 +17,7 @@ namespace NeuralPlay.Controllers
         private readonly EquipoCEN _equipoCEN;
         private readonly IRepository<Equipo> _equipoRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly NotificacionCEN _notificacionCEN;
 
         public MiembroEquipoController(
             UsuarioCEN usuarioCEN,
@@ -25,7 +26,8 @@ namespace NeuralPlay.Controllers
             IMiembroEquipoRepository miembroEquipoRepository,
             EquipoCEN equipoCEN,
             IRepository<Equipo> equipoRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            NotificacionCEN notificacionCEN)
             : base(usuarioCEN, usuarioRepository)
         {
             _miembroEquipoCEN = miembroEquipoCEN;
@@ -33,6 +35,7 @@ namespace NeuralPlay.Controllers
             _equipoCEN = equipoCEN;
             _equipoRepository = equipoRepository;
             _unitOfWork = unitOfWork;
+            _notificacionCEN = notificacionCEN;
         }
 
         // GET: /MiembroEquipo
@@ -128,6 +131,20 @@ namespace NeuralPlay.Controllers
                 var cen = new MiembroEquipoCEN(_miembroEquipoRepository);
                 cen.NewMiembroEquipo(usuario, equipo, model.Rol);
 
+                // Notificar al usuario que se ha unido al equipo
+                _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Te has unido al equipo '{equipo.Nombre}'.", usuario);
+
+                // Notificar a los miembros del equipo que hay un nuevo miembro
+                var miembrosEquipo = _miembroEquipoRepository.ReadAll()
+                    .Where(m => m.Equipo != null && m.Equipo.IdEquipo == equipo.IdEquipo && m.Usuario != null && m.Usuario.IdUsuario != usuario.IdUsuario)
+                    .Select(m => m.Usuario)
+                    .ToList();
+
+                foreach (var miembro in miembrosEquipo)
+                {
+                    _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Se ha unido un nuevo miembro '{usuario.Nick}' a tu equipo '{equipo.Nombre}'.", miembro);
+                }
+
                 try { _unitOfWork?.SaveChanges(); } catch { }
                 return RedirectToAction(nameof(Index));
             }
@@ -182,10 +199,35 @@ namespace NeuralPlay.Controllers
                 var en = _miembroEquipoCEN.ReadOID_MiembroEquipo(model.IdMiembroEquipo);
                 if (en == null) return NotFound();
 
+                var oldRol = en.Rol;
+                var oldEstado = en.Estado;
+
                 en.Rol = model.Rol;
                 en.Estado = model.Estado;
 
                 _miembroEquipoCEN.ModifyMiembroEquipo(en);
+
+                // Notificaciones por cambios
+                if (en.Usuario != null && en.Equipo != null)
+                {
+                    if (oldRol != en.Rol)
+                    {
+                        _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Tu rol en el equipo '{en.Equipo.Nombre}' ha cambiado a {en.Rol}.", en.Usuario);
+                    }
+
+                    if (oldEstado != en.Estado)
+                    {
+                        if (en.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.EXPULSADA)
+                        {
+                            _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has sido expulsado del equipo '{en.Equipo.Nombre}'.", en.Usuario);
+                        }
+                        else if (en.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA && oldEstado != ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                        {
+                            _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Te has unido al equipo '{en.Equipo.Nombre}'.", en.Usuario);
+                        }
+                    }
+                }
+
                 try { _unitOfWork?.SaveChanges(); } catch { }
                 var equipoId = en.Equipo?.IdEquipo ?? model.IdEquipo;
                 return RedirectToAction("Details", "Equipo", new { id = equipoId });
@@ -226,6 +268,11 @@ namespace NeuralPlay.Controllers
             {
                 var en = _miembroEquipoCEN.ReadOID_MiembroEquipo(id);
                 var equipoId = en?.Equipo?.IdEquipo;
+
+                if (en != null && en.Usuario != null && en.Equipo != null)
+                {
+                    _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has sido expulsado del equipo '{en.Equipo.Nombre}'.", en.Usuario);
+                }
 
                 _miembroEquipoCEN.DestroyMiembroEquipo(id);
                 try { _unitOfWork?.SaveChanges(); } catch { }

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using ApplicationCore.Domain.Enums;
 
 namespace NeuralPlay.Models
 {
@@ -17,6 +18,9 @@ namespace NeuralPlay.Models
 
         [Display(Name = "Leída")]
         public bool Leido { get; set; }
+
+        [ScaffoldColumn(false)]
+        public TipoNotificacion Tipo { get; set; }
 
         [ScaffoldColumn(false)]
         public int UsuarioId { get; set; }

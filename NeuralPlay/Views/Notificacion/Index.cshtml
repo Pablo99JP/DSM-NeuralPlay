@@ -210,7 +210,6 @@
             <h1 class="page-title">Notificaciones</h1>
             <p class="page-subtitle">Revisa y gestiona tus avisos</p>
         </div>
-        <a asp-action="Create" class="cta-add"><i class="bi bi-plus-circle"></i> Nueva notificación</a>
     </div>
 
     <section class="card-panel">
@@ -222,9 +221,8 @@
                 </div>
                 <p class="empty-state-text">No tienes notificaciones por ahora.</p>
                 <p class="empty-state-text" style="font-size: 0.95rem; color: rgba(255, 255, 255, 0.4);">
-                    Crea una notificación o vuelve más tarde para ver las novedades.
+                    Vuelve más tarde para ver las novedades sobre tus acciones.
                 </p>
-                <a asp-action="Create" class="cta-add"><i class="bi bi-plus-circle"></i> Crear notificación</a>
             </div>
         }
         else
@@ -258,9 +256,6 @@
                                 <div class="actions-inline">
                                     <a asp-action="Details" asp-route-id="@n.Id" class="action-btn action-view">
                                         <i class="bi bi-eye"></i> Ver
-                                    </a>
-                                    <a asp-action="Edit" asp-route-id="@n.Id" class="action-btn action-edit">
-                                        <i class="bi bi-pencil"></i> Editar
                                     </a>
                                     <a asp-action="Delete" asp-route-id="@n.Id" class="action-btn action-delete">
                                         <i class="bi bi-trash"></i> Eliminar

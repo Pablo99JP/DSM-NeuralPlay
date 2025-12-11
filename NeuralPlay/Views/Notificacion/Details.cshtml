@@ -1,3 +1,5 @@
+@using ApplicationCore.Domain.Enums;
+
 @model NeuralPlay.Models.NotificacionViewModel
 
 @{
@@ -198,9 +200,14 @@
         </div>
 
         <div class="actions">
-            <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver listado</a>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary-ghost"><i class="bi bi-pencil"></i> Editar</a>
-            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-danger-solid"><i class="bi bi-trash"></i> Eliminar</a>
+            @if (Model.Tipo == ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA && Model.Texto.Contains("invitación"))
+            {
+                <a asp-controller="Invitacion" asp-action="Index" class="btn-primary-ghost"><i class="bi bi-envelope-arrow-up"></i> Ir a invitación</a>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver listado</a>
+            }
         </div>
     </section>
 </div>
