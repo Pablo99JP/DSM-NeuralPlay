@@ -62,7 +62,7 @@
 
     .content-wrapper {
         margin-right: 11vw;
-        padding: 0 20px;
+        padding: 0 20px 60px;
         display: flex;
         justify-content: center;
     }
@@ -146,6 +146,26 @@
         text-shadow: 0 1px 8px #555;
         color: #fff !important;
         outline: none;
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        .delete-header h1 {
+            margin-right: 0;
+            margin-left: 0;
+            text-align: center;
+        }
+
+        .delete-divider {
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .content-wrapper {
+            margin-right: 0;
+            padding-bottom: 80px;
+        }
     }
 </style>
 
