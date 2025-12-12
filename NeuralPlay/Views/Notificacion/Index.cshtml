@@ -48,7 +48,7 @@
         padding: 60px 0 60px 0;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 10px;
     }
 
     .page-header {
@@ -56,6 +56,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
+        margin-left: 32px;
     }
 
     .page-title {
@@ -97,6 +98,7 @@
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
         border: 1px solid rgba(255, 255, 255, 0.06);
         width: 100%;
+        margin-left: 100px;
     }
 
     table.notifications-table {
@@ -202,6 +204,211 @@
         font-size: 1.1rem;
         color: rgba(255, 255, 255, 0.6);
         margin-bottom: 20px;
+    }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .content-container {
+            width: 85%;
+            padding: 40px 0 40px 0;
+            gap: 10px;
+        }
+
+        .page-header {
+            gap: 12px;
+            padding: 0 12px;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .page-title {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            margin: 4px 0 0 0;
+        }
+
+        .cta-add {
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+        }
+
+        .card-panel {
+            max-width: 90%;
+            padding: 20px 16px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+
+        table.notifications-table thead th {
+            padding: 14px 10px;
+            font-size: 0.9rem;
+        }
+
+        table.notifications-table tbody td {
+            padding: 14px 10px;
+            font-size: 1rem;
+        }
+
+        .badge-pill {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            gap: 4px;
+        }
+
+        .empty-state {
+            padding: 40px 16px;
+        }
+
+        .empty-state-icon {
+            font-size: 2.8rem;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+        }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        .content-container {
+            width: 100%;
+            padding: 30px 10px 80px 10px;
+            gap: 8px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0;
+            margin-left: 60px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            letter-spacing: 0px;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .cta-add {
+            width: 100%;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .card-panel {
+            max-width: 90%;
+            padding: 12px 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-left: 0;
+        }
+
+        table.notifications-table {
+            font-size: 0.9rem;
+            table-layout: fixed;
+        }
+
+        table.notifications-table thead th {
+            padding: 10px 6px;
+            font-size: 0.8rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        table.notifications-table tbody td {
+            padding: 10px 6px;
+            font-size: 0.85rem;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        table.notifications-table tbody tr:hover { 
+            background: rgba(255, 255, 255, 0.02); 
+        }
+
+        .badge-pill {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            gap: 4px;
+        }
+
+        .actions-inline {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .action-btn {
+            padding: 6px 8px;
+            font-size: 0.75rem;
+            width: 100%;
+            text-align: center;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        /* Ajustar ancho de columnas en mobile - priorizar botones */
+        table.notifications-table thead th:nth-child(1),
+        table.notifications-table tbody td:nth-child(1) {
+            width: 25% !important;
+            min-width: 60px;
+        }
+
+        table.notifications-table thead th:nth-child(2),
+        table.notifications-table tbody td:nth-child(2) {
+            width: 20% !important;
+            min-width: 50px;
+        }
+
+        table.notifications-table thead th:nth-child(3),
+        table.notifications-table tbody td:nth-child(3) {
+            width: 20% !important;
+            min-width: 50px;
+        }
+
+        table.notifications-table thead th:nth-child(4),
+        table.notifications-table tbody td:nth-child(4) {
+            width: 35% !important;
+            min-width: 80px;
+        }
+
+        .empty-state {
+            padding: 30px 12px;
+        }
+
+        .empty-state-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-down {
+            display: flex;
+        }
     }
 </style>
 

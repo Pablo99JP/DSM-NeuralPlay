@@ -50,7 +50,7 @@
         padding: 60px 0 60px 0;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 10px;
     }
 
     .page-header {
@@ -58,6 +58,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
+        margin-left: 32px;
     }
 
     .page-title {
@@ -83,6 +84,8 @@
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
         border: 1px solid rgba(255, 255, 255, 0.06);
         width: 100%;
+        max-width: 90%;
+        margin-left: 100px;
     }
 
     .meta-grid {
@@ -158,14 +161,160 @@
         background: rgba(255, 255, 255, 0.04);
     }
 
-    .btn-secondary-ghost { border-color: rgba(255, 255, 255, 0.2); }
-    .btn-secondary-ghost:hover { background: rgba(255, 255, 255, 0.12); }
-
-    .btn-primary-ghost { border-color: #2196F3; color: #e3f2fd; }
-    .btn-primary-ghost:hover { background: #2196F3; color: #0d1b2a; }
+    .btn-primary-ghost { }
+    .btn-primary-ghost:hover { color: var(--np-red) !important; }
 
     .btn-danger-solid { background: var(--np-red); border-color: var(--np-red); }
     .btn-danger-solid:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .content-container {
+            width: 85%;
+            padding: 40px 0 40px 0;
+            gap: 10px;
+        }
+
+        .page-header {
+            gap: 12px;
+            padding: 0 12px;
+            margin-left: 20px;
+            margin-right: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            margin: 4px 0 0 0;
+        }
+
+        .card-panel {
+            padding: 20px 16px;
+            border-radius: 10px;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .meta-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 14px;
+        }
+
+        .meta-label {
+            font-size: 0.9rem;
+        }
+
+        .meta-value {
+            font-size: 1rem;
+        }
+
+        .btn-secondary-ghost,
+        .btn-primary-ghost,
+        .btn-danger-solid {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            gap: 10px;
+        }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        .content-container {
+            width: 100%;
+            padding: 30px 10px 80px 10px;
+            gap: 8px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0;
+            margin-left: 60px;
+            margin-right: 0;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            letter-spacing: 0px;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .btn-secondary-ghost {
+            width: 90%;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            color: white;
+        }
+        
+        .btn-secondary-ghost:hover { 
+            color: var(--np-red) !important; 
+        }
+
+        .card-panel {
+            padding: 12px 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .meta-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            margin-bottom: 3px;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .badge-pill {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            gap: 4px;
+        }
+
+        .btn-secondary-ghost,
+        .btn-primary-ghost,
+        .btn-danger-solid {
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .actions {
+            gap: 8px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar-down {
+            display: flex;
+        }
+    }
 </style>
 
 <div class="content-container">
@@ -174,7 +323,6 @@
             <h1 class="page-title">Notificación</h1>
             <p class="page-subtitle">Detalle del aviso seleccionado</p>
         </div>
-        <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
 
     <section class="card-panel">
