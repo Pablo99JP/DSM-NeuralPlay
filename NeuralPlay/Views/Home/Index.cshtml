@@ -469,6 +469,30 @@
         font-family: 'Neue', sans-serif;
     }
 
+    /* Media Query para Tablet */
+    @@media screen and (min-width: 581px) and (max-width: 1200px) {
+        main.content-wrapper {
+            padding-right: 100px; /* Espacio para la sidebar derecha */
+        }
+
+        .comunidades-grid,
+        .juegos-grid {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 100%;
+            gap: 30px;
+        }
+        
+        .explore-header h1,
+        .explore-divider,
+        .tab-selector {
+            margin-left: 6vw;
+        }
+        
+        .search-input {
+            width: 50vw;
+        }
+    }
+
     /* Media Query para móvil */
     @@media screen and (max-width: 580px) {
         /* Ajustar header */
@@ -558,7 +582,8 @@
 
         .comunidad-card,
         .juego-card {
-            height: 180px;
+            height: auto;
+            aspect-ratio: 16/9;
             border-radius: 10px;
         }
 
