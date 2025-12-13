@@ -13,8 +13,9 @@
     /* Header con el título */
     .create-header {
         text-align: center;
-        margin-bottom: 15px;
+        margin: 0 auto 15px auto;
         padding-top: 10px;
+        max-width: 900px;
     }
 
     .create-header h1 {
@@ -154,38 +155,44 @@
 
     /* Ajustes tablet: layout grid y tipografia especificos de esta vista */
     @@media (max-width: 1024px) {
-        .content-wrapper { padding: 120px 20px 60px; }
+        .content-wrapper { padding: 80px 100px 60px 20px; }
         .create-header h1 { font-size: 4.6rem; }
         .create-subtitle { font-size: 1.4rem; }
         .create-divider { width: 85%; margin-bottom: 35px; }
 
         .create-grid { grid-template-columns: 1fr; gap: 32px; }
-        .create-card { height: 240px; }
+        .create-card { 
+            height: auto;
+            aspect-ratio: 16/9;
+        }
         .create-card-title { font-size: 2.8rem; }
         .create-card-action { font-size: 2.8rem; }
     }
 
     /* Mobile: ajustes específicos para pantallas pequeñas */
     @@media (max-width: 580px) {
-        .content-wrapper { padding: 80px 16px 110px; }
-        .create-header h1 { font-size: 2.4rem; }
+        .content-wrapper { padding: 40px 16px 110px; }
+        .create-header h1 { font-size: 3.5rem; }
         .create-subtitle { font-size: 1rem; }
         .create-divider { width: 80%; margin-bottom: 20px; }
 
         .create-grid { gap: 16px; }
-        .create-card { height: 180px; }
-        .create-card-title { font-size: 1.8rem; bottom: 12px; left: 12px; }
-        .create-card-action { font-size: 1.8rem; }
+        .create-card { 
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+        .create-card-title { font-size: 4rem !important; bottom: 12px; left: 12px; }
+        .create-card-action { font-size: 4rem !important; }
     }
 </style>
 
-<header class="create-header">
-    <h1>CREAR NEURAL</h1>
-    <p class="create-subtitle">Crea una comunidad sobre un juego e invita a otros jugadores a ella,<br>o bien crea un equipo para jugar con tus amigos.</p>
-    <div class="create-divider"></div>
-</header>
-
 <main class="content-wrapper">
+    <header class="create-header">
+        <h1>CREAR NEURAL</h1>
+        <p class="create-subtitle">Crea una comunidad sobre un juego e invita a otros jugadores a ella,<br>o bien crea un equipo para jugar con tus amigos.</p>
+        <div class="create-divider"></div>
+    </header>
+
     <div class="create-grid">
         <!-- Card Comunidad -->
         <a href="@Url.Action("Create", "Comunidad")" class="create-card">
