@@ -123,6 +123,25 @@
         color: #ff4b7d;
         text-decoration: underline;
     }
+
+    /* Ajustes para Móvil */
+    @@media (max-width: 580px) {
+        .page-content {
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 100px; /* Espacio para footer */
+        }
+
+        .add-game-wrapper {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+        }
+
+        .add-game-title {
+            font-size: 2rem;
+        }
+    }
 </style>
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")

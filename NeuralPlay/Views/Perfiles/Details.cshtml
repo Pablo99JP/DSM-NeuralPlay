@@ -214,7 +214,7 @@
 
     .content-wrapper {
         margin-right: 6vw;
-        padding: 0 20px;
+        padding: 0 20px 60px 20px;
     }
 
     .game-item {
@@ -260,6 +260,109 @@
     .profile-actions a:hover,
     .profile-actions button:hover {
         transform: scale(1.05);
+    }
+
+    /* Ajustes para Tablet */
+    @@media (min-width: 581px) and (max-width: 1024px) {
+        .content-wrapper {
+            padding-bottom: 60px; /* Espacio para evitar superposición con footer */
+        }
+
+        .profile-actions {
+            margin-bottom: 40px; /* Margen extra inferior para los botones */
+        }
+
+        /* Alineación y separación de botones de acción */
+        .profile-card nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .profile-card nav .btn-custom {
+            margin: 0 !important; /* Resetear márgenes inline */
+            width: 100%;
+            text-align: center;
+            display: block;
+        }
+
+        /* Aumentar espacio entre dt y dd forzando anchos */
+        .profile-info dt.col-sm-4 {
+            width: 100%; /* En tablet poner etiqueta arriba */
+            margin-bottom: 5px;
+        }
+        
+        .profile-info dd.col-sm-8 {
+            width: 100%; /* En tablet poner valor abajo */
+            margin-bottom: 20px;
+            padding-left: 15px; /* Indentación ligera */
+        }
+    }
+
+    /* Ajustes para Móvil */
+    @@media (max-width: 580px) {
+        .content-wrapper {
+            margin-right: 0;
+            padding: 0 15px;
+        }
+
+        .profile-header h1 {
+            font-size: 3rem;
+            margin-right: 0;
+        }
+        
+        .profile-header h1 .username {
+            font-size: inherit;
+            display: inline;
+            margin-top: 0;
+        }
+
+        .profile-section-title {
+            font-size: 3rem;
+            margin-left: 0;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .profile-divider {
+            margin-left: auto;
+            margin-right: auto;
+            width: 85%;
+        }
+
+        /* Separación entre tarjetas apiladas */
+        .col-md-6 {
+            margin-bottom: 20px; /* Reducido de 30px */
+        }
+
+        /* Aumentar tamaño de letra lista de juegos */
+        .game-item {
+            font-size: 1.3rem;
+        }
+
+        /* Ajuste botones acciones finales */
+        .profile-actions {
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 100px; /* Espacio para footer */
+            margin-top: 10px; /* Reducir margen superior */
+        }
+        
+        .profile-actions a,
+        .profile-actions form,
+        .profile-actions button {
+            width: 100% !important;
+            flex: 0 0 auto !important;
+            margin: 0;
+        }
+
+        .profile-actions a,
+        .profile-actions button {
+            padding: 16px !important; /* Aumentado de 10px para hacerlos más altos */
+            min-height: 0 !important;
+            height: auto !important;
+            line-height: normal;
+        }
     }
 </style>
 

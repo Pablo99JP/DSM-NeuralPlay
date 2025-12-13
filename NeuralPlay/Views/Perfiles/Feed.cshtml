@@ -383,21 +383,49 @@
     /* Responsivo - Tablet (581px - 1024px) - Mantener diseño desktop */
     @@media (min-width: 581px) and (max-width: 1024px) {
         .feed-container {
-            padding-right: 8%;
-            padding-left: 0;
-            margin-left: 0;
-            padding-top: 110px;
-            padding-bottom: 60px;
+            padding-right: 100px !important; /* Espacio para sidebar derecho */
+            padding-left: 100px !important; /* Igualar para centrar */
+            padding-top: 40px !important;
+            padding-bottom: 100px !important;
+            margin: 0 !important;
         }
         .feed-header {
             flex-direction: row !important;
+            justify-content: center !important;
             text-align: left !important;
             gap: 30px !important;
+            padding-right: 0 !important;
         }
-        .feed-username { font-size: 2.5rem !important; }
-        .feed-section-title { font-size: 1.8rem !important; }
+        .feed-username { font-size: 3rem !important; }
+        .feed-section-title { 
+            font-size: 2rem !important; 
+            text-align: center !important;
+        }
         .feed-tabs { 
-            gap: 20px !important;
+            justify-content: center !important;
+            gap: 15px !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        .feed-divider {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        /* Centrar cards y timeline items (cajas) */
+        .feed-card, .timeline-item {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            width: 90% !important; /* No ocupar todo el ancho disponible */
+            max-width: 700px !important; /* Limitar ancho máximo */
+        }
+        
+        /* Revertir alineación de texto interna */
+        .timeline-item-header {
+            justify-content: space-between !important;
             flex-direction: row !important;
         }
     }
@@ -405,22 +433,73 @@
     /* Responsivo - Mobile (≤580px) */
     @@media (max-width: 580px) {
         .feed-container { 
-            padding-top: 30px; 
-            padding-bottom: 80px;
-            padding-left: 4vw;
-            padding-right: 4vw;
+            padding-top: 30px !important; 
+            padding-bottom: 120px !important;
+            padding-left: 15px !important;
+            padding-right: 15px !important;
         }
         .feed-header { 
-            padding: 16px 12px;
-            flex-direction: column !important;
-            text-align: center !important;
-            gap: 16px !important;
+            padding: 0 0 8px 0;
+            flex-direction: row !important;
+            text-align: left !important;
+            gap: 15px !important;
+            align-items: flex-end !important;
+            justify-content: flex-start !important;
+            margin-bottom: 0;
         }
-        .feed-username { font-size: 1.6rem; }
-        .feed-section-title { font-size: 1.2rem; padding: 0 12px; }
-        .feed-tabs { gap: 8px; overflow-x: auto; padding: 0 12px; }
-        .feed-tab-btn { white-space: nowrap; }
-        .feed-feed-item { margin: 12px 8px; }
+        .feed-avatar img, .feed-avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        .feed-username { font-size: 3.5rem !important; }
+        .feed-section-title { font-size: 1.8rem !important; padding: 15px 20px; }
+        
+        /* Botones: 2 por fila, icono-título-índice en línea */
+        .feed-tabs { 
+            gap: 10px !important; 
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            padding: 10px 0;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            overflow-x: visible !important;
+        }
+        .feed-tab-btn { 
+            white-space: normal !important; 
+            font-size: 1.2rem;
+            padding: 8px 8px;
+            flex: 0 0 calc(50% - 5px) !important;
+            display: flex;
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: center;
+            gap: 5px !important;
+            text-align: center;
+        }
+        .feed-tab-btn i {
+            margin-bottom: 0 !important;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .feed-tab-btn span {
+            margin-left: 0 !important;
+            margin-top: 0 !important;
+        }
+        
+        .feed-divider {
+            width: 100% !important;
+            margin: 20px 0 !important;
+        }
+
+        /* Centrar cards y timeline items */
+        .feed-card, .timeline-item {
+            padding: 20px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            width: 100% !important;
+        }
     }
 </style>
 

@@ -69,7 +69,7 @@
 
     .content-wrapper {
         margin-right: 11vw;
-        padding: 0 20px;
+        padding: 0 20px 100px 20px;
         display: flex;
         justify-content: center;
     }
@@ -189,6 +189,49 @@
         color: #ff6b9d;
         font-family: 'Lexend', sans-serif;
         font-size: 1rem;
+    }
+
+    /* Ajustes Tablet (y menores para centrado general) */
+    @@media (max-width: 1024px) {
+        .content-wrapper {
+            margin-right: 0;
+            padding-bottom: 120px;
+        }
+
+        .edit-header h1 {
+            margin-right: 0;
+        }
+
+        .edit-divider {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .edit-section-title {
+            margin-left: 0;
+            text-align: center;
+            padding-left: 0;
+        }
+    }
+
+    /* Ajustes Móvil específicos */
+    @@media (max-width: 580px) {
+        .edit-section-title {
+            font-size: 3rem;
+        }
+        
+        .edit-card {
+            padding: 25px 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            width: 100%;
+            text-align: center;
+        }
     }
 </style>
 
