@@ -380,8 +380,8 @@
         opacity: 0.5;
     }
 
-    /* Responsivo - Tablet (581px - 1024px) - Mantener diseño desktop */
-    @@media (min-width: 581px) and (max-width: 1024px) {
+    /* Responsivo - Tablet (581px - 1200px) - Mantener diseño desktop */
+    @@media (min-width: 581px) and (max-width: 1200px) {
         .feed-container {
             padding-right: 100px !important; /* Espacio para sidebar derecho */
             padding-left: 100px !important; /* Igualar para centrar */
@@ -402,12 +402,25 @@
             text-align: center !important;
         }
         .feed-tabs { 
-            justify-content: center !important;
+            justify-content: flex-start !important;
             gap: 15px !important;
             flex-direction: row !important;
-            flex-wrap: wrap !important;
+            flex-wrap: nowrap !important;
             margin-left: 0 !important;
             margin-right: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+        }
+        
+        .feed-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .feed-tab-btn {
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
         }
         .feed-divider {
             width: 100% !important;

@@ -51,6 +51,13 @@
         gap: 10px;
     }
 
+    /* Desktop - Espacio para sidebar derecha */
+    @@media screen and (min-width: 1201px) {
+        .content-container {
+            padding-right: 11vw;
+        }
+    }
+
     .page-header {
         display: flex;
         align-items: center;
@@ -125,9 +132,13 @@
         color: white;
         padding: 16px 14px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    table.notifications-table tbody td:first-child {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 300px;
     }
 
     table.notifications-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
@@ -171,10 +182,13 @@
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         transition: all 0.2s ease;
         background: rgba(255, 255, 255, 0.04);
         cursor: pointer;
+        white-space: nowrap;
+        min-width: 100px;
     }
 
     .action-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
@@ -207,10 +221,10 @@
     }
 
     /* Ajustes tablet */
-    @@media (max-width: 1024px) {
+    @@media (min-width: 581px) and (max-width: 1200px) {
         .content-container {
             width: 85%;
-            padding: 40px 0 40px 0;
+            padding: 40px 100px 40px 0;
             gap: 10px;
         }
 
@@ -227,14 +241,14 @@
         }
 
         .page-subtitle {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin: 4px 0 0 0;
         }
 
         .cta-add {
             padding: 10px 18px;
             border-radius: 20px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .card-panel {
@@ -244,14 +258,22 @@
             margin-left: 20px;
         }
 
+        table.notifications-table {
+            table-layout: fixed;
+        }
+
         table.notifications-table thead th {
             padding: 14px 10px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         table.notifications-table tbody td {
             padding: 14px 10px;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 200px;
         }
 
         .badge-pill {
