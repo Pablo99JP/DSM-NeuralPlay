@@ -77,6 +77,7 @@
         display: flex;
         align-items: center;
         gap: 20px;
+        cursor: pointer;
     }
 
     .team-card:hover {
@@ -202,8 +203,19 @@
         transform: scale(1.05);
     }
 
+    /* Estilos desktop - Espacio para sidebar derecha */
+    @@media screen and (min-width: 1201px) {
+        .page-content-wrapper {
+            padding-right: 11vw;
+        }
+    }
+
     /* Media queries - Tablet (match Home equipos) */
     @@media screen and (min-width: 581px) and (max-width: 1200px) {
+        .page-content-wrapper {
+            padding-right: 100px; /* Espacio para la sidebar derecha */
+        }
+
         .teams-list {
             gap: 30px;
             margin-top: 10px;
@@ -305,10 +317,24 @@
             height: 38px;
         }
     }
+
+    /* Estilos desktop - Espacio para sidebar derecha */
+    @@media screen and (min-width: 1201px) {
+        .page-content-wrapper {
+            padding-right: 11vw;
+        }
+    }
+
+    /* Estilos tablet - Espacio para sidebar derecha */
+    @@media screen and (min-width: 581px) and (max-width: 1200px) {
+        .page-content-wrapper {
+            padding-right: 100px;
+        }
+    }
 </style>
 
 <!-- Contenedor con header y contenido -->
-<div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+<div class="page-content-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
     @if (currentUser != null)
     {
         <header class="equipos-header">
@@ -366,7 +392,7 @@
             <div class="teams-list">
                 @foreach (var equipo in Model)
                 {
-                    <div class="team-card">
+                    <div class="team-card" data-equipo-id="@equipo.IdEquipo" onclick="entrarEquipo(event)">
                         <div class="team-icon">
                             <img src="@(string.IsNullOrEmpty(equipo.ImagenUrl) ? "/Recursos/Equipos/default.webp" : equipo.ImagenUrl)" alt="@equipo.Nombre" />
                         </div>
@@ -374,16 +400,7 @@
                         <h3 class="team-name">@equipo.Nombre</h3>
 
                         <div class="team-actions">
-                            @if (equipo.IsLeader)
-                            {
-                                <a href="@Url.Action("Edit", "Equipo", new { id = equipo.IdEquipo })" class="team-edit" title="Editar equipo">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </a>
-                                <a href="@Url.Action("Delete", "Equipo", new { id = equipo.IdEquipo })" class="team-delete" title="Eliminar equipo">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
-                            }
-                            <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo">
+                            <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo" onclick="event.stopPropagation();">
                                 <i class="bi bi-arrow-right-circle-fill"></i>
                             </a>
                         </div>
@@ -392,3 +409,13 @@
             </div>
         }
 </div>
+
+<script>
+    function entrarEquipo(event) {
+        const equipoCard = event.target.closest('.team-card');
+        const equipoId = equipoCard.getAttribute('data-equipo-id');
+        
+        // Redirigir a Equipo/Details con el ID del equipo
+        window.location.href = '/Equipo/Details/' + equipoId;
+    }
+</script>

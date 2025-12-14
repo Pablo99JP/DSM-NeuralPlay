@@ -220,7 +220,7 @@ namespace NeuralPlay.Controllers
         }
 
         // GET: Perfiles/AnadirJuego/5
-        public async Task<IActionResult> AnadirJuego(long idPerfil)
+        public async Task<IActionResult> AnadirJuego(long idPerfil, long? idJuego = null)
         {
             using (var session = NHibernateHelper.OpenSession())
             {
@@ -231,7 +231,8 @@ namespace NeuralPlay.Controllers
                 var viewModel = new AnadirJuegoViewModel
                 {
                     IdPerfil = idPerfil,
-                    ListaDeJuegos = new SelectList(juegos, "IdJuego", "NombreJuego")
+                    IdJuegoSeleccionado = idJuego ?? 0,
+                    ListaDeJuegos = new SelectList(juegos, "IdJuego", "NombreJuego", idJuego)
                 };
 
                 return View(viewModel);

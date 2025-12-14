@@ -770,6 +770,13 @@
     // Inicializar pestañas al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         ocultarPestanasVacias();
+        
+        // Leer el parámetro tab de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            showTab(tabParam);
+        }
     });
 
     function ocultarPestanasVacias() {

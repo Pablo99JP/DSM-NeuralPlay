@@ -4,7 +4,7 @@ using ApplicationCore.Domain.Repositories;
 using Infrastructure.NHibernate;
 using Microsoft.AspNetCore.Mvc;
 using NeuralPlay.Models;
-using NeuralPlay.Models.Assemblers; // Añadido el using para el Assembler
+using NeuralPlay.Models.Assemblers; // Aï¿½adido el using para el Assembler
 using NHibernate;
 using System;
 using System.Collections.Generic;
@@ -58,6 +58,34 @@ namespace NeuralPlay.Controllers
 
                 // Usando el Assembler para el mapeo
                 var viewModel = JuegoAssembler.ToViewModel(juego);
+
+                // Verificar si el usuario estÃ¡ loggeado y si ya tiene el juego en su perfil
+                var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
+                ViewBag.UsuarioLoggeado = usuarioId.HasValue;
+                ViewBag.IdPerfil = (long?)null;
+                ViewBag.TieneJuego = false;
+
+                if (usuarioId.HasValue)
+                {
+                    // Obtener el perfil del usuario
+                    var usuarioRepository = new NHibernateUsuarioRepository(session);
+                    var usuarioCEN = new UsuarioCEN(usuarioRepository);
+                    var usuario = await Task.Run(() => usuarioCEN.ReadOID_Usuario(usuarioId.Value));
+
+                    if (usuario?.Perfil != null)
+                    {
+                        ViewBag.IdPerfil = usuario.Perfil.IdPerfil;
+
+                        var perfilRepository = new NHibernatePerfilRepository(session);
+                        var perfilCEN = new PerfilCEN(perfilRepository);
+                        var perfil = await Task.Run(() => perfilCEN.ReadOID_Perfil(usuario.Perfil.IdPerfil));
+
+                        if (perfil?.PerfilJuegos != null)
+                        {
+                            ViewBag.TieneJuego = perfil.PerfilJuegos.Any(pj => pj.Juego.IdJuego == id.Value);
+                        }
+                    }
+                }
 
                 return View(viewModel);
             }

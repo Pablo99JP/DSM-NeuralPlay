@@ -166,6 +166,37 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
+    /* Estilos desktop - Espacio para sidebar derecha */
+    @@media screen and (min-width: 1201px) {
+        .page-wrapper {
+            padding-right: calc(60px + 11vw);
+        }
+    }
+
+    /* Estilos tablet - Espacio para sidebar derecha y scroll horizontal en pestañas */
+    @@media screen and (min-width: 581px) and (max-width: 1200px) {
+        .page-wrapper {
+            padding-right: 160px; /* 60px base + 100px sidebar */
+        }
+
+        .team-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .team-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+    }
+
     .members-list {
         display: flex;
         flex-direction: column;
@@ -634,6 +665,10 @@
             <button class="tab-button" data-target="tab-miembros"><i class="bi bi-people"></i> Miembros</button>
             <button class="tab-button" data-target="tab-torneos"><i class="bi bi-trophy"></i> Torneos</button>
             <button class="tab-button" data-target="tab-palmares"><i class="bi bi-award"></i> Palmarés</button>
+            @if (isLeader)
+            {
+                <button class="tab-button" data-target="tab-configuracion"><i class="bi bi-gear"></i> Configuración</button>
+            }
         </div>
     </div>
 
@@ -808,6 +843,25 @@
             }
         </div>
     </section>
+
+    @if (isLeader)
+    {
+        <section id="tab-configuracion" class="tab-panel">
+            <div class="panel">
+                <h3><i class="bi bi-gear"></i> Configuración del equipo</h3>
+                <p style="color: #ccc; margin-bottom: 30px;">Como administrador del equipo, puedes editar la información o eliminar el equipo.</p>
+                
+                <div class="form-actions">
+                    <a href="@Url.Action("Edit", "Equipo", new { id = Model.IdEquipo })" class="btn-submit">
+                        <i class="bi bi-pencil-fill"></i> Editar Equipo
+                    </a>
+                    <a href="@Url.Action("Delete", "Equipo", new { id = Model.IdEquipo })" class="btn-cancel" style="border-color: #e74c3c; color: #e74c3c;">
+                        <i class="bi bi-trash-fill"></i> Eliminar Equipo
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
 </div>
 
 <script>
