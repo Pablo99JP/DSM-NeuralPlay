@@ -356,21 +356,25 @@
 
     /* Ajustes tablet */
     @@media (max-width: 1024px) {
-        .content-wrapper { left: 0; width: 100%; }
-        .content-inner { max-width: 100%; padding: 0 16px; }
+        .content-wrapper { left: 11%; width: 83%; }
+        .content-inner { max-width: 100%; padding: 0 12px; }
         .torneos-header { padding-left: 12px; padding-right: 12px; }
         .torneos-header h1 { font-size: 2.6rem; }
         .torneos-header-subtitle { font-size: 1.2rem; }
         .torneos-header-actions { flex-direction: column; gap: 12px; }
         .actions-left, .actions-right { width: 100%; }
-        .torneos-grid { grid-template-columns: 1fr; }
+        .torneos-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .torneos-list { padding: 0 16px 60px 16px; }
+        .actions-bar { padding: 0 16px; }
+        .torneos-divider { margin: 20px 16px 40px 16px; }
+        .alert-custom { margin: 0 16px 20px 16px; }
         .torneo-card { padding: 16px; }
         .torneo-card-title { font-size: 1.4rem; }
     }
 
     /* Ajustes mobile */
     @@media (max-width: 580px) {
-        .content-wrapper { padding-top: 20px; padding-bottom: 100px; }
+        .content-wrapper { left: 0; width: 100%; padding-top: 20px; padding-bottom: 100px; }
         .content-inner { padding: 0 12px; }
         .torneos-header { padding: 12px 8px; }
         .torneos-header h1 span { font-size: 3rem; }
@@ -378,6 +382,11 @@
         .torneos-header-actions { flex-direction: column; gap: 10px; margin-top: 12px; }
         .actions-left, .actions-right { width: 100%; }
         .btn-custom { width: 100%; }
+        .torneos-list { padding: 0 8px 60px 8px; }
+        .actions-bar { padding: 0 8px; }
+        .torneos-divider { margin: 20px 8px 40px 8px; }
+        .alert-custom { margin: 0 8px 20px 8px; }
+        .torneos-grid { grid-template-columns: 1fr; gap: 15px; }
         .torneo-card { padding: 12px; }
         .torneo-card-title { font-size: 1.2rem; }
     }
@@ -407,11 +416,7 @@
                         </a>
                     }
                 </div>
-                <div class="actions-right">
-                    <a class="btn-custom btn-outline" asp-controller="PropuestaTorneo" asp-action="Index">
-                        <i class="bi bi-file-text"></i> Ver Propuestas
-                    </a>
-                </div>
+
             </div>
 
             <!-- Mensajes de éxito/error -->

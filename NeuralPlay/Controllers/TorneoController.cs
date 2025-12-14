@@ -118,15 +118,25 @@ namespace NeuralPlay.Controllers
                 return View(vm);
             }
 
-            // Obtener los miembros de equipo para el usuario (buscar por nick)
+            // Obtener solo los equipos donde el usuario tiene membresía ACTIVA
             var miembros = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
             var equipos = new List<Equipo>();
             foreach (var m in miembros)
             {
-                if (m.Equipo != null) equipos.Add(m.Equipo);
+                if (m.Equipo != null && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+                {
+                    equipos.Add(m.Equipo);
+                }
             }
 
             vm.EquiposDisponibles = equipos;
+            
+            // Notificar si el usuario no está en ningún equipo activo
+            if (!equipos.Any())
+            {
+                vm.Message = "No perteneces a ningún equipo activo. Únete a un equipo para poder proponer participación.";
+            }
+            
             // Show any TempData messages from previous POST redirect
             if (TempData.ContainsKey("ErrorMessage")) vm.Message = TempData["ErrorMessage"]?.ToString();
             if (TempData.ContainsKey("SuccessMessage")) vm.Message = TempData["SuccessMessage"]?.ToString();

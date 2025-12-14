@@ -764,8 +764,31 @@
             </div>
 
             @{
+                var pendientes = torneos.Where(t => t != null && t.Estado == "PENDIENTE").ToList();
                 var abiertos = torneos.Where(t => t != null && t.Estado == "ABIERTO").ToList();
             }
+            
+            <div class="participando">
+                <h4>Esperando al comienzo</h4>
+                <div class="participando-divider"></div>
+                @if (pendientes.Any())
+                {
+                    <div class="participando-list">
+                        @foreach (var torneo in pendientes)
+                        {
+                            <div class="participando-item">
+                                <span class="participando-name">@torneo.Nombre</span>
+                                <a asp-controller="Torneo" asp-action="Details" asp-route-id="@torneo.IdTorneo" class="cta-link" style="padding: 8px 10px; font-size: 0.9rem;">Ver</a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">No hay torneos pendientes de inicio.</div>
+                }
+            </div>
+
             <div class="participando">
                 <h4>Participando actualmente</h4>
                 <div class="participando-divider"></div>
