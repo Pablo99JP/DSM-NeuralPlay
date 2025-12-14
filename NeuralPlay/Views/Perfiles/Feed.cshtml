@@ -60,7 +60,7 @@
 
     .feed-username {
         font-family: 'Neue', sans-serif;
-        font-size: 3.5rem;
+        font-size: 4.5rem;
         font-weight: bold;
         color: white;
         margin: 0;
@@ -442,45 +442,53 @@
             padding: 0 0 8px 0;
             flex-direction: row !important;
             text-align: left !important;
-            gap: 15px !important;
+            gap: 12px !important;
             align-items: flex-end !important;
             justify-content: flex-start !important;
             margin-bottom: 0;
         }
         .feed-avatar img, .feed-avatar-placeholder {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             flex-shrink: 0;
         }
-        .feed-username { font-size: 3.5rem !important; }
+        .feed-username { font-size: 1.8rem !important; }
         .feed-section-title { font-size: 1.8rem !important; padding: 15px 20px; }
         
-        /* Botones: 2 por fila, icono-título-índice en línea */
+        /* Botones: todas en línea, desplazamiento horizontal */
         .feed-tabs { 
-            gap: 10px !important; 
+            gap: 8px !important; 
             display: flex !important;
-            flex-wrap: wrap !important;
-            justify-content: center !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
             padding: 10px 0;
+            padding-right: 15px;
             margin-left: 0 !important;
             margin-right: 0 !important;
-            overflow-x: visible !important;
+            overflow-x: auto !important;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        .feed-tabs::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
         }
         .feed-tab-btn { 
-            white-space: normal !important; 
-            font-size: 1.2rem;
-            padding: 8px 8px;
-            flex: 0 0 calc(50% - 5px) !important;
+            white-space: nowrap !important; 
+            font-size: 1rem;
+            padding: 8px 12px;
+            flex-shrink: 0 !important;
             display: flex;
             flex-direction: row !important;
             align-items: center;
             justify-content: center;
             gap: 5px !important;
             text-align: center;
+            min-width: auto;
         }
         .feed-tab-btn i {
             margin-bottom: 0 !important;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             flex-shrink: 0;
         }
         .feed-tab-btn span {

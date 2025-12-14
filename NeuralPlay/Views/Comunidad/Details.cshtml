@@ -855,9 +855,8 @@
         }
 
         function crearTorneo() {
-            console.log('Crear torneo - Función pendiente de implementar');
-            // TODO: Implementar navegación a crear torneo
-            alert('Funcionalidad en desarrollo: Crear Torneo');
+            const comunidadId = @Model.IdComunidad;
+            window.location.href = '/Torneo/Create?comunidadId=' + comunidadId;
         }
 
         function abandonarComunidad() {

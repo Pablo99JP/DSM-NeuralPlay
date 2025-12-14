@@ -155,10 +155,16 @@ namespace NeuralPlay.Controllers
                     if (actividad != null) actividades.Add(actividad);
                 }
 
+                // Solo incluir reacciones a PUBLICACIONES en las actividades y me gusta
+                // Las reacciones a comentarios NO deben aparecer en el feed
                 foreach (var reaccion in meGustasUsuario)
                 {
-                    var actividad = FeedAssembler.ConvertReaccionToActividad(reaccion);
-                    if (actividad != null) actividades.Add(actividad);
+                    // Solo procesar si es una reacción a una publicación (no a comentario)
+                    if (reaccion.Publicacion != null)
+                    {
+                        var actividad = FeedAssembler.ConvertReaccionToActividad(reaccion);
+                        if (actividad != null) actividades.Add(actividad);
+                    }
                 }
 
                 // Ordenar por fecha descendente y tomar solo las últimas 20 actividades
@@ -178,6 +184,7 @@ namespace NeuralPlay.Controllers
                 // ============================================
                 // SECCIÓN 3: ME GUSTA DEL USUARIO
                 // ============================================
+                // Solo mostrar me gusta a PUBLICACIONES (no a comentarios)
                 var publicacionesConMeGusta = new List<PublicacionViewModel>();
                 foreach (var reaccion in meGustasUsuario)
                 {

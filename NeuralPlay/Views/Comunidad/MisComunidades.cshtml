@@ -247,6 +247,75 @@
         color: var(--np-red);
         transform: scale(1.05);
     }
+
+    /* Media queries - Mobile */
+    @@media screen and (max-width: 580px) {
+        .profile-header h1 {
+            font-size: 3rem;
+            margin-right: 0;
+        }
+        
+        .profile-header h1 .username {
+            font-size: inherit;
+            display: inline;
+            margin-top: 0;
+        }
+
+        .profile-section-title {
+            font-size: 3rem;
+            margin-left: 0;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .profile-divider {
+            width: calc(100% - 30px);
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 20px;
+        }
+
+        .content-wrapper {
+            padding: 0 15px;
+        }
+
+        /* Grid a 1 columna en móvil, pero manteniendo tarjetas cuadradas con imagen de fondo */
+        .comunidades-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 100%;
+        }
+
+        .comunidad-card {
+            height: 200px;
+        }
+
+        .comunidad-title {
+            font-size: 2rem;
+            bottom: 15px;
+            left: 15px;
+        }
+
+        .comunidad-ver {
+            font-size: 2.5rem;
+        }
+
+        .no-comunidades-message {
+            padding: 60px 15px;
+        }
+
+        .no-comunidades-icon {
+            font-size: 4rem;
+        }
+
+        .no-comunidades-title {
+            font-size: 1.8rem;
+        }
+
+        .no-comunidades-text {
+            font-size: 1rem;
+        }
+    }
 </style>
 
 @if (currentUser != null)

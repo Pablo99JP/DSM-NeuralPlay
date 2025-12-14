@@ -482,8 +482,8 @@
     /* Mobile */
     @@media (max-width: 580px) {
         .page-wrapper {
-            padding: 60px 20px 140px 20px;
-            width: calc(100% - 40px);
+            padding: 60px 10px 140px 10px;
+            width: calc(100% - 20px);
             max-width: 100%;
         }
 
@@ -503,13 +503,34 @@
             font-size: 2.3rem;
         }
 
+        .tabs-wrapper {
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            border-radius: 0;
+            padding: 4px 0;
+        }
+
         .team-tabs {
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 8px;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        .team-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .tab-button {
             padding: 10px 12px;
             font-size: 1rem;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .panel {

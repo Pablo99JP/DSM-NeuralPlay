@@ -64,6 +64,14 @@
         min-height: 100vh;
         z-index: 2;
         padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .content-wrapper {
+        width: 100%;
+        max-width: 900px;
     }
 
     .btn-back {
@@ -387,6 +395,44 @@
     .btn-cancel-comment:hover {
         border-color: white;
     }
+
+    /* Media queries para móvil */
+    @@media (max-width: 580px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 15px;
+        }
+
+        .content-wrapper {
+            max-width: 100%;
+        }
+
+        .publication-detail-card {
+            padding: 20px;
+        }
+
+        .comments-section {
+            padding: 20px;
+        }
+
+        .comments-title {
+            font-size: 1.5rem;
+        }
+
+        .publication-content {
+            font-size: 1rem;
+        }
+
+        .author-name {
+            font-size: 1.2rem;
+        }
+
+        .action-btn {
+            font-size: 1rem;
+            padding: 8px 15px;
+        }
+    }
 </style>
 
 <!-- Contenedor principal - solo fondo -->
@@ -394,13 +440,14 @@
 
 <!-- Contenedor de contenido - entre las barras laterales -->
 <div class="content-container">
-    <button onclick="history.back()" class="btn-back">
-        <i class="bi bi-arrow-left"></i>
-        Volver
-    </button>
+    <div class="content-wrapper">
+        <button onclick="history.back()" class="btn-back">
+            <i class="bi bi-arrow-left"></i>
+            Volver
+        </button>
 
-    <!-- Publicación principal -->
-    <div class="publication-detail-card">
+        <!-- Publicación principal -->
+        <div class="publication-detail-card">
         <div class="publication-header">
             <div class="publication-avatar">
                 <span style="color: white; font-family: 'Neue', sans-serif; font-size: 1.5rem;">
@@ -496,6 +543,7 @@
             </div>
         }
     </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -566,6 +614,43 @@
                 });
             });
         }
+
+        // Manejar los likes de comentarios
+        const commentLikeBtns = document.querySelectorAll('.toggle-like-comentario');
+        
+        commentLikeBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const comentarioId = button.getAttribute('data-comentario-id');
+                const countSpan = button.querySelector('.like-count');
+                
+                // Hacer petición al servidor
+                fetch('@Url.Action("ToggleComentarioLike", "Reaccion")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comentarioId: parseInt(comentarioId) })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.liked) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                        if (countSpan) {
+                            countSpan.textContent = data.likeCount;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al dar like al comentario:', error);
+                });
+            });
+        });
     </script>
 }
 
