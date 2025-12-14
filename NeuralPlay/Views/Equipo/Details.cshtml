@@ -360,9 +360,9 @@
     }
 
     .badge-pill {
-        padding: 6px 12px;
+        padding: 8px 14px;
         border-radius: 999px;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     .cta-link {
@@ -450,6 +450,145 @@
         border-radius: 12px;
         color: #dcdcdc;
         font-family: 'Lexend', sans-serif;
+    }
+
+    /* Tablet */
+    @@media (max-width: 1024px) {
+        .page-wrapper {
+            padding: 40px 48px 60px 24px;
+            width: calc(100% - 72px);
+            max-width: 100%;
+        }
+
+        .team-hero {
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .team-avatar {
+            width: 110px;
+            height: 110px;
+        }
+
+        .team-header-text h1 {
+            font-size: 4rem;
+        }
+
+        .panel {
+            padding: 20px;
+        }
+    }
+
+    /* Mobile */
+    @@media (max-width: 580px) {
+        .page-wrapper {
+            padding: 60px 20px 140px 20px;
+            width: calc(100% - 40px);
+            max-width: 100%;
+        }
+
+        .team-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+        }
+
+        .team-header-text h1 {
+            font-size: 2.3rem;
+        }
+
+        .team-tabs {
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 10px 12px;
+            font-size: 1rem;
+        }
+
+        .panel {
+            padding: 16px;
+        }
+
+        /* Aumentar tamaño botón invitar miembros */
+        .cta-link {
+            font-size: 1.1rem;
+            padding: 12px 16px;
+        }
+
+        /* Invertir orden torneos: participando arriba, propuestas abajo */
+        .torneos-grid {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 20px;
+        }
+
+        /* Ajustar torneos: poner botón debajo del nombre */
+        .participando-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 16px;
+        }
+
+        .participando-name {
+            font-size: 1.15rem;
+        }
+
+        /* Aumentar empty-state */
+        .empty-state {
+            padding: 28px 20px;
+            font-size: 1.05rem;
+        }
+
+        /* Ajustar tabla palmarés - hacer responsive */
+        .equipo-table {
+            font-size: 0.7rem;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .equipo-table thead,
+        .equipo-table tbody,
+        .equipo-table tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .equipo-table th,
+        .equipo-table td {
+            padding: 8px 6px;
+        }
+
+        .equipo-table td:first-child,
+        .equipo-table th:first-child {
+            padding-right: 20px;
+            font-size: 0.65rem;
+        }
+
+        /* Ocultar emoji de medalla en mobile */
+        .badge-emoji {
+            display: none;
+        }
+
+        /* Alinear posición a la derecha */
+        .equipo-table td:nth-child(2),
+        .equipo-table th:nth-child(2) {
+            text-align: right;
+            padding-right: 8px;
+        }
+
+        .badge-pill {
+            font-size: 0.7rem;
+            padding: 4px 6px;
+        }
     }
 </style>
 
@@ -603,9 +742,9 @@
                     <thead>
                         <tr>
                             <th>Torneo</th>
-                            <th>Comunidad</th>
                             <th>Posición</th>
-                            <th style="width: 120px;">Acciones</th>
+                            <th>Comunidad</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -615,25 +754,25 @@
                             var posicion = item.Value;
                             <tr>
                                 <td>@torneo.Nombre</td>
-                                <td>@(torneo.ComunidadOrganizadora?.Nombre ?? "-")</td>
                                 <td>
                                     @if (posicion == 1)
                                     {
-                                        <span class="badge-pill" style="background: #f3c623; color: #1f1f1f;">🥇 1º</span>
+                                        <span class="badge-pill" style="background: #f3c623; color: #1f1f1f;"><span class="badge-emoji">🥇</span> 1º</span>
                                     }
                                     else if (posicion == 2)
                                     {
-                                        <span class="badge-pill" style="background: #bdc3c7; color: #1f1f1f;">🥈 2º</span>
+                                        <span class="badge-pill" style="background: #bdc3c7; color: #1f1f1f;"><span class="badge-emoji">🥈</span> 2º</span>
                                     }
                                     else if (posicion == 3)
                                     {
-                                        <span class="badge-pill" style="background: #e74c3c;">🥉 3º</span>
+                                        <span class="badge-pill" style="background: #e74c3c;"><span class="badge-emoji">🥉</span> 3º</span>
                                     }
                                     else
                                     {
                                         <span class="badge-pill" style="background: rgba(255,255,255,0.08);">@($"{posicion}º")</span>
                                     }
                                 </td>
+                                <td>@(torneo.ComunidadOrganizadora?.Nombre ?? "-")</td>
                                 <td>
                                     <a asp-controller="Torneo" asp-action="Details" asp-route-id="@torneo.IdTorneo" class="cta-link" style="padding: 8px 10px; font-size: 0.95rem;">Ver</a>
                                 </td>

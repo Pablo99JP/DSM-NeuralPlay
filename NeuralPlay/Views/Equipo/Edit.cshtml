@@ -111,10 +111,10 @@
         background: rgba(36, 36, 36, 0.95);
         border-radius: 10px;
         padding: 40px;
-        margin-bottom: 30px;
+        margin: 0 60px 30px 60px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        max-width: 1000px;
-        width: 100%;
+        max-width: 900px;
+        width: calc(100% - 120px);
     }
 
     .form-select option { background: var(--np-dark-grey); color: white; padding: 10px; }
@@ -169,6 +169,100 @@
     }
 
     .form-note { font-family: 'Lexend', sans-serif; font-size: 0.95rem; color: #aaa; font-style: italic; margin-top: 5px; }
+
+    /* Media Query Tablet */
+    @@media (max-width: 1024px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            margin: 0 60px 30px 60px;
+            width: calc(100% - 120px);
+        }
+
+        .page-title {
+            font-size: 4rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .form-card {
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .team-avatar {
+            width: 90px;
+            height: 90px;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            font-size: 1rem;
+            padding: 12px 28px;
+        }
+    }
+
+    /* Media Query Mobile */
+    @@media (max-width: 580px) {
+        .content-container {
+            left: 0;
+            width: 100%;
+            padding: 60px 12px 160px 12px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 0 20px 20px 20px;
+            width: calc(100% - 40px);
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+        }
+
+        .form-card {
+            padding: 16px;
+            margin: 0 20px 60px 20px;
+            width: calc(100% - 40px);
+        }
+
+        .team-avatar {
+            width: 70px;
+            height: 70px;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            font-size: 1rem;
+            padding: 12px 20px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        /* Logo section responsive */
+        div[style*="display:flex"][style*="gap:16px"] {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+
+        div[style*="flex:1"] {
+            min-width: 100% !important;
+        }
+    }
 </style>
 
 <div class="main-container"></div>

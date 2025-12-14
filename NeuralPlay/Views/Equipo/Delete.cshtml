@@ -45,8 +45,9 @@
     .page-subtitle { font-family: 'Lexend', sans-serif; color: #d7d7d7; margin: 6px 0 0 0; font-size: 1rem; }
 
     .card-delete {
-        background: rgba(36, 36, 36, 0.95); border-radius: 10px; padding: 40px; margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); max-width: 1000px; width: 100%;
+        background: rgba(36, 36, 36, 0.95); border-radius: 10px; padding: 40px;
+        margin: 0 60px 30px 60px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); max-width: 900px; width: calc(100% - 120px);
     }
 
     .warning {
@@ -76,6 +77,71 @@
         text-decoration: none; display: inline-block;
     }
     .btn-cancel:hover { background: white; color: var(--np-dark-grey); }
+
+    .actions {
+        display: flex; gap: 12px; flex-wrap: wrap;
+    }
+
+    /* Tablet */
+    @@media (max-width: 1024px) {
+        .page-header {
+            margin: 0 60px 30px 60px;
+            width: calc(100% - 120px);
+        }
+
+        .card-delete {
+            padding: 30px;
+            margin: 0 60px 20px 60px;
+            width: calc(100% - 120px);
+        }
+
+        .team-avatar {
+            width: 90px; height: 90px;
+        }
+
+        .page-title { font-size: 4rem; }
+        .page-subtitle { font-size: 0.9rem; }
+
+        .btn-delete,
+        .btn-cancel {
+            font-size: 1rem;
+            padding: 12px 28px;
+        }
+    }
+
+    /* Mobile */
+    @@media (max-width: 580px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 0 20px 20px 20px;
+            width: calc(100% - 40px);
+        }
+
+        .page-title { font-size: 2rem; }
+        .page-subtitle { font-size: 0.85rem; }
+
+        .card-delete {
+            padding: 16px;
+            margin: 0 20px 60px 20px;
+            width: calc(100% - 40px);
+        }
+
+        .team-avatar {
+            width: 70px; height: 70px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        .btn-delete,
+        .btn-cancel {
+            width: 100%;
+            font-size: 1rem;
+            padding: 12px 20px;
+        }
+    }
 </style>
 
 <div class="main-container"></div>
