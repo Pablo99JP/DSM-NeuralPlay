@@ -2,80 +2,231 @@
 
 @{
     ViewData["Title"] = "Crear Torneo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.OcultarNavbar = true;
+    
+    // Obtener el ID de la comunidad desde el query string, ViewBag o Model
+    var comunidadId = Model?.ComunidadId ?? 
+                      (Context.Request.Query.ContainsKey("comunidadId") ? 
+                       long.Parse(Context.Request.Query["comunidadId"].ToString()) : 
+                       0L);
 }
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">@ViewData["Title"]</h2>
-                </div>
-                <div class="card-body">
-                    @if (ViewBag.ErrorMessage != null)
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong>Error:</strong> @ViewBag.ErrorMessage
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    }
+<style>
+    .page-header { margin-bottom: 50px; }
 
-                    <form asp-action="Create" method="post">
-                        @Html.AntiForgeryToken()
+    .form-control, .form-select, .form-textarea {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="ComunidadId" class="form-label">Comunidad Organizadora</label>
-                            <select asp-for="ComunidadId" class="form-select">
-                                <option value="">-- Selecciona una comunidad --</option>
-                                @if (ViewBag.Comunidades != null)
-                                {
-                                    foreach (var comunidad in ViewBag.Comunidades)
-                                    {
-                                        <option value="@comunidad.IdComunidad">@comunidad.Nombre</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="ComunidadId" class="text-danger"></span>
-                            <small class="form-text text-muted">El torneo estará asociado a esta comunidad.</small>
-                        </div>
+    .form-control:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Nombre" class="form-label">Nombre del Torneo</label>
-                            <input asp-for="Nombre" class="form-control" placeholder="Ej: Copa de Verano 2025" />
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
-                        </div>
+    .form-select:disabled {
+        background: rgba(229, 10, 70, 0.3);
+        border: 2px solid var(--np-red);
+        color: white;
+        cursor: not-allowed;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="FechaInicio" class="form-label">Fecha de Inicio</label>
-                            <input asp-for="FechaInicio" type="date" class="form-control" />
-                            <span asp-validation-for="FechaInicio" class="text-danger"></span>
-                        </div>
+    .form-select option {
+        background: var(--np-dark-grey);
+        color: white;
+        padding: 10px;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Reglas" class="form-label">Reglas del Torneo (Opcional)</label>
-                            <textarea asp-for="Reglas" class="form-control" rows="5" placeholder="Describe las reglas del torneo..."></textarea>
-                            <span asp-validation-for="Reglas" class="text-danger"></span>
-                        </div>
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Premios" class="form-label">Premios (Opcional)</label>
-                            <textarea asp-for="Premios" class="form-control" rows="3" placeholder="Describe los premios del torneo..."></textarea>
-                            <span asp-validation-for="Premios" class="text-danger"></span>
-                        </div>
+    .form-label {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        margin-bottom: 10px;
+        display: block;
+        font-weight: 500;
+    }
 
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Crear Torneo</button>
-                        </div>
-                    </form>
-                </div>
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .text-danger {
+        color: var(--np-red);
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        display: block;
+        margin-top: 8px;
+    }
+
+    /* Botones */
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        min-width: 160px;
+    }
+
+    .btn-submit:hover {
+        background: transparent;
+        color: var(--np-red);
+        transform: scale(1.05);
+    }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        margin-left: 15px;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 160px;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: white;
+        color: var(--np-dark-grey);
+    }
+
+    /* Nota informativa */
+    .form-note {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        color: #aaa;
+        font-style: italic;
+        margin-top: 5px;
+    }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .page-title { font-size: 3.6rem; }
+        .page-header { margin-bottom: 30px; }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        .content-container { padding: 80px 12px 110px; }
+        .page-title { font-size: 2.8rem; text-align: center; }
+        .page-header { margin-bottom: 16px; text-align: center; }
+        .form-card { padding: 16px; margin-bottom: 16px; }
+        .btn-submit, .btn-cancel { width: 100%; margin-left: 0; }
+        .form-actions { flex-direction: column; }
+    }
+</style>
+
+<!-- Contenedor principal - solo fondo -->
+<div class="main-container"></div>
+
+<!-- Contenedor de contenido - entre las barras laterales -->
+<div class="content-container">
+    <!-- Header -->
+    <header class="page-header">
+        <h1 class="page-title">Crear Torneo</h1>
+    </header>
+
+    <!-- Card del formulario -->
+    <section class="form-card">
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+                <strong>Error:</strong> @ViewBag.ErrorMessage
             </div>
-        </div>
-    </div>
+        }
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label asp-for="ComunidadId" class="form-label">Comunidad Organizadora</label>
+                <select class="form-select" disabled>
+                    @if (ViewBag.Comunidades != null)
+                    {
+                        foreach (var comunidad in ViewBag.Comunidades)
+                        {
+                            var isSelected = comunidadId > 0 ? (comunidadId == comunidad.IdComunidad) : false;
+                            if (isSelected)
+                            {
+                                <option value="@comunidad.IdComunidad" selected>@comunidad.Nombre</option>
+                            }
+                        }
+                        
+                        @* Si no hay ninguna seleccionada, mostrar la primera *@
+                        @if (comunidadId == 0 && ViewBag.Comunidades.Count > 0)
+                        {
+                            var primeraComunidad = ViewBag.Comunidades[0];
+                            <option value="@primeraComunidad.IdComunidad" selected>@primeraComunidad.Nombre</option>
+                            comunidadId = primeraComunidad.IdComunidad;
+                        }
+                    }
+                </select>
+                <input type="hidden" name="ComunidadId" value="@comunidadId" />
+                <span asp-validation-for="ComunidadId" class="text-danger"></span>
+                <div class="form-note">Comunidad desde la que se crea el torneo.</div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Nombre" class="form-label">Nombre del Torneo</label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ej: Copa de Verano 2025" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FechaInicio" class="form-label">Fecha de Inicio</label>
+                <input asp-for="FechaInicio" type="date" class="form-control" />
+                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Reglas" class="form-label">Reglas del Torneo (Opcional)</label>
+                <textarea asp-for="Reglas" class="form-textarea" rows="5" placeholder="Describe las reglas del torneo..."></textarea>
+                <span asp-validation-for="Reglas" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Premios" class="form-label">Premios (Opcional)</label>
+                <textarea asp-for="Premios" class="form-textarea" rows="3" placeholder="Describe los premios del torneo..."></textarea>
+                <span asp-validation-for="Premios" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Crear Torneo</button>
+                <a asp-action="Index" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </section>
 </div>
 
 @section Scripts {
