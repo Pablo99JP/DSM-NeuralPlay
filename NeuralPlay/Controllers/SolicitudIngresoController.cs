@@ -23,8 +23,10 @@ namespace NeuralPlay.Controllers
  private readonly IMiembroComunidadRepository _miembroComunidadRepo;
  private readonly MiembroComunidadCEN _miembroComunidadCEN;
  private readonly NotificacionCEN _notificacionCEN;
+ private readonly MensajeChatCEN _mensajeChatCEN;
+ private readonly IRepository<ChatEquipo> _chatEquipoRepo;
 
- public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo, MiembroComunidadCEN miembroComunidadCEN, NotificacionCEN notificacionCEN)
+ public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo, MiembroComunidadCEN miembroComunidadCEN, NotificacionCEN notificacionCEN, MensajeChatCEN mensajeChatCEN, IRepository<ChatEquipo> chatEquipoRepo)
  {
  _solCEN = solCEN;
  _usuarioRepo = usuarioRepo;
@@ -35,6 +37,8 @@ namespace NeuralPlay.Controllers
  _miembroComunidadRepo = miembroComunidadRepo;
  _miembroComunidadCEN = miembroComunidadCEN;
  _notificacionCEN = notificacionCEN;
+ _mensajeChatCEN = mensajeChatCEN;
+ _chatEquipoRepo = chatEquipoRepo;
  }
 
  public IActionResult Index()
@@ -126,6 +130,13 @@ namespace NeuralPlay.Controllers
  var mensaje = $"El usuario {solicitante?.Nick} solicita unirse a tu equipo {eq.Nombre}";
  _notificacionCEN.NewNotificacion(TipoNotificacion.ALERTA, mensaje, miembroAdmin.Usuario);
  }
+ 
+ // Crear mensaje en el chat del equipo con formato especial para identificar solicitudes
+ if (eq.Chat != null)
+ {
+ var mensajeChat = $"[SOLICITUD_INGRESO:{s.IdSolicitud}] El usuario {solicitante?.Nick} ha solicitado unirse al equipo.";
+ _mensajeChatCEN.NewMensajeChat(mensajeChat, solicitante!, eq.Chat);
+ }
  }
  
  try { _uow?.SaveChanges(); } catch {}
@@ -139,7 +150,7 @@ namespace NeuralPlay.Controllers
  else if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && equipoId.HasValue)
  {
  TempData["SuccessMessage"] = "Tu solicitud de ingreso al equipo ha sido enviada. El administrador del equipo la revisará pronto.";
- return RedirectToAction("Details", "Equipo", new { id = equipoId.Value });
+ return RedirectToAction("Index", "Home", new { tab = "equipos" });
  }
  }
  catch (Exception ex)
@@ -181,78 +192,124 @@ namespace NeuralPlay.Controllers
  [ValidateAntiForgeryToken]
  public IActionResult Accept(long id)
  {
- var s = _solCEN.ReadOID_SolicitudIngreso(id);
- if (s == null) return NotFound();
- 
- var uid = HttpContext.Session.GetInt32("UsuarioId");
- if (!uid.HasValue) return Forbid();
- 
- if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
+     var s = _solCEN.ReadOID_SolicitudIngreso(id);
+     if (s == null) return NotFound();
+     
+     var uid = HttpContext.Session.GetInt32("UsuarioId");
+     if (!uid.HasValue) return Forbid();
+     
+     // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
+     if (s.Equipo != null)
+     {
+         var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
+         if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede aceptar solicitudes");
+     }
 
- // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
- if (s.Equipo != null)
- {
- var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
- if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede aceptar solicitudes");
- }
+     try
+     {
+         if (s.Estado == EstadoSolicitud.PENDIENTE)
+         {
+             if (s.Equipo != null)
+             {
+                 // Verificar si ya es miembro para evitar duplicados
+                 var yaEsMiembro = s.Equipo.Miembros?.Any(m => m.Usuario?.IdUsuario == s.Solicitante?.IdUsuario) ?? false;
+                 if (!yaEsMiembro)
+                 {
+                     var miembro = new MiembroEquipo { Usuario = s.Solicitante!, Equipo = s.Equipo, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO, FechaAccion = DateTime.UtcNow };
+                     _miembroEquipoRepo.New(miembro);
+                 }
+             }
+             else if (s.Comunidad != null)
+             {
+                 var yaEsMiembro = s.Comunidad.Miembros?.Any(m => m.Usuario?.IdUsuario == s.Solicitante?.IdUsuario) ?? false;
+                 if (!yaEsMiembro)
+                 {
+                     var miembro = new MiembroComunidad { Usuario = s.Solicitante!, Comunidad = s.Comunidad, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO, FechaAccion = DateTime.UtcNow };
+                     _miembroComunidadRepo.New(miembro);
+                 }
+             }
+             s.Estado = EstadoSolicitud.ACEPTADA;
+             s.FechaResolucion = DateTime.UtcNow;
+             _solCEN.ModifySolicitudIngreso(s);
+         }
 
- // Capturar si es equipo ANTES de modificar
- bool esEquipo = s.Equipo != null;
- long equipoId = esEquipo ? s.Equipo!.IdEquipo : 0;
-
- if (s.Equipo != null)
- {
- var miembro = new MiembroEquipo { Usuario = s.Solicitante!, Equipo = s.Equipo, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolEquipo.MIEMBRO, FechaAccion = DateTime.UtcNow };
- _miembroEquipoRepo.New(miembro);
- }
- else if (s.Comunidad != null)
- {
- var miembro = new MiembroComunidad { Usuario = s.Solicitante!, Comunidad = s.Comunidad, Estado = ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA, FechaAlta = DateTime.UtcNow, Rol = ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO, FechaAccion = DateTime.UtcNow };
- _miembroComunidadRepo.New(miembro);
- }
- s.Estado = EstadoSolicitud.ACEPTADA;
- s.FechaResolucion = DateTime.UtcNow;
- _solCEN.ModifySolicitudIngreso(s);
- try { _uow?.SaveChanges(); } catch {}
- 
- // Si es una solicitud de equipo, redirigir a la vista del equipo
- if (esEquipo)
- {
-     return RedirectToAction("Details", "Equipo", new { id = equipoId });
- }
- return RedirectToAction(nameof(Index));
+         // Eliminar el mensaje de solicitud del chat si existe (incluso si ya estaba aceptada)
+         if (s.Equipo != null && s.Equipo.Chat != null)
+         {
+             var mensajeSolicitud = s.Equipo.Chat.Mensajes?.FirstOrDefault(m => 
+                 m.Contenido != null && m.Contenido.StartsWith($"[SOLICITUD_INGRESO:{s.IdSolicitud}]"));
+             if (mensajeSolicitud != null)
+             {
+                 s.Equipo.Chat.Mensajes?.Remove(mensajeSolicitud);
+                 _mensajeChatCEN.DestroyMensajeChat(mensajeSolicitud.IdMensajeChat);
+             }
+         }
+         
+         _uow?.SaveChanges();
+     }
+     catch (Exception ex)
+     {
+         TempData["Error"] = "Error al procesar la solicitud: " + ex.Message;
+     }
+     
+     // Si es una solicitud de equipo, redirigir al chat del equipo
+     if (s.Equipo != null)
+     {
+         return RedirectToAction("Chat", "Equipo", new { id = s.Equipo.IdEquipo });
+     }
+     return RedirectToAction(nameof(Index));
  }
 
  [HttpPost]
  [ValidateAntiForgeryToken]
  public IActionResult Reject(long id)
  {
- var s = _solCEN.ReadOID_SolicitudIngreso(id);
- if (s == null) return NotFound();
- var uid = HttpContext.Session.GetInt32("UsuarioId");
- if (!uid.HasValue) return Forbid();
- 
- if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
- 
- // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
- if (s.Equipo != null)
- {
- var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
- if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede rechazar solicitudes");
- }
- 
- s.Estado = EstadoSolicitud.RECHAZADA;
- s.FechaResolucion = DateTime.UtcNow;
- _solCEN.ModifySolicitudIngreso(s);
- try { _uow?.SaveChanges(); } catch {}
- 
- // Si es una solicitud de equipo, redirigir a la vista del equipo
- long equipoId = s.Equipo?.IdEquipo ?? 0;
- if (equipoId > 0)
- {
-     return RedirectToAction("Details", "Equipo", new { id = equipoId });
- }
- return RedirectToAction(nameof(Index));
+     var s = _solCEN.ReadOID_SolicitudIngreso(id);
+     if (s == null) return NotFound();
+     var uid = HttpContext.Session.GetInt32("UsuarioId");
+     if (!uid.HasValue) return Forbid();
+     
+     // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
+     if (s.Equipo != null)
+     {
+         var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
+         if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede rechazar solicitudes");
+     }
+     
+     try
+     {
+         if (s.Estado == EstadoSolicitud.PENDIENTE)
+         {
+             s.Estado = EstadoSolicitud.RECHAZADA;
+             s.FechaResolucion = DateTime.UtcNow;
+             _solCEN.ModifySolicitudIngreso(s);
+         }
+         
+         // Eliminar el mensaje de solicitud del chat si existe
+         if (s.Equipo != null && s.Equipo.Chat != null)
+         {
+             var mensajeSolicitud = s.Equipo.Chat.Mensajes?.FirstOrDefault(m => 
+                 m.Contenido != null && m.Contenido.StartsWith($"[SOLICITUD_INGRESO:{s.IdSolicitud}]"));
+             if (mensajeSolicitud != null)
+             {
+                 s.Equipo.Chat.Mensajes?.Remove(mensajeSolicitud);
+                 _mensajeChatCEN.DestroyMensajeChat(mensajeSolicitud.IdMensajeChat);
+             }
+         }
+         
+         _uow?.SaveChanges();
+     }
+     catch (Exception ex)
+     {
+         TempData["Error"] = "Error al rechazar la solicitud: " + ex.Message;
+     }
+     
+     // Si es una solicitud de equipo, redirigir al chat del equipo
+     if (s.Equipo != null)
+     {
+         return RedirectToAction("Chat", "Equipo", new { id = s.Equipo.IdEquipo });
+     }
+     return RedirectToAction(nameof(Index));
  }
  }
 }

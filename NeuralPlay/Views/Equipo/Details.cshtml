@@ -10,6 +10,7 @@
     var isLeader = ViewBag.IsLeader as bool? ?? false;
     var equipoId = ViewBag.EquipoId as long? ?? 0;
     var currentUserId = ViewBag.CurrentUserId as long? ?? 0;
+    var solicitudesPendientes = ViewBag.SolicitudesPendientes as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
@@ -681,6 +682,44 @@
     </section>
 
     <section id="tab-miembros" class="tab-panel">
+        @if (isLeader && solicitudesPendientes.Any())
+        {
+            <div class="panel" style="margin-bottom: 24px; border: 1px solid rgba(229, 10, 70, 0.3); background: rgba(229, 10, 70, 0.05);">
+                <h3 style="color: var(--np-red); margin-bottom: 16px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-person-plus-fill"></i> Solicitudes Pendientes
+                </h3>
+                <div class="members-list">
+                    @foreach (var sol in solicitudesPendientes)
+                    {
+                        <div class="member-card" style="border-left: 3px solid var(--np-red);">
+                            <div class="member-avatar" style="background: var(--np-red);">
+                                <i class="bi bi-person" style="font-size: 1.5rem; color: white;"></i>
+                            </div>
+                            <div class="member-meta">
+                                <span class="member-role" style="color: var(--np-red);">Solicitante</span>
+                                <span class="member-name">@sol.SolicitanteNick</span>
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">@sol.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="member-actions" style="gap: 8px;">
+                                <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@sol.IdSolicitud" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="member-btn" style="background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid #4caf50; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" title="Aceptar">
+                                        <i class="bi bi-check-lg" style="font-size: 1.2rem;"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="Reject" asp-controller="SolicitudIngreso" asp-route-id="@sol.IdSolicitud" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="member-btn" style="background: rgba(244, 67, 54, 0.2); color: #f44336; border: 1px solid #f44336; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" title="Rechazar">
+                                        <i class="bi bi-x-lg" style="font-size: 1.2rem;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
         <div class="members-actions">
             <a class="cta-link" asp-controller="Invitacion" asp-action="Create">
                 <i class="bi bi-person-plus"></i> Invitar miembros
