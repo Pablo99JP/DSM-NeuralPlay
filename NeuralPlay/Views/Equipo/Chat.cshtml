@@ -56,6 +56,28 @@
         padding-top: 10px;
     }
 
+    .btn-back {
+        background: transparent;
+        border: 2px solid white;
+        color: white;
+        padding: 10px;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+    }
+
+    .btn-back:hover {
+        background: white;
+        color: var(--np-dark-grey);
+    }
+
     .chat-avatar {
         width: 140px;
         height: 140px;
@@ -357,6 +379,10 @@
             margin-bottom: 16px;
         }
 
+        .message-text {
+            font-size: 1.1rem;
+        }
+
         .message-input-wrapper {
             flex: 1;
         }
@@ -383,6 +409,9 @@
 
 <div class="chat-wrapper">
     <div class="chat-header">
+        <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-back" title="Volver al equipo">
+            <i class="bi bi-arrow-left"></i>
+        </a>
         <div class="chat-avatar">
             <img src="@logo" alt="@Model.NombreEquipo" />
         </div>

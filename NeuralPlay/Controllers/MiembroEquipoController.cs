@@ -18,6 +18,7 @@ namespace NeuralPlay.Controllers
         private readonly IRepository<Equipo> _equipoRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly NotificacionCEN _notificacionCEN;
+        private readonly MensajeChatCEN _mensajeChatCEN;
 
         public MiembroEquipoController(
             UsuarioCEN usuarioCEN,
@@ -27,7 +28,8 @@ namespace NeuralPlay.Controllers
             EquipoCEN equipoCEN,
             IRepository<Equipo> equipoRepository,
             IUnitOfWork unitOfWork,
-            NotificacionCEN notificacionCEN)
+            NotificacionCEN notificacionCEN,
+            MensajeChatCEN mensajeChatCEN)
             : base(usuarioCEN, usuarioRepository)
         {
             _miembroEquipoCEN = miembroEquipoCEN;
@@ -36,6 +38,7 @@ namespace NeuralPlay.Controllers
             _equipoRepository = equipoRepository;
             _unitOfWork = unitOfWork;
             _notificacionCEN = notificacionCEN;
+            _mensajeChatCEN = mensajeChatCEN;
         }
 
         // GET: /MiembroEquipo
@@ -225,6 +228,12 @@ namespace NeuralPlay.Controllers
                                 adminActual.Usuario);
                         }
                     }
+
+                    // Crear mensaje en el chat del equipo cuando alguien es promovido a admin
+                    if (en.Equipo.Chat != null && en.Usuario != null)
+                    {
+                        _mensajeChatCEN.NewMensajeChat($"{en.Usuario.Nick} es el nuevo administrador del equipo.", en.Usuario, en.Equipo.Chat);
+                    }
                 }
 
                 en.Rol = model.Rol;
@@ -297,6 +306,12 @@ namespace NeuralPlay.Controllers
                 if (en != null && en.Usuario != null && en.Equipo != null)
                 {
                     _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has sido expulsado del equipo '{en.Equipo.Nombre}'.", en.Usuario);
+
+                    // Crear mensaje en el chat del equipo cuando se expulsa a un miembro
+                    if (en.Equipo.Chat != null)
+                    {
+                        _mensajeChatCEN.NewMensajeChat($"{en.Usuario.Nick} ha sido expulsado del equipo.", en.Usuario, en.Equipo.Chat);
+                    }
                 }
 
                 _miembroEquipoCEN.DestroyMiembroEquipo(id);

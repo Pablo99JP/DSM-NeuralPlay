@@ -243,6 +243,9 @@ namespace NeuralPlay.Controllers
                  s.Equipo.Chat.Mensajes?.Remove(mensajeSolicitud);
                  _mensajeChatCEN.DestroyMensajeChat(mensajeSolicitud.IdMensajeChat);
              }
+
+             // Crear un mensaje en el chat del equipo indicando que el usuario se ha unido
+             _mensajeChatCEN.NewMensajeChat($"{s.Solicitante?.Nick} se ha unido al equipo.", s.Solicitante, s.Equipo.Chat);
          }
          
          _uow?.SaveChanges();

@@ -23,8 +23,9 @@ namespace NeuralPlay.Controllers
  private readonly IMiembroComunidadRepository _miembroComunidadRepo;
  private readonly IMiembroEquipoRepository _miembroEquipoRepo;
  private readonly NotificacionCEN _notificacionCEN;
+ private readonly MensajeChatCEN _mensajeChatCEN;
 
- public InvitacionController(InvitacionCEN invitacionCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, AceptarInvitacionCP aceptarInvitacionCP, IMiembroComunidadRepository miembroComunidadRepo, IMiembroEquipoRepository miembroEquipoRepo, NotificacionCEN notificacionCEN)
+ public InvitacionController(InvitacionCEN invitacionCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, AceptarInvitacionCP aceptarInvitacionCP, IMiembroComunidadRepository miembroComunidadRepo, IMiembroEquipoRepository miembroEquipoRepo, NotificacionCEN notificacionCEN, MensajeChatCEN mensajeChatCEN)
  {
  _invitacionCEN = invitacionCEN;
  _usuarioRepo = usuarioRepo;
@@ -35,6 +36,7 @@ namespace NeuralPlay.Controllers
  _miembroComunidadRepo = miembroComunidadRepo;
  _miembroEquipoRepo = miembroEquipoRepo;
  _notificacionCEN = notificacionCEN;
+ _mensajeChatCEN = mensajeChatCEN;
  }
 
  public IActionResult Index()
@@ -67,8 +69,8 @@ namespace NeuralPlay.Controllers
  return View(vm);
  }
 
- [HttpGet]
- public IActionResult Create()
+	[HttpGet]
+	public IActionResult Create(long? equipoId = null)
  {
  // Obtener el usuario de sesión como emisor
  var emisorId = HttpContext.Session.GetInt32("UsuarioId");
@@ -89,7 +91,7 @@ namespace NeuralPlay.Controllers
  ViewBag.EmisorId = emisor.IdUsuario;
  ViewBag.EmisorNick = emisor.Nick;
 
- // Obtener usuarios (excluyendo el emisor)
+		// Obtener usuarios (excluyendo el emisor)
  ViewBag.Usuarios = _usuarioRepo.ReadAll()
  .Where(u => u.IdUsuario != emisorId.Value)
  .Select(u => new { Id = u.IdUsuario, Name = u.Nick })
@@ -106,15 +108,28 @@ namespace NeuralPlay.Controllers
  .Select(me => new { Id = me.Equipo!.IdEquipo, Name = me.Equipo.Nombre })
  .ToList();
 
- ViewBag.Comunidades = comunidadesEmisor;
- ViewBag.Equipos = equiposEmisor;
+		ViewBag.Comunidades = comunidadesEmisor;
+		ViewBag.Equipos = equiposEmisor;
+
+		// Prefill cuando viene desde Equipo/Details
+		if (equipoId.HasValue)
+		{
+			var eq = _equipoRepo.ReadById(equipoId.Value);
+			if (eq != null)
+			{
+				ViewBag.PrefillEquipoId = eq.IdEquipo;
+				ViewBag.PrefillEquipoNombre = eq.Nombre;
+				ViewBag.PrefillTipo = TipoInvitacion.EQUIPO; // por defecto equipo
+				ViewBag.ReturnEquipoId = eq.IdEquipo; // para volver a detalles
+			}
+		}
 
  return View();
  }
 
  [HttpPost]
  [ValidateAntiForgeryToken]
- public IActionResult Create(long destinatarioId, ApplicationCore.Domain.Enums.TipoInvitacion tipo, long? comunidadId, long? equipoId)
+	public IActionResult Create(long destinatarioId, ApplicationCore.Domain.Enums.TipoInvitacion tipo, long? comunidadId, long? equipoId, long? returnEquipoId)
  {
  // Obtener el usuario de sesión como emisor
  var emisorId = HttpContext.Session.GetInt32("UsuarioId");
@@ -180,7 +195,7 @@ namespace NeuralPlay.Controllers
  }
  }
 
- if (!ModelState.IsValid)
+	if (!ModelState.IsValid)
  {
  // Re-cargar ViewBag data para la vista
  ViewBag.EmisorId = emisor?.IdUsuario;
@@ -200,14 +215,15 @@ namespace NeuralPlay.Controllers
  .Select(me => new { Id = me.Equipo!.IdEquipo, Name = me.Equipo.Nombre })
  .ToList();
 
- ViewBag.Comunidades = comunidadesEmisor;
- ViewBag.Equipos = equiposEmisor;
+			ViewBag.Comunidades = comunidadesEmisor;
+			ViewBag.Equipos = equiposEmisor;
+			ViewBag.ReturnEquipoId = returnEquipoId;
  
  return View();
  }
 
  var inv = _invitacionCEN.NewInvitacion(tipo, emisor!, destinatario!, com, eq);
- try 
+	try 
  { 
  _uow?.SaveChanges();
  TempData["SuccessMessage"] = "Invitación enviada exitosamente.";
@@ -217,14 +233,25 @@ namespace NeuralPlay.Controllers
 	 ? $"Has recibido una invitación para unirte al equipo '{destinoNombre}'."
 	 : $"Has recibido una invitación para unirte a la comunidad '{destinoNombre}'.";
  _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, mensajeInv, destinatario!);
- } 
+	} 
  catch (Exception ex)
  {
  TempData["ErrorMessage"] = $"Error al enviar la invitación: {ex.Message}";
- return RedirectToAction(nameof(Create));
+		if (returnEquipoId.HasValue)
+			return RedirectToAction("Create", new { equipoId = returnEquipoId.Value });
+		return RedirectToAction(nameof(Create));
  }
  
- return RedirectToAction(nameof(Index));
+	// Redirigir a Equipo/Details si procede
+	if (equipoId.HasValue)
+	{
+		return RedirectToAction("Details", "Equipo", new { id = equipoId.Value });
+	}
+	if (returnEquipoId.HasValue)
+	{
+		return RedirectToAction("Details", "Equipo", new { id = returnEquipoId.Value });
+	}
+	return RedirectToAction(nameof(Index));
  }
 
  [HttpGet]
@@ -284,6 +311,12 @@ namespace NeuralPlay.Controllers
  foreach (var miembroExistente in miembrosEquipo)
  {
  _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Se ha unido un nuevo miembro '{inv.Destinatario.Nick}' a tu equipo '{inv.Equipo.Nombre}'.", miembroExistente);
+ }
+
+ // Crear un mensaje en el chat del equipo
+ if (inv.Equipo.Chat != null)
+ {
+ _mensajeChatCEN.NewMensajeChat($"{inv.Destinatario.Nick} se ha unido al equipo.", inv.Destinatario, inv.Equipo.Chat);
  }
 
  _uow.SaveChanges();

@@ -660,6 +660,16 @@
         </div>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="panel" style="border: 1px solid rgba(76, 175, 80, 0.45); background: rgba(76, 175, 80, 0.08); margin-bottom: 16px; color: #d0f5d6;">
+            <span style="font-family: 'Lexend', sans-serif; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="bi bi-check-circle" style="color:#81c784;"></i>
+                @TempData["SuccessMessage"]
+            </span>
+        </div>
+    }
+
     <div class="tabs-wrapper">
         <div class="team-tabs">
             <button class="tab-button active" data-target="tab-chat"><i class="bi bi-chat-dots"></i> Chat de equipo</button>
@@ -721,7 +731,7 @@
         }
 
         <div class="members-actions">
-            <a class="cta-link" asp-controller="Invitacion" asp-action="Create">
+            <a class="cta-link" asp-controller="Invitacion" asp-action="Create" asp-route-equipoId="@Model.IdEquipo">
                 <i class="bi bi-person-plus"></i> Invitar miembros
             </a>
         </div>

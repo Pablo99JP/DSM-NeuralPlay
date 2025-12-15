@@ -15,34 +15,159 @@
         display: flex;
         align-items: center;
         gap: 18px;
+        margin-bottom: 40px;
     }
 
     .page-title { font-size: 5rem; line-height: 0.95; }
 
+    .page-subtitle {
+        font-family: 'Lexend', sans-serif;
+        color: #d7d7d7;
+        margin: 6px 0 0 0;
+        font-size: 1rem;
+    }
+
+    .form-card {
+        background: rgba(36, 36, 36, 0.95);
+        border-radius: 10px;
+        padding: 40px;
+        margin: 0 60px 30px 60px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 900px;
+        width: calc(100% - 120px);
+    }
+
+    .form-select {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
+
+    .form-select:disabled {
+        background: rgba(229, 10, 70, 0.3);
+        border: 2px solid var(--np-red);
+        color: white;
+        cursor: not-allowed;
+    }
+
+    .form-select:not(:disabled) {
+        background: rgba(69, 69, 69, 0.9);
+        border: 2px solid var(--np-red);
+        color: white;
+        cursor: pointer;
+    }
+
+    .form-select:not(:disabled):hover {
+        background: rgba(69, 69, 69, 1);
+        border-color: #ff4a7d;
+    }
+
     .form-select option { background: var(--np-dark-grey); color: white; padding: 10px; }
+
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        min-width: 160px;
+    }
+
+    .btn-submit:hover { background: transparent; color: var(--np-red); transform: scale(1.05); }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        margin-left: 15px;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 160px;
+        text-align: center;
+    }
 
     /* Ajustes tablet: solo especificos */
     @@media (max-width: 1024px) {
-        .page-title { font-size: 3.6rem; }
-        .page-subtitle { font-size: 0.95rem; }
-        .page-header { margin-bottom: 30px; }
+        .page-header {
+            margin: 0 60px 30px 60px;
+            width: calc(100% - 120px);
+        }
+
+        .page-title { font-size: 4rem; }
+        .page-subtitle { font-size: 0.9rem; }
+
+        .form-card {
+            padding: 30px;
+            margin: 0 60px 20px 60px;
+            width: calc(100% - 120px);
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            font-size: 1rem;
+            padding: 12px 28px;
+        }
+
         .pill-badge { font-size: 1rem; padding: 10px 16px; }
     }
 
     /* Ajustes mobile */
     @@media (max-width: 580px) {
         .content-container { padding: 80px 12px 110px; }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 0 20px 20px 20px;
+            width: calc(100% - 40px);
+        }
         .page-title { font-size: 2rem; }
         .page-subtitle { font-size: 0.85rem; }
-        .page-header { margin-bottom: 16px; }
-        .form-card { padding: 16px; margin-bottom: 12px; }
-        .btn-submit, .btn-cancel { width: 100%; }
+        .form-card { 
+            padding: 16px; 
+            margin: 0 20px 60px 20px;
+            width: calc(100% - 40px);
+        }
+        .btn-submit, .btn-cancel { 
+            width: 100%; 
+            font-size: 1rem;
+            padding: 12px 20px;
+        }
+        .btn-cancel { margin-left: 0; }
         .pill-badge { font-size: 0.8rem; padding: 6px 10px; }
+        .actions { flex-direction: column; }
     }
 
-    .btn-cancel:hover { 
-        background: white; 
-        color: var(--np-dark-grey); 
+    .btn-cancel:hover { background: white; color: var(--np-dark-grey); }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
     .text-danger {
@@ -67,6 +192,17 @@
     .dynamic-group.show {
         display: block;
     }
+
+    .display-box {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(69, 69, 69, 0.9);
+        border: 2px solid var(--np-red);
+        border-radius: 8px;
+        color: white;
+    }
 </style>
 
 <div class="main-container"></div>
@@ -80,22 +216,27 @@
     </header>
 
     <section class="form-card">
-        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
-
-        @if (TempData["ErrorMessage"] != null)
+        @if (!ViewData.ModelState.IsValid || TempData["ErrorMessage"] != null)
         {
-            <div class="validation-panel">
-                @TempData["ErrorMessage"]
+            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    @TempData["ErrorMessage"]
+                }
             </div>
         }
 
         <form asp-action="Create" method="post">
+            @if (ViewBag.PrefillEquipoId != null)
+            {
+                <input type="hidden" name="tipo" value="1" />
+                <input type="hidden" name="equipoId" value="@ViewBag.PrefillEquipoId" />
+                <input type="hidden" name="returnEquipoId" value="@ViewBag.PrefillEquipoId" />
+            }
             <div class="form-group">
                 <label class="form-label">Emisor</label>
-                <div class="pill-badge">
-                    <i class="bi bi-person-fill"></i> @ViewBag.EmisorNick
-                </div>
-                <p class="form-note">Estás enviando esta invitación como @ViewBag.EmisorNick</p>
+                <div class="display-box">@ViewBag.EmisorNick</div>
             </div>
 
             <div class="form-group">
@@ -109,25 +250,34 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="tipo" class="form-label">Tipo de Invitación</label>
-                <select name="tipo" id="tipo" class="form-select" required>
-                    <option value="">-- Selecciona el tipo --</option>
-                    <option value="1">Invitación a Equipo</option>
-                    <option value="0">Invitación a Comunidad</option>
-                </select>
-            </div>
+            @if (ViewBag.PrefillEquipoId == null)
+            {
+                <div class="form-group">
+                    <label for="tipo" class="form-label">Tipo de Invitación</label>
+                    <select name="tipo" id="tipo" class="form-select" required>
+                        <option value="">-- Selecciona el tipo --</option>
+                        <option value="1">Invitación a Equipo</option>
+                        <option value="0">Invitación a Comunidad</option>
+                    </select>
+                </div>
+            }
 
-            <div class="form-group dynamic-group" id="equipoGroup">
+            <div class="form-group dynamic-group @((ViewBag.PrefillEquipoId != null) ? "show" : "")" id="equipoGroup">
                 <label for="equipoId" class="form-label">Equipo</label>
-                <select name="equipoId" id="equipoId" class="form-select">
-                    <option value="">-- Selecciona un equipo --</option>
-                    @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) 
-                    { 
-                        <option value="@e.Id">@e.Name</option> 
-                    }
-                </select>
-                <p class="form-note">Selecciona el equipo al que deseas invitar al usuario</p>
+                @if (ViewBag.PrefillEquipoId != null)
+                {
+                    <div class="display-box">@ViewBag.PrefillEquipoNombre</div>
+                }
+                else
+                {
+                    <select name="equipoId" id="equipoId" class="form-select">
+                        <option value="">-- Selecciona un equipo --</option>
+                        @foreach(var e in (IEnumerable<dynamic>)ViewBag.Equipos) 
+                        { 
+                            <option value="@e.Id">@e.Name</option> 
+                        }
+                    </select>
+                }
             </div>
 
             <div class="form-group dynamic-group" id="comunidadGroup">
@@ -146,9 +296,18 @@
                 <button type="submit" class="btn-submit">
                     <i class="bi bi-send-fill"></i> Enviar Invitación
                 </button>
-                <a asp-action="Index" class="btn-cancel">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
+                @if (ViewBag.ReturnEquipoId != null)
+                {
+                    <a asp-controller="Equipo" asp-action="Details" asp-route-id="@ViewBag.ReturnEquipoId" class="btn-cancel">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn-cancel">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                }
             </div>
         </form>
     </section>
@@ -162,7 +321,8 @@
         const equipoSelect = document.getElementById('equipoId');
         const comunidadSelect = document.getElementById('comunidadId');
 
-        tipoSelect.addEventListener('change', function() {
+        if (tipoSelect) {
+          tipoSelect.addEventListener('change', function() {
             const tipo = this.value;
 
             // Ocultar ambos grupos
@@ -186,11 +346,17 @@
                 equipoSelect.removeAttribute('required');
                 comunidadSelect.removeAttribute('required');
             }
-        });
+          });
+        }
 
         // Trigger en caso de que haya un valor pre-seleccionado (validación fallida)
-        if (tipoSelect.value) {
+        if (tipoSelect && tipoSelect.value) {
             tipoSelect.dispatchEvent(new Event('change'));
+        }
+
+        // Si viene preseleccionado desde Equipo, mostrar grupo equipo
+        if (@(ViewBag.PrefillEquipoId != null ? "true" : "false")) {
+            equipoGroup.classList.add('show');
         }
     });
 </script>
