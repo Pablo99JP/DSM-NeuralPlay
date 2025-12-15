@@ -675,7 +675,7 @@
                     @* Aquí puedes agregar hashtags si los tienes en el modelo *@
                     @* <p class="publication-hashtags">#ejemplo #hashtag</p> *@
                     
-                    <p class="publication-meta">@pub.fechaCreacion.ToString("HH:mm") Â· @pub.fechaCreacion.ToString("dd/MM/yyyy")</p>
+                    <p class="publication-meta">@pub.fechaCreacion.ToString("HH:mm") · @pub.fechaCreacion.ToString("dd/MM/yyyy")</p>
                     
                     <div class="publication-actions">
                         <button class="action-btn toggle-like-btn @(pub.LikedByUser ? "liked" : "")" data-publicacion-id="@pub.idPublicacion">
