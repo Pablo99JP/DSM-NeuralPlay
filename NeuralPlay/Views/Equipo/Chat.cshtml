@@ -170,6 +170,48 @@
         font-weight: 700;
     }
 
+    .solicitud-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .btn-solicitud {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+    }
+
+    .btn-aceptar {
+        background: rgba(76, 175, 80, 0.8);
+        color: white;
+        border: 1px solid rgba(76, 175, 80, 1);
+    }
+
+    .btn-aceptar:hover {
+        background: rgba(76, 175, 80, 1);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-rechazar {
+        background: rgba(244, 67, 54, 0.8);
+        color: white;
+        border: 1px solid rgba(244, 67, 54, 1);
+    }
+
+    .btn-rechazar:hover {
+        background: rgba(244, 67, 54, 1);
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    }
+
     .empty-messages {
         text-align: center;
         color: rgba(255, 255, 255, 0.4);
@@ -362,7 +404,30 @@
             {
                 var avatar = string.IsNullOrEmpty(m.FotoPerfilUrl) ? "/images/avatar_default.png" : m.FotoPerfilUrl;
                 var isPropuesta = m.Contenido != null && m.Contenido.Contains("propuesto participar en un torneo", System.StringComparison.OrdinalIgnoreCase);
-                <div class="message-item @(isPropuesta ? "alert-propuesta-bg" : string.Empty)">
+                var isSolicitud = m.Contenido != null && (m.Contenido.StartsWith("[SOLICITUD_INGRESO:") || m.Contenido.Contains("solicitado unirse"));
+                long solicitudId = 0;
+                string contenidoMostrado = m.Contenido;
+
+                if (isSolicitud && m.Contenido.StartsWith("[SOLICITUD_INGRESO:"))
+                {
+                    // Extraer ID de solicitud del formato [SOLICITUD_INGRESO:123]
+                    int endIdx = m.Contenido.IndexOf(']');
+                    if (endIdx > 0)
+                    {
+                        string idPart = m.Contenido.Substring(19, endIdx - 19); // 19 es la longitud de "[SOLICITUD_INGRESO:"
+                        if (long.TryParse(idPart.Trim(), out var id))
+                        {
+                            solicitudId = id;
+                            contenidoMostrado = m.Contenido.Substring(endIdx + 1).Trim();
+                        }
+                    }
+                }
+                else if (isSolicitud)
+                {
+                    contenidoMostrado = m.Contenido;
+                }
+
+                <div class="message-item @(isPropuesta ? "alert-propuesta-bg" : (isSolicitud ? "alert-propuesta-bg" : string.Empty))">
                     <div class="message-avatar">
                         <img src="@avatar" alt="@m.NickAutor" />
                     </div>
@@ -371,7 +436,36 @@
                             <span class="message-author">@m.NickAutor</span>
                             <span class="message-time">@m.FechaEnvio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
                         </div>
-                        <div class="message-text @(isPropuesta ? "alert-propuesta" : string.Empty)">@m.Contenido</div>
+                        <div class="message-text @(isPropuesta ? "alert-propuesta" : (isSolicitud ? "alert-propuesta" : string.Empty))">@contenidoMostrado</div>
+                        @if (isSolicitud)
+                        {
+                            <div class="solicitud-actions">
+                                @if (solicitudId > 0)
+                                {
+                                    <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-solicitud btn-aceptar">
+                                            <i class="bi bi-check-circle-fill"></i> Aceptar
+                                        </button>
+                                    </form>
+                                    <form asp-action="Reject" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-solicitud btn-rechazar">
+                                            <i class="bi bi-x-circle-fill"></i> Rechazar
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn-solicitud btn-aceptar" onclick="alert('Aceptar solicitud')">
+                                        <i class="bi bi-check-circle-fill"></i> Aceptar
+                                    </button>
+                                    <button type="button" class="btn-solicitud btn-rechazar" onclick="alert('Rechazar solicitud')">
+                                        <i class="bi bi-x-circle-fill"></i> Rechazar
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             }
