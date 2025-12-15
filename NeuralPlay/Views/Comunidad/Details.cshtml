@@ -81,6 +81,18 @@
         display: block;
     }
 
+    /* Tablet: ajustar posición del botón */
+    @@media (min-width: 581px) and (max-width: 1200px) {
+        .menu-toggle {
+            top: 90px;
+            right: calc(6% + 30px);
+            padding: 12px 15px;
+        }
+        .menu-toggle i {
+            font-size: 1.5rem;
+        }
+    }
+
     /* Móvil: botón más en la esquina con menos padding */
     @@media (max-width: 580px) {
         .menu-toggle {
@@ -265,14 +277,14 @@
         z-index: 2;
     }
 
-    /* Móvil: ancho completo con márgenes mínimos */
+    /* Móvil: ancho completo con márgenes laterales */
     @@media (max-width: 580px) {
         .content-container {
             left: 0;
             width: 100%;
             margin: 0;
             position: relative;
-            padding: 0 3px;
+            padding: 0 15px;
         }
     }
 
@@ -348,11 +360,11 @@
         box-sizing: border-box;
     }
 
-    /* Móvil: ancho completo y márgenes mínimos */
+    /* Móvil: ancho completo con márgenes laterales */
     @@media (max-width: 580px) {
         .content-wrapper {
             width: 100%;
-            padding: 0 2px;
+            padding: 0 15px;
             margin: 0 0;
         }
     }

@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Nueva Publicación";
+    ViewData["Title"] = "Nueva Publicaciï¿½n";
     ViewBag.OcultarNavbar = true;
 }
 
@@ -64,7 +64,7 @@
         align-items: center;
     }
 
-    /* Título principal */
+    /* Tï¿½tulo principal */
     .page-header {
         margin-bottom: 30px;
         text-align: center;
@@ -128,7 +128,7 @@
         font-style: italic;
     }
 
-    /* Mensajes de validación */
+    /* Mensajes de validaciï¿½n */
     .text-danger {
         font-family: 'Lexend', sans-serif;
         font-size: 1rem;
@@ -211,6 +211,64 @@
         font-style: italic;
         margin-top: 5px;
     }
+
+    /* Responsivo - Tablet (581px a 1200px) */
+    @@media (min-width: 581px) and (max-width: 1200px) {
+        .content-container {
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            padding-top: 40px !important;
+            padding-bottom: 100px !important;
+        }
+
+        .page-title {
+            font-size: 4rem !important;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem !important;
+        }
+
+        .form-card {
+            padding: 30px !important;
+        }
+    }
+
+    /* Responsivo - Mobile (â‰¤580px) */
+    @@media (max-width: 580px) {
+        .content-container {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+            padding-top: 30px !important;
+            padding-bottom: 120px !important;
+        }
+
+        .page-title {
+            font-size: 3rem !important;
+        }
+
+        .page-subtitle {
+            font-size: 1rem !important;
+        }
+
+        .form-card {
+            padding: 20px !important;
+        }
+
+        .form-label {
+            font-size: 1.2rem !important;
+        }
+
+        .form-textarea {
+            font-size: 1rem !important;
+            min-height: 150px !important;
+        }
+
+        .btn-submit, .btn-cancel {
+            font-size: 1.1rem !important;
+            padding: 12px 30px !important;
+        }
+    }
 </style>
 
 <!-- Contenedor principal: SOLO FONDO -->
@@ -219,7 +277,7 @@
 <!-- Contenedor de contenido: TODO EL CONTENIDO -->
 <div class="content-container">
     <div class="page-header">
-        <h1 class="page-title">Nueva Publicación</h1>
+        <h1 class="page-title">Nueva PublicaciÃ³n</h1>
         @if (!string.IsNullOrEmpty(Model.NombreComunidad))
         {
             <p class="page-subtitle">En la comunidad: @Model.NombreComunidad</p>
@@ -240,7 +298,7 @@
                 <label asp-for="contenido" class="form-label">Contenido</label>
                 <textarea asp-for="contenido" 
                           class="form-textarea" 
-                          placeholder="Escribe el contenido de tu publicación..."></textarea>
+                          placeholder="Escribe el contenido de tu publicaciÃ³n..."></textarea>
                 <span asp-validation-for="contenido" class="text-danger"></span>
                 <p class="form-note">Comparte tus ideas, logros o preguntas con la comunidad</p>
             </div>
