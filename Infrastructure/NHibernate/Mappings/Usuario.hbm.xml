@@ -14,15 +14,17 @@
     <one-to-one name="Perfil" class="Perfil" cascade="save-update" />
 
     <bag name="MiembrosComunidad" table="MiembroComunidad" inverse="true" cascade="all-delete-orphan">
-      <key column="IdUsuario" />
+      <key column="UsuarioId" />
       <one-to-many class="MiembroComunidad" />
     </bag>
+
     <bag name="MiembrosEquipo" table="MiembroEquipo" inverse="true" cascade="all-delete-orphan">
-      <key column="IdUsuario" />
+      <key column="UsuarioId" />
       <one-to-many class="MiembroEquipo" />
     </bag>
+
     <bag name="Sesiones" table="Sesion" inverse="true" cascade="all-delete-orphan">
-      <key column="IdUsuario" />
+      <key column="UsuarioId" />
       <one-to-many class="Sesion" />
     </bag>
   </class>
