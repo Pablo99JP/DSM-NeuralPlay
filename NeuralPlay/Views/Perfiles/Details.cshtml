@@ -420,8 +420,21 @@
                         <ul class="list-unstyled">
                             @foreach (var juego in Model.Juegos)
                             {
-                                <li class="game-item">
-                                    <strong>@juego.NombreJuego</strong> - @juego.Genero
+                                <li class="game-item" style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>
+                                        <strong>@juego.NombreJuego</strong> - @juego.Genero
+                                    </span>
+                                    @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
+                                    {
+                                        <button class="btn-delete-game" 
+                                                data-perfil-id="@Model.IdPerfil" 
+                                                data-juego-id="@juego.IdJuego"
+                                                data-juego-nombre="@juego.NombreJuego"
+                                                title="Eliminar juego"
+                                                style="background: none; border: none; cursor: pointer; color: var(--np-red); font-size: 1.2rem; padding: 0 10px; transition: all 0.3s;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
                                 </li>
                             }
                         </ul>
@@ -502,3 +515,71 @@
         }
     </section>
 </main>
+
+<script>
+    // Manejo de eliminación de juegos
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.btn-delete-game');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const perfilId = this.getAttribute('data-perfil-id');
+                const juegoId = this.getAttribute('data-juego-id');
+                const juegoNombre = this.getAttribute('data-juego-nombre');
+                
+                if (confirm(`¿Estás seguro de que quieres eliminar "${juegoNombre}" de tu lista de juegos?`)) {
+                    // Realizar petición AJAX
+                    fetch('@Url.Action("EliminarJuego", "Perfiles")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `idPerfil=${perfilId}&idJuego=${juegoId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Eliminar el elemento de la lista con animación
+                            const listItem = this.closest('li');
+                            listItem.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                            listItem.style.opacity = '0';
+                            listItem.style.transform = 'translateX(-20px)';
+                            
+                            setTimeout(() => {
+                                listItem.remove();
+                                
+                                // Si no quedan juegos, mostrar mensaje
+                                const gamesList = document.querySelector('.list-unstyled');
+                                if (gamesList && gamesList.children.length === 0) {
+                                    const noGamesText = document.createElement('p');
+                                    noGamesText.className = 'no-games-text';
+                                    noGamesText.textContent = 'Este perfil no tiene juegos añadidos.';
+                                    gamesList.parentNode.replaceChild(noGamesText, gamesList);
+                                }
+                            }, 300);
+                        } else {
+                            alert('Error al eliminar el juego: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al eliminar el juego. Por favor, intenta de nuevo.');
+                    });
+                }
+            });
+            
+            // Efecto hover
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.2)';
+                this.style.textShadow = '0 0 10px var(--np-red)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.textShadow = 'none';
+            });
+        });
+    });
+</script>

@@ -281,6 +281,51 @@ namespace NeuralPlay.Controllers
             return View(viewModel);
         }
 
+        // POST: Perfiles/EliminarJuego
+        [HttpPost]
+        public async Task<IActionResult> EliminarJuego(long idPerfil, long idJuego)
+        {
+            try
+            {
+                using (var session = NHibernateHelper.OpenSession())
+                {
+                    using (var transaction = session.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Buscar la relación PerfilJuego
+                            var perfilJuego = await session.Query<PerfilJuego>()
+                                .Where(pj => pj.Perfil.IdPerfil == idPerfil && pj.Juego.IdJuego == idJuego)
+                                .FirstOrDefaultAsync();
+
+                            if (perfilJuego != null)
+                            {
+                                // Eliminar la relación directamente con la sesión
+                                await session.DeleteAsync(perfilJuego);
+                                await session.FlushAsync();
+                                
+                                // Confirmar la transacción
+                                await transaction.CommitAsync();
+                                
+                                return Json(new { success = true, message = "Juego eliminado correctamente" });
+                            }
+                            
+                            return Json(new { success = false, message = "No se encontró el juego en el perfil" });
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            return Json(new { success = false, message = $"Error: {ex.Message}" });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar el juego: {ex.Message}" });
+            }
+        }
+
         // GET: Perfiles/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
