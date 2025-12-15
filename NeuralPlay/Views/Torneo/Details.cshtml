@@ -41,29 +41,25 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
     }
 
     /* Contenedor principal - solo fondo */
     .main-container {
-        position: fixed;
-        top: 0;
-        left: 0;
+        position: relative;
         width: 100%;
-        height: 100vh;
-        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
-        background-size: cover;
+        min-height: 100vh;
         z-index: 1;
     }
 
     /* Contenedor del contenido - aislado del fondo */
     .content-wrapper {
-        position: absolute;
-        top: 0;
-        left: 11%;
-        width: 83%; /* 100% - 11% (izq) - 6% (der) */
+        position: relative;
+        margin-left: 5.5%;
+        width: 88.5%; /* 100% - 5.5% (izq) - 6% (der) */
         min-height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
+        padding-bottom: 60px;
         z-index: 2;
     }
 
@@ -72,7 +68,7 @@
         text-align: left;
         margin-bottom: 30px;
         padding-top: 30px;
-        padding-left: 32px;
+        padding-left: 16px;
         padding-right: 20px;
     }
 
@@ -101,7 +97,7 @@
     .torneo-divider {
         height: 2px;
         background: linear-gradient(90deg, var(--np-red) 0%, transparent 100%);
-        margin: 20px 32px 40px 32px;
+        margin: 20px 16px 40px 16px;
     }
 
     /* Contenedor interior para centralizar contenido */
@@ -118,7 +114,7 @@
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 25px;
         margin-bottom: 40px;
-        padding: 0 32px;
+        padding: 0 16px;
     }
 
     .info-card {
