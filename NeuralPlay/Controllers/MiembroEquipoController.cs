@@ -202,6 +202,31 @@ namespace NeuralPlay.Controllers
                 var oldRol = en.Rol;
                 var oldEstado = en.Estado;
 
+                // Si se está asignando el rol de ADMIN a este usuario
+                if (model.Rol == RolEquipo.ADMIN && oldRol != RolEquipo.ADMIN)
+                {
+                    // Buscar el admin actual del equipo
+                    var adminActual = _miembroEquipoRepository
+                        .ReadAll()
+                        .FirstOrDefault(m => m.Equipo.IdEquipo == en.Equipo.IdEquipo && m.Rol == RolEquipo.ADMIN && m.IdMiembroEquipo != en.IdMiembroEquipo);
+
+                    // Si existe un admin actual, cambiar su rol a MIEMBRO
+                    if (adminActual != null)
+                    {
+                        adminActual.Rol = RolEquipo.MIEMBRO;
+                        _miembroEquipoCEN.ModifyMiembroEquipo(adminActual);
+
+                        // Notificar al admin anterior
+                        if (adminActual.Usuario != null && adminActual.Equipo != null)
+                        {
+                            _notificacionCEN.NewNotificacion(
+                                ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA,
+                                $"Tu rol de administrador en el equipo '{adminActual.Equipo.Nombre}' ha sido transferido a otro miembro.",
+                                adminActual.Usuario);
+                        }
+                    }
+                }
+
                 en.Rol = model.Rol;
                 en.Estado = model.Estado;
 
