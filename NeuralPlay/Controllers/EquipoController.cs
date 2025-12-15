@@ -129,6 +129,19 @@ namespace NeuralPlay.Controllers
                 
                 ViewBag.Palmares = (object?)palmares;
 
+                // Cargar solicitudes pendientes de ingreso al equipo
+                var solicitudesPendientes = _solicitudIngresoCEN.ReadAll_SolicitudIngreso()
+                    .Where(s => s.Equipo != null && s.Equipo.IdEquipo == id && s.Estado == EstadoSolicitud.PENDIENTE)
+                    .Select(s => new
+                    {
+                        IdSolicitud = s.IdSolicitud,
+                        SolicitanteNick = s.Solicitante?.Nick,
+                        FechaSolicitud = s.FechaSolicitud
+                    })
+                    .ToList();
+                
+                ViewBag.SolicitudesPendientes = (object?)solicitudesPendientes;
+
                 // Usuario actual para lógica de votos
                 long? currentUserId = null;
                 if (User?.Identity?.IsAuthenticated == true)

@@ -686,48 +686,115 @@
                 <i class="bi bi-person-plus"></i> Invitar miembros
             </a>
         </div>
-        @if (miembros.Any())
+
+        @{
+            var solicitudesPendientes = ViewBag.SolicitudesPendientes as List<dynamic> ?? new List<dynamic>();
+            var successMessage = TempData["SuccessMessage"]?.ToString();
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
         {
-            <div class="members-list">
-                @foreach (var miembro in miembros)
-                {
-                    var avatar = string.IsNullOrEmpty(miembro.FotoPerfilUrl)
-                        ? "/images/avatar_default.png"
-                        : miembro.FotoPerfilUrl;
-                    <div class="member-card">
-                        <div class="member-avatar">
-                            <img src="@avatar" alt="@miembro.NombreUsuario" />
-                        </div>
-                        <div class="member-meta">
-                            <span class="member-role">@miembro.Rol</span>
-                            <span class="member-name">@miembro.NombreUsuario</span>
-                        </div>
-                        <div class="member-actions">
-                            <a href="@Url.Action("Details", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-view" title="Ver detalles del miembro">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
+            <div class="panel" style="background: rgba(76, 175, 80, 0.15); border-left: 4px solid #4caf50;">
+                <div style="display: flex; align-items: center; gap: 12px; color: #81c784; font-family: 'Lexend', sans-serif;">
+                    <i class="bi bi-check-circle-fill" style="font-size: 1.5rem;"></i>
+                    <span>@successMessage</span>
+                </div>
+            </div>
+        }
+
+        @if (solicitudesPendientes.Any())
+        {
+            <div class="panel">
+                <h3>Solicitudes Pendientes de Ingreso</h3>
+                <div class="members-list">
+                    @foreach (var solicitud in solicitudesPendientes)
+                    {
+                        <div class="member-card" style="border-left: 4px solid #ffb74d; gap: 15px;">
+                            <div class="member-avatar" style="background: rgba(255, 152, 0, 0.1); border: 1px solid #ffb74d; flex-shrink: 0;">
+                                <i class="bi bi-person-check" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 1.8rem; color: #ffb74d;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="member-meta">
+                                    <span class="member-role" style="color: #ffb74d;">SOLICITUD PENDIENTE</span>
+                                    <span class="member-name">@solicitud.SolicitanteNick</span>
+                                </div>
+                                <span style="font-family: 'Lexend', sans-serif; color: #999; font-size: 0.85rem; display: block; margin-top: 6px;">Solicitud del @solicitud.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
                             @if (isLeader)
                             {
-                                <div class="member-actions-admin">
-                                    <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                    @if (miembro.IdUsuario != currentUserId)
-                                    {
-                                        <a href="@Url.Action("Delete", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-delete" title="Expulsar miembro">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
-                                    }
+                                <div class="member-actions">
+                                    <form method="post" asp-controller="SolicitudIngreso" asp-action="Accept" asp-route-id="@solicitud.IdSolicitud" style="display: inline; margin: 0;">
+                                        <button type="submit" class="member-btn" style="background: #4caf50; width: auto; padding: 8px 14px; font-size: 0.9rem;" title="Aceptar solicitud">
+                                            <i class="bi bi-check-lg"></i> Aceptar
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-controller="SolicitudIngreso" asp-action="Reject" asp-route-id="@solicitud.IdSolicitud" style="display: inline; margin: 0;">
+                                        <button type="submit" class="member-btn" style="background: #ff5252; width: auto; padding: 8px 14px; font-size: 0.9rem;" title="Rechazar solicitud">
+                                            <i class="bi bi-x-lg"></i> Rechazar
+                                        </button>
+                                    </form>
                                 </div>
                             }
+                            else
+                            {
+                                <div style="font-family: 'Lexend', sans-serif; color: #999; font-size: 0.9rem; white-space: nowrap;">Esperando revisión</div>
+                            }
                         </div>
-                    </div>
-                }
+                    }
+                </div>
+            </div>
+        }
+
+        @if (miembros.Any())
+        {
+            <div class="panel">
+                <h3>Miembros del equipo</h3>
+                <div class="members-list">
+                    @foreach (var miembro in miembros)
+                    {
+                        var avatar = string.IsNullOrEmpty(miembro.FotoPerfilUrl)
+                            ? "/images/avatar_default.png"
+                            : miembro.FotoPerfilUrl;
+                        <div class="member-card">
+                            <div class="member-avatar">
+                                <img src="@avatar" alt="@miembro.NombreUsuario" />
+                            </div>
+                            <div class="member-meta">
+                                <span class="member-role">@miembro.Rol</span>
+                                <span class="member-name">@miembro.NombreUsuario</span>
+                            </div>
+                            <div class="member-actions">
+                                <a href="@Url.Action("Details", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-view" title="Ver detalles del miembro">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                @if (isLeader)
+                                {
+                                    <div class="member-actions-admin">
+                                        <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+                                        @if (miembro.IdUsuario != currentUserId)
+                                        {
+                                            <a href="@Url.Action("Delete", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-delete" title="Expulsar miembro">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         }
         else
         {
-            <div class="empty-state">Este equipo aún no tiene miembros.</div>
+            @if (!solicitudesPendientes.Any())
+            {
+                <div class="panel">
+                    <div class="empty-state">Este equipo aún no tiene miembros ni solicitudes pendientes.</div>
+                </div>
+            }
         }
     </section>
 

@@ -22,8 +22,9 @@ namespace NeuralPlay.Controllers
  private readonly IMiembroEquipoRepository _miembroEquipoRepo;
  private readonly IMiembroComunidadRepository _miembroComunidadRepo;
  private readonly MiembroComunidadCEN _miembroComunidadCEN;
+ private readonly NotificacionCEN _notificacionCEN;
 
- public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo, MiembroComunidadCEN miembroComunidadCEN)
+ public SolicitudIngresoController(SolicitudIngresoCEN solCEN, IUsuarioRepository usuarioRepo, IRepository<Comunidad> comRepo, IRepository<Equipo> equipoRepo, ApplicationCore.Domain.Repositories.IUnitOfWork uow, IMiembroEquipoRepository miembroEquipoRepo, IMiembroComunidadRepository miembroComunidadRepo, MiembroComunidadCEN miembroComunidadCEN, NotificacionCEN notificacionCEN)
  {
  _solCEN = solCEN;
  _usuarioRepo = usuarioRepo;
@@ -33,6 +34,7 @@ namespace NeuralPlay.Controllers
  _miembroEquipoRepo = miembroEquipoRepo;
  _miembroComunidadRepo = miembroComunidadRepo;
  _miembroComunidadCEN = miembroComunidadCEN;
+ _notificacionCEN = notificacionCEN;
  }
 
  public IActionResult Index()
@@ -115,17 +117,29 @@ namespace NeuralPlay.Controllers
  // Usar el CEN para crear el miembro, aplicando todas las validaciones
  _miembroComunidadCEN.NewMiembroComunidad(solicitante!, com, ApplicationCore.Domain.Enums.RolComunidad.MIEMBRO);
  }
+ else if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && eq != null)
+ {
+ // Para equipos: enviar notificación al admin del equipo
+ var miembroAdmin = eq.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN);
+ if (miembroAdmin?.Usuario != null)
+ {
+ var mensaje = $"El usuario {solicitante?.Nick} solicita unirse a tu equipo {eq.Nombre}";
+ _notificacionCEN.NewNotificacion(TipoNotificacion.ALERTA, mensaje, miembroAdmin.Usuario);
+ }
+ }
  
  try { _uow?.SaveChanges(); } catch {}
  
  // Redirigir según el tipo de solicitud
  if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.COMUNIDAD && comunidadId.HasValue)
  {
+ TempData["SuccessMessage"] = "Te has unido a la comunidad correctamente.";
  return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
  }
  else if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && equipoId.HasValue)
  {
- return RedirectToAction("Index", "Home");
+ TempData["SuccessMessage"] = "Tu solicitud de ingreso al equipo ha sido enviada. El administrador del equipo la revisará pronto.";
+ return RedirectToAction("Details", "Equipo", new { id = equipoId.Value });
  }
  }
  catch (Exception ex)
@@ -169,13 +183,22 @@ namespace NeuralPlay.Controllers
  {
  var s = _solCEN.ReadOID_SolicitudIngreso(id);
  if (s == null) return NotFound();
- // simplistic permission: allow any logged user (should restrict to community leader / team admins)
+ 
  var uid = HttpContext.Session.GetInt32("UsuarioId");
  if (!uid.HasValue) return Forbid();
+ 
  if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
+
+ // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
+ if (s.Equipo != null)
+ {
+ var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
+ if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede aceptar solicitudes");
+ }
 
  // Capturar si es equipo ANTES de modificar
  bool esEquipo = s.Equipo != null;
+ long equipoId = esEquipo ? s.Equipo!.IdEquipo : 0;
 
  if (s.Equipo != null)
  {
@@ -192,10 +215,10 @@ namespace NeuralPlay.Controllers
  _solCEN.ModifySolicitudIngreso(s);
  try { _uow?.SaveChanges(); } catch {}
  
- // Si es una solicitud de equipo, redirigir al Home; si no, ir a la lista de solicitudes
+ // Si es una solicitud de equipo, redirigir a la vista del equipo
  if (esEquipo)
  {
-     return RedirectToAction("Index", "Home");
+     return RedirectToAction("Details", "Equipo", new { id = equipoId });
  }
  return RedirectToAction(nameof(Index));
  }
@@ -208,11 +231,27 @@ namespace NeuralPlay.Controllers
  if (s == null) return NotFound();
  var uid = HttpContext.Session.GetInt32("UsuarioId");
  if (!uid.HasValue) return Forbid();
+ 
  if (s.Estado != EstadoSolicitud.PENDIENTE) return BadRequest("Solicitud ya resuelta");
+ 
+ // Validar que el usuario actual es admin del equipo (si es solicitud de equipo)
+ if (s.Equipo != null)
+ {
+ var miembroAdmin = s.Equipo.Miembros?.FirstOrDefault(m => m.Rol == ApplicationCore.Domain.Enums.RolEquipo.ADMIN && m.Usuario?.IdUsuario == uid.Value);
+ if (miembroAdmin == null) return Forbid("Solo el admin del equipo puede rechazar solicitudes");
+ }
+ 
  s.Estado = EstadoSolicitud.RECHAZADA;
  s.FechaResolucion = DateTime.UtcNow;
  _solCEN.ModifySolicitudIngreso(s);
  try { _uow?.SaveChanges(); } catch {}
+ 
+ // Si es una solicitud de equipo, redirigir a la vista del equipo
+ long equipoId = s.Equipo?.IdEquipo ?? 0;
+ if (equipoId > 0)
+ {
+     return RedirectToAction("Details", "Equipo", new { id = equipoId });
+ }
  return RedirectToAction(nameof(Index));
  }
  }
