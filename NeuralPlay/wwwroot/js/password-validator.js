@@ -17,16 +17,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updatePasswordRequirements() {
         const password = passwordInput.value;
+        const rightPanel = document.querySelector('.right-panel');
         
         // Mostrar panel de requisitos si hay texto
         if (password.length > 0) {
             passwordRequirements.classList.add('show');
+            rightPanel.classList.add('requirements-shown');
         } else {
             passwordRequirements.classList.remove('show');
+            rightPanel.classList.remove('requirements-shown');
         }
 
         let metCount = 0;
         let totalRequirements = Object.keys(requirements).length;
+        const requirementsTitle = passwordRequirements.querySelector('h4');
 
         // Validar cada requisito
         for (const [key, requirement] of Object.entries(requirements)) {
@@ -36,44 +40,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isMet) {
                 element.classList.add('met');
                 element.querySelector('.requirement-icon').textContent = '✓';
+                element.style.display = 'none'; // Ocultar requisito cumplido
                 metCount++;
             } else {
                 element.classList.remove('met');
                 element.querySelector('.requirement-icon').textContent = '✕';
+                element.style.display = 'flex'; // Mostrar requisito no cumplido
             }
         }
 
-        // Actualizar barra de fortaleza
-        updateStrengthBar(metCount, totalRequirements);
+        // Actualizar título según requisitos pendientes
+        const pendingCount = totalRequirements - metCount;
+        if (pendingCount === 0) {
+            requirementsTitle.textContent = '✓ Todos los requisitos cumplidos';
+            requirementsTitle.style.color = '#28a745';
+        } else if (pendingCount === 1) {
+            requirementsTitle.textContent = 'Requisito pendiente';
+            requirementsTitle.style.color = '#aaa';
+        } else {
+            requirementsTitle.textContent = `${pendingCount} Requisitos pendientes`;
+            requirementsTitle.style.color = '#aaa';
+        }
 
         // Validar confirmación de contraseña
         validatePasswordMatch();
-    }
-
-    function updateStrengthBar(metCount, totalRequirements) {
-        const strengthFill = document.getElementById('strengthFill');
-        const strengthText = document.getElementById('strengthText');
-        const percentage = (metCount / totalRequirements) * 100;
-
-        strengthFill.style.width = percentage + '%';
-        strengthFill.className = 'strength-fill';
-
-        if (percentage === 0) {
-            strengthFill.classList.add('weak');
-            strengthText.textContent = 'Fortaleza: Muy débil';
-        } else if (percentage <= 40) {
-            strengthFill.classList.add('weak');
-            strengthText.textContent = 'Fortaleza: Débil';
-        } else if (percentage <= 60) {
-            strengthFill.classList.add('fair');
-            strengthText.textContent = 'Fortaleza: Regular';
-        } else if (percentage <= 80) {
-            strengthFill.classList.add('good');
-            strengthText.textContent = 'Fortaleza: Buena';
-        } else {
-            strengthFill.classList.add('strong');
-            strengthText.textContent = 'Fortaleza: Excelente';
-        }
     }
 
     function validatePasswordMatch() {

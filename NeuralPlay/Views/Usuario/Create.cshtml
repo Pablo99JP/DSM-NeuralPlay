@@ -112,20 +112,27 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 3rem;
+            padding: 1.5rem 3rem;
             position: absolute;
-            height: 100%;
+            height: 100vh;
             width: 33%;
             right: 0;
             z-index: 3;
             pointer-events: auto;
+            overflow: hidden;
+            transition: justify-content 0.3s ease;
+        }
+
+        section.right-panel.requirements-shown {
+            justify-content: flex-start;
         }
 
         .login-title {
             color: white;
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 2rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
             text-align: center;
             font-family: 'Neue', sans-serif;
         }
@@ -149,11 +156,11 @@
 
         /* Grupo de formulario */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .form-group:last-of-type {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         /* Estilos de Labels */
@@ -191,13 +198,13 @@
             background-color: white;
             color: var(--np-red);
             font-weight: bold;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-family: 'Neue', sans-serif;
-            font-size: 2rem;
+            font-size: 1.8rem;
             cursor: pointer;
             box-sizing: border-box;
             border-radius: 15px;
@@ -212,9 +219,10 @@
 
         /* Textos del Pie */
         footer {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         footer span {
@@ -266,8 +274,8 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--np-grey);
             border-radius: 4px;
-            padding: 1rem;
-            margin-top: 1rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
             display: none;
         }
 
@@ -277,8 +285,8 @@
 
         .password-requirements h4 {
             color: #aaa;
-            font-size: 0.9rem;
-            margin: 0 0 0.75rem 0;
+            font-size: 0.8rem;
+            margin: 0 0 0.5rem 0;
             font-family: 'Lexend', sans-serif;
             text-transform: uppercase;
         }
@@ -286,8 +294,8 @@
         .requirement-item {
             display: flex;
             align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 0.85rem;
+            margin-bottom: 0.35rem;
+            font-size: 0.8rem;
             color: #bbb;
         }
 
@@ -317,53 +325,6 @@
 
         .requirement-item.met {
             color: #28a745;
-        }
-
-        .password-strength {
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .strength-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-
-        .strength-fill {
-            height: 100%;
-            width: 0%;
-            background: #888;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .strength-fill.weak {
-            width: 25%;
-            background: #e50a46;
-        }
-
-        .strength-fill.fair {
-            width: 50%;
-            background: #ff9800;
-        }
-
-        .strength-fill.good {
-            width: 75%;
-            background: #2196f3;
-        }
-
-        .strength-fill.strong {
-            width: 100%;
-            background: #28a745;
-        }
-
-        .strength-text {
-            font-size: 0.75rem;
-            color: #aaa;
-            text-align: right;
         }
 
         /* Ajustes tablet */
@@ -502,12 +463,6 @@
                             <div class="requirement-item" id="req-special">
                                 <span class="requirement-icon">✕</span>
                                 <span>Contiene carácter especial</span>
-                            </div>
-                            <div class="password-strength">
-                                <div class="strength-bar">
-                                    <div class="strength-fill" id="strengthFill"></div>
-                                </div>
-                                <div class="strength-text" id="strengthText">Fortaleza: Débil</div>
                             </div>
                         </div>
                     </div>
