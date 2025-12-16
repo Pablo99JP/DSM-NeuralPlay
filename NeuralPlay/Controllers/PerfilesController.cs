@@ -224,15 +224,25 @@ namespace NeuralPlay.Controllers
         {
             using (var session = NHibernateHelper.OpenSession())
             {
+                // Obtener todos los juegos
                 var juegoRepository = new NHibernateJuegoRepository(session);
                 var juegoCEN = new JuegoCEN(juegoRepository);
-                var juegos = await Task.Run(() => juegoCEN.ReadAll_Juego());
+                var todosJuegos = await Task.Run(() => juegoCEN.ReadAll_Juego());
+
+                // Obtener los IDs de juegos ya añadidos al perfil
+                var juegosYaAniadidos = await session.Query<PerfilJuego>()
+                    .Where(pj => pj.Perfil.IdPerfil == idPerfil)
+                    .Select(pj => pj.Juego.IdJuego)
+                    .ToListAsync();
+
+                // Filtrar juegos que no están en el perfil
+                var juegosDisponibles = todosJuegos.Where(j => !juegosYaAniadidos.Contains(j.IdJuego)).ToList();
 
                 var viewModel = new AnadirJuegoViewModel
                 {
                     IdPerfil = idPerfil,
                     IdJuegoSeleccionado = idJuego ?? 0,
-                    ListaDeJuegos = new SelectList(juegos, "IdJuego", "NombreJuego", idJuego)
+                    ListaDeJuegos = new SelectList(juegosDisponibles, "IdJuego", "NombreJuego", idJuego)
                 };
 
                 return View(viewModel);
@@ -248,13 +258,31 @@ namespace NeuralPlay.Controllers
             {
                 using (var session = NHibernateHelper.OpenSession())
                 {
+                    // Verificar si el juego ya existe en el perfil
+                    var juegoExistente = await session.Query<PerfilJuego>()
+                        .Where(pj => pj.Perfil.IdPerfil == viewModel.IdPerfil && pj.Juego.IdJuego == viewModel.IdJuegoSeleccionado)
+                        .FirstOrDefaultAsync();
+
+                    if (juegoExistente != null)
+                    {
+                        ModelState.AddModelError("IdJuegoSeleccionado", "Este juego ya está añadido a tu perfil.");
+                        
+                        // Recargar la lista de juegos para mostrar el formulario con el error
+                        var juegoRepository = new NHibernateJuegoRepository(session);
+                        var juegoCEN = new JuegoCEN(juegoRepository);
+                        var juegos = await Task.Run(() => juegoCEN.ReadAll_Juego());
+                        viewModel.ListaDeJuegos = new SelectList(juegos, "IdJuego", "NombreJuego");
+                        
+                        return View(viewModel);
+                    }
+
                     var perfilRepository = new NHibernatePerfilRepository(session);
                     var perfilCEN = new PerfilCEN(perfilRepository);
                     var perfil = await Task.Run(() => perfilCEN.ReadOID_Perfil(viewModel.IdPerfil));
 
-                    var juegoRepository = new NHibernateJuegoRepository(session);
-                    var juegoCEN = new JuegoCEN(juegoRepository);
-                    var juego = await Task.Run(() => juegoCEN.ReadOID_Juego(viewModel.IdJuegoSeleccionado));
+                    var juegoRepo = new NHibernateJuegoRepository(session);
+                    var juegoCEN2 = new JuegoCEN(juegoRepo);
+                    var juego = await Task.Run(() => juegoCEN2.ReadOID_Juego(viewModel.IdJuegoSeleccionado));
 
                     if (perfil != null && juego != null)    
                     {

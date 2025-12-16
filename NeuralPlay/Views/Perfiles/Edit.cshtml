@@ -192,9 +192,10 @@
     }
 
     /* Ajustes Tablet (y menores para centrado general) */
-    @@media (max-width: 1024px) {
+    @@media (min-width: 581px) and (max-width: 1024px) {
         .content-wrapper {
             margin-right: 0;
+            padding-right: 60px;
             padding-bottom: 120px;
         }
 
@@ -252,38 +253,38 @@
             <input type="hidden" asp-for="IdPerfil" />
             <input type="hidden" asp-for="FotoPerfilUrl" />
 
-            <div class="form-group">
+            <p class="form-group">
                 <label asp-for="NickUsuario" class="control-label">Nombre de Usuario</label>
                 <input asp-for="NickUsuario" class="form-control" />
                 <span asp-validation-for="NickUsuario" class="text-danger"></span>
-            </div>
+            </p>
 
-            <div class="form-group">
+            <p class="form-group">
                 <label asp-for="Descripcion" class="control-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+            </p>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="ImagenArchivo" class="control-label">Imagen de Perfil</label>
                 @if (!string.IsNullOrEmpty(Model.FotoPerfilUrl))
                 {
-                    <div style="margin-bottom: 15px;">
+                    <figure style="margin-bottom: 15px;">
                         <img src="@Model.FotoPerfilUrl" alt="Avatar actual" style="max-width: 150px; max-height: 150px; border-radius: 10px; border: 2px solid var(--np-red);" />
-                        <p style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Imagen actual</p>
-                    </div>
+                        <figcaption style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Imagen actual</figcaption>
+                    </figure>
                 }
                 <input asp-for="ImagenArchivo" type="file" class="form-control" accept="image/*" />
                 <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
                 <small style="color: #ccc; display: block; margin-top: 5px;">
                     Selecciona una nueva imagen para reemplazar la actual (opcional)
                 </small>
-            </div>
+            </section>
 
-            <div class="form-actions">
+            <footer class="form-actions">
                 <input type="submit" value="Guardar" class="btn-custom" />
                 <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="btn-custom btn-cancel">Cancelar</a>
-            </div>
+            </footer>
         </form>
     </article>
 </main>

@@ -383,7 +383,6 @@
     /* Responsivo - Tablet (581px - 1200px) - Mantener diseño desktop */
     @@media (min-width: 581px) and (max-width: 1200px) {
         .feed-container {
-            padding-right: 100px !important; /* Espacio para sidebar derecho */
             padding-left: 100px !important; /* Igualar para centrar */
             padding-top: 40px !important;
             padding-bottom: 100px !important;
@@ -524,13 +523,13 @@
     }
 </style>
 
-<div class="feed-container">
+<main class="feed-container">
     <!-- Encabezado del Perfil -->
-    <div class="feed-header">
+    <header class="feed-header">
         <div class="feed-avatar">
             @if (!string.IsNullOrEmpty(Model.Avatar))
             {
-                <img src="@Model.Avatar" alt="@Model.NickUsuario">
+                <img src="@Model.Avatar" alt="Avatar de @Model.NickUsuario">
             }
             else
             {
@@ -542,40 +541,40 @@
         <div class="feed-info">
             <h1 class="feed-username">@Model.NickUsuario</h1>
         </div>
-    </div>
+    </header>
 
     <!-- Línea divisoria -->
-    <div class="feed-divider"></div>
+    <div class="feed-divider" role="separator"></div>
 
     <!-- Pestañas de navegación -->
-    <div class="feed-tabs">
-        <button class="feed-tab-btn active" onclick="showFeedTab('actividad')">
+    <nav class="feed-tabs" aria-label="Secciones del feed">
+        <button class="feed-tab-btn active" onclick="showFeedTab('actividad')" aria-selected="true">
             <i class="bi bi-activity"></i>Actividad<span>@Model.Actividades.Count</span>
         </button>
-        <button class="feed-tab-btn" onclick="showFeedTab('publicaciones')">
+        <button class="feed-tab-btn" onclick="showFeedTab('publicaciones')" aria-selected="false">
             <i class="bi bi-file-text"></i>Publicaciones<span>@Model.Publicaciones.Count</span>
         </button>
-        <button class="feed-tab-btn" onclick="showFeedTab('megustas')">
+        <button class="feed-tab-btn" onclick="showFeedTab('megustas')" aria-selected="false">
             <i class="bi bi-hand-thumbs-up"></i>Me Gusta<span>@Model.MeGustas.Count</span>
         </button>
-        <button class="feed-tab-btn" onclick="showFeedTab('comentarios')">
+        <button class="feed-tab-btn" onclick="showFeedTab('comentarios')" aria-selected="false">
             <i class="bi bi-chat"></i>Comentarios<span>@Model.Comentarios.Count</span>
         </button>
-    </div>
+    </nav>
 
-    <!-- SECCIÃ“N 1: ACTIVIDAD -->
-    <div id="actividad-tab" class="feed-tab-content active">
+    <!-- SECCIÓN 1: ACTIVIDAD -->
+    <section id="actividad-tab" class="feed-tab-content active" role="tabpanel" aria-labelledby="actividad-tab">
         @if (Model.Actividades.Any())
         {
-            <div class="feed-section">
+            <article class="feed-section">
                 <h2 class="feed-section-title">
                     <i class="bi bi-activity feed-section-icon"></i>Actividad
                 </h2>
                 <div class="timeline">
                     @foreach (var actividad in Model.Actividades)
                     {
-                        <div class="timeline-item">
-                            <div class="timeline-item-header">
+                        <article class="timeline-item">
+                            <header class="timeline-item-header">
                                 <div>
                                     @switch (actividad.Tipo)
                                     {
@@ -601,8 +600,8 @@
                                             break;
                                     }
                                 </div>
-                                <span class="timeline-item-time">@actividad.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
-                            </div>
+                                <time class="timeline-item-time" datetime="@actividad.Fecha.ToString("yyyy-MM-ddTHH:mm")">@actividad.Fecha.ToString("dd/MM/yyyy HH:mm")</time>
+                            </header>
                             <p class="timeline-item-content">@actividad.Descripcion</p>
                             @if (!string.IsNullOrEmpty(actividad.NombreComunidad))
                             {
@@ -610,10 +609,10 @@
                                     <i class="bi bi-diagram-2"></i> En: <strong>@actividad.NombreComunidad</strong>
                                 </p>
                             }
-                        </div>
+                        </article>
                     }
                 </div>
-            </div>
+            </article>
         }
         else
         {
@@ -622,29 +621,29 @@
                 <p>No hay actividad aún</p>
             </div>
         }
-    </div>
+    </section>
 
-    <!-- SECCIÃ“N 2: PUBLICACIONES -->
-    <div id="publicaciones-tab" class="feed-tab-content">
+    <!-- SECCIÓN 2: PUBLICACIONES -->
+    <section id="publicaciones-tab" class="feed-tab-content" role="tabpanel" aria-labelledby="publicaciones-tab">
         @if (Model.Publicaciones.Any())
         {
-            <div class="feed-section">
+            <article class="feed-section">
                 <h2 class="feed-section-title">
                     <i class="bi bi-file-text feed-section-icon"></i>Publicaciones
                 </h2>
                 @foreach (var pub in Model.Publicaciones)
                 {
-                    <div class="feed-card">
-                        <div class="feed-card-header">
+                    <article class="feed-card">
+                        <header class="feed-card-header">
                             <div>
                                 @if (!string.IsNullOrEmpty(pub.NombreComunidad))
                                 {
                                     <span class="feed-card-community">@pub.NombreComunidad</span>
                                 }
                             </div>
-                        </div>
+                        </header>
                         <p class="feed-card-content">@pub.contenido</p>
-                        <div class="feed-card-stats">
+                        <footer class="feed-card-stats">
                             <span class="feed-card-stat">
                                 <i class="bi bi-hand-thumbs-up"></i>
                                 <strong>@pub.LikeCount</strong> Likes
@@ -659,11 +658,11 @@
                                     <strong>@comentarioCount</strong>
                                 </span>
                             }
-                        </div>
-                        <span class="feed-card-date">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
-                    </div>
+                        </footer>
+                        <time class="feed-card-date" datetime="@pub.fechaCreacion.ToString("yyyy-MM-ddTHH:mm")">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</time>
+                    </article>
                 }
-            </div>
+            </article>
         }
         else
         {
@@ -672,24 +671,24 @@
                 <p>No hay publicaciones aún</p>
             </div>
         }
-    </div>
+    </section>
 
-    <!-- SECCIÃ“N 3: ME GUSTA -->
-    <div id="megustas-tab" class="feed-tab-content">
+    <!-- SECCIÓN 3: ME GUSTA -->
+    <section id="megustas-tab" class="feed-tab-content" role="tabpanel" aria-labelledby="megustas-tab">
         @if (Model.MeGustas.Any())
         {
-            <div class="feed-section">
+            <article class="feed-section">
                 <h2 class="feed-section-title">
                     <i class="bi bi-hand-thumbs-up feed-section-icon"></i>Me Gusta
                 </h2>
                 @foreach (var pub in Model.MeGustas)
                 {
-                    <div class="feed-card">
-                        <div class="feed-card-header">
+                    <article class="feed-card">
+                        <header class="feed-card-header">
                             <div class="feed-card-author-container">
                                 @if (!string.IsNullOrEmpty(pub.AvatarAutor))
                                 {
-                                    <img src="@pub.AvatarAutor" alt="@pub.NickAutor" class="feed-card-author-avatar">
+                                    <img src="@pub.AvatarAutor" alt="Avatar de @pub.NickAutor" class="feed-card-author-avatar">
                                 }
                                 else
                                 {
@@ -703,18 +702,18 @@
                             {
                                 <span class="feed-card-community">@pub.NombreComunidad</span>
                             }
-                        </div>
+                        </header>
                         <p class="feed-card-content">@pub.contenido</p>
-                        <div class="feed-card-stats">
+                        <footer class="feed-card-stats">
                             <span class="feed-card-stat">
                                 <i class="bi bi-hand-thumbs-up"></i>
                                 <strong>@pub.LikeCount</strong> Likes
                             </span>
-                        </div>
-                        <span class="feed-card-date">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
-                    </div>
+                        </footer>
+                        <time class="feed-card-date" datetime="@pub.fechaCreacion.ToString("yyyy-MM-ddTHH:mm")">@pub.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</time>
+                    </article>
                 }
-            </div>
+            </article>
         }
         else
         {
@@ -723,24 +722,24 @@
                 <p>No has dado Me Gusta a ninguna publicación</p>
             </div>
         }
-    </div>
+    </section>
 
-    <!-- SECCIÃ“N 4: COMENTARIOS -->
-    <div id="comentarios-tab" class="feed-tab-content">
+    <!-- SECCIÓN 4: COMENTARIOS -->
+    <section id="comentarios-tab" class="feed-tab-content" role="tabpanel" aria-labelledby="comentarios-tab">
         @if (Model.Comentarios.Any())
         {
-            <div class="feed-section">
+            <article class="feed-section">
                 <h2 class="feed-section-title">
                     <i class="bi bi-chat feed-section-icon"></i>Comentarios
                 </h2>
                 @foreach (var com in Model.Comentarios)
                 {
-                    <div class="feed-card">
-                        <div class="feed-card-header">
+                    <article class="feed-card">
+                        <header class="feed-card-header">
                             <div class="feed-card-author-container">
                                 @if (!string.IsNullOrEmpty(com.AvatarAutorPublicacion))
                                 {
-                                    <img src="@com.AvatarAutorPublicacion" alt="@com.NickAutorPublicacion" class="feed-card-author-avatar">
+                                    <img src="@com.AvatarAutorPublicacion" alt="Avatar de @com.NickAutorPublicacion" class="feed-card-author-avatar">
                                 }
                                 else
                                 {
@@ -754,7 +753,7 @@
                             {
                                 <span class="feed-card-community">@com.NombreComunidad</span>
                             }
-                        </div>
+                        </header>
                         <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                             <p style="color: #999; font-size: 0.95rem; margin: 0 0 8px 0;">
                                 <i class="bi bi-quote" style="margin-right: 8px; color: var(--np-red);"></i>Publicación original
@@ -767,16 +766,16 @@
                             </p>
                             <p class="feed-card-content" style="margin: 0;">@com.ContenidoComentario</p>
                         </div>
-                        <div class="feed-card-stats" style="margin-top: 16px;">
+                        <footer class="feed-card-stats" style="margin-top: 16px;">
                             <span class="feed-card-stat">
                                 <i class="bi bi-hand-thumbs-up"></i>
                                 <strong>@com.LikeCount</strong> Likes
                             </span>
-                            <span class="feed-card-date">@com.FechaComentario.ToString("dd/MM/yyyy HH:mm")</span>
-                        </div>
-                    </div>
+                            <time class="feed-card-date" datetime="@com.FechaComentario.ToString("yyyy-MM-ddTHH:mm")">@com.FechaComentario.ToString("dd/MM/yyyy HH:mm")</time>
+                        </footer>
+                    </article>
                 }
-            </div>
+            </article>
         }
         else
         {
@@ -785,7 +784,7 @@
                 <p>No has comentado en ninguna publicación</p>
             </div>
         }
-    </div>
+    </section>
 
     <!-- Estados vacíos si no hay nada -->
     @if (!Model.Actividades.Any() && !Model.Publicaciones.Any() && !Model.MeGustas.Any() && !Model.Comentarios.Any())
@@ -796,26 +795,36 @@
             <small style="color: #666;">Cuando @Model.NickUsuario publique, comente o reaccione, aparecerá aquí</small>
         </div>
     }
-</div>
+</main>
 
 <script>
     function showFeedTab(tabName) {
         // Ocultar todos los tabs
         const allTabs = document.querySelectorAll('.feed-tab-content');
-        allTabs.forEach(tab => tab.classList.remove('active'));
+        allTabs.forEach(tab => {
+            tab.classList.remove('active');
+            tab.setAttribute('aria-hidden', 'true');
+        });
         
         // Desactivar todos los botones
         const allBtns = document.querySelectorAll('.feed-tab-btn');
-        allBtns.forEach(btn => btn.classList.remove('active'));
+        allBtns.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+        });
         
         // Mostrar el tab seleccionado
         const selectedTab = document.getElementById(tabName + '-tab');
         if (selectedTab) {
             selectedTab.classList.add('active');
+            selectedTab.setAttribute('aria-hidden', 'false');
         }
         
         // Activar el botón seleccionado
-        event.target.closest('.feed-tab-btn').classList.add('active');
+        const clickedBtn = event.target.closest('.feed-tab-btn');
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
+            clickedBtn.setAttribute('aria-selected', 'true');
+        }
     }
 </script>
-

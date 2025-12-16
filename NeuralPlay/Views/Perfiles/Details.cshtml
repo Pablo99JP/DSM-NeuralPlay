@@ -297,6 +297,17 @@
             margin-bottom: 20px;
             padding-left: 15px; /* Indentación ligera */
         }
+
+        /* Ajustar tamaño del texto "FOTO DE PERFIL" en tablet */
+        .avatar-title {
+            font-size: 3rem; /* Tamaño intermedio */
+            letter-spacing: 1px; /* Reducido de 2px */
+            top: 20px; /* Ajustado de 30px */
+            white-space: normal; /* Permitir salto de línea */
+            width: 90%; /* Limitar ancho para forzar salto */
+            line-height: 1.2; /* Espaciado entre líneas */
+            max-width: 300px; /* Ancho máximo para controlar el salto */
+        }
     }
 
     /* Ajustes para Móvil */
@@ -403,7 +414,7 @@
 
 <main class="content-wrapper">
     <section class="container-fluid">
-        <div class="row">
+        <section class="row">
             <!-- Columna izquierda: Datos del usuario y juegos -->
             <section class="col-md-6">
                 <article class="profile-card" style="height: 100%;">
@@ -492,13 +503,13 @@
                     <a asp-action="Feed" asp-route-id="@Model.IdPerfil" class="btn-custom" style="font-size: 2.5rem; padding: 32px 20px; width: 100%; display: block; text-align: center; box-sizing: border-box;">Ver Feed Personal</a>
                 </nav>
             </aside>
-        </div>
+        </section>
         
         @if (currentUser != null && currentUser.IdUsuario == Model.IdUsuario)
         {
-            <div class="row" style="margin-top: 40px;">
-                <div class="col-12">
-                    <div class="profile-actions">
+            <section class="row" style="margin-top: 40px;">
+                <footer class="col-12">
+                    <nav class="profile-actions">
                         <a href="@Url.Action("Logout", "Usuario")" class="btn-custom" style="background-color: #454545; color: white; flex: 0 1 180px;">
                             Cerrar Sesión
                         </a>
@@ -509,9 +520,9 @@
                                 Eliminar Cuenta
                             </button>
                         </form>
-                    </div>
-                </div>
-            </div>
+                    </nav>
+                </footer>
+            </section>
         }
     </section>
 </main>

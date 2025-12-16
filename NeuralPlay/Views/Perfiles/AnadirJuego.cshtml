@@ -148,22 +148,26 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<div class="page-content">
-    <main class="add-game-wrapper">
+<main class="page-content">
+    <article class="add-game-wrapper">
         <h1 class="add-game-title">Añadir juego al perfil</h1>
         <form asp-action="AnadirJuego" class="add-game-form">
-            <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+            <section asp-validation-summary="ModelOnly" class="validation-error"></section>
             <input type="hidden" asp-for="IdPerfil" />
-            <label asp-for="IdJuegoSeleccionado"></label>
-            <select asp-for="IdJuegoSeleccionado" asp-items="@Model.ListaDeJuegos">
-                <option value="">-- Selecciona un juego --</option>
-            </select>
-            <span asp-validation-for="IdJuegoSeleccionado" class="validation-error"></span>
+            <p>
+                <label asp-for="IdJuegoSeleccionado"></label>
+                <select asp-for="IdJuegoSeleccionado" asp-items="@Model.ListaDeJuegos">
+                    <option value="">-- Selecciona un juego --</option>
+                </select>
+                <span asp-validation-for="IdJuegoSeleccionado" class="validation-error"></span>
+            </p>
             <button type="submit" class="btn-add-game">Añadir</button>
         </form>
-        <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="cancel-link">Cancelar</a>
-    </main>
-</div>
+        <nav>
+            <a asp-action="Details" asp-route-id="@Model.IdPerfil" class="cancel-link">Cancelar</a>
+        </nav>
+    </article>
+</main>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

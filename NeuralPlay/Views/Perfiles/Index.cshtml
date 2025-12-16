@@ -179,29 +179,67 @@
     /* Ajustes Móvil */
     @@media (max-width: 580px) {
         .content-wrapper {
-            padding-right: 15px; /* Restaurar padding normal en móvil */
+            padding: 0 10px 100px 10px;
+            margin-right: 0;
         }
 
         .perfil-table-card {
-            padding: 20px 15px;
+            padding: 15px 8px;
+            overflow-x: visible;
+        }
+
+        .perfiles-table {
+            font-size: 0.85rem;
         }
 
         .perfiles-table th, .perfiles-table td {
-            padding: 10px 8px;
-            font-size: 0.95rem;
-            white-space: nowrap; /* Evitar saltos de línea feos en celdas pequeñas */
+            padding: 8px 4px;
+            font-size: 0.75rem;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        /* Ocultar columna ID en móvil para ahorrar espacio */
+        .perfiles-table th:first-child,
+        .perfiles-table td:first-child {
+            display: none;
+        }
+
+        /* Ajustar descripción para que se rompa en múltiples líneas */
+        .perfiles-table td:nth-child(3) {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Botón detalles más compacto */
+        .btn-detalles {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
         
         .index-header h1 {
             font-size: 2.5rem;
         }
+
+        .index-header .index-title-align {
+            margin-left: 0;
+            padding: 0 10px;
+        }
+
+        .index-divider {
+            width: calc(100% - 20px);
+            margin-left: 10px;
+            margin-right: 10px;
+        }
     }
 </style>
 
 <header class="index-header">
-    <div class="index-title-align">
+    <section class="index-title-align">
         <h1>@ViewData["Title"]</h1>
-    </div>
+    </section>
     <div class="index-divider"></div>
 </header>
 
@@ -223,7 +261,9 @@
                     <td>@Html.DisplayFor(modelItem => item.NickUsuario)</td>
                     <td>@Html.DisplayFor(modelItem => item.Descripcion)</td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.IdPerfil" class="btn-detalles">Detalles</a>
+                        <nav>
+                            <a asp-action="Details" asp-route-id="@item.IdPerfil" class="btn-detalles">Detalles</a>
+                        </nav>
                     </td>
                 </tr>
             }
