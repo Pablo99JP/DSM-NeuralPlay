@@ -31,38 +31,11 @@ namespace ApplicationCore.Domain.CEN
         public void ModifyParticipacionTorneo(ParticipacionTorneo p)
         {
             _repo.Modify(p);
-            
-            // Si la participación se acaba de aceptar, validar si el torneo debe abrirse
-            if (p.Torneo != null && string.Equals(p.Estado, "ACEPTADA", System.StringComparison.OrdinalIgnoreCase))
-            {
-                _unitOfWork.SaveChanges();
-                ValidarYAbrirTorneo(p.Torneo.IdTorneo);
-            }
+
+            // Persistir la modificación; el estado del torneo no se cambia automáticamente
+            _unitOfWork.SaveChanges();
         }
-        
-        // Método interno para validar y abrir torneo
-        private void ValidarYAbrirTorneo(long idTorneo)
-        {
-            var torneo = _torneoRepo.ReadById(idTorneo);
-            if (torneo == null) return;
 
-            // Solo se puede abrir si está en estado PENDIENTE
-            if (!string.Equals(torneo.Estado, "PENDIENTE", System.StringComparison.OrdinalIgnoreCase))
-                return;
-
-            // Contar participaciones aceptadas
-            var participacionesAceptadas = _repo.ReadAll()
-                .Count(p => p.Torneo != null && 
-                           p.Torneo.IdTorneo == idTorneo && 
-                           string.Equals(p.Estado, "ACEPTADA", System.StringComparison.OrdinalIgnoreCase));
-
-            if (participacionesAceptadas >= 2)
-            {
-                torneo.Estado = "ABIERTO";
-                _torneoRepo.Modify(torneo);
-                _unitOfWork.SaveChanges();
-            }
-        }
         public void DestroyParticipacionTorneo(long id) => _repo.Destroy(id);
         public IEnumerable<ParticipacionTorneo> BuscarParticipacionesTorneoPorEstado(string filtro)
         {

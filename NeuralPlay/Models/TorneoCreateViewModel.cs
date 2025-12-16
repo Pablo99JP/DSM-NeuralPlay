@@ -26,5 +26,8 @@ namespace NeuralPlay.Models
         [Required(ErrorMessage = "Debes seleccionar una comunidad.")]
         [Display(Name = "Comunidad Organizadora")]
         public long ComunidadId { get; set; }
+
+        [Display(Name = "Estado del Torneo")]
+        public string Estado { get; set; } = "PENDIENTE";
     }
 }

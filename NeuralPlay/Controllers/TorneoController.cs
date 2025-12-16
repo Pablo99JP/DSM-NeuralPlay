@@ -19,6 +19,7 @@ namespace NeuralPlay.Controllers
         private readonly ChatEquipoCEN _chatEquipoCEN;
         private readonly MensajeChatCEN _mensajeChatCEN;
         private readonly IUnitOfWork _unitOfWork;
+        private static readonly string[] EstadosPermitidos = { "PENDIENTE", "ABIERTO", "FINALIZADO" };
 
         public TorneoController(ApplicationCore.Domain.Repositories.IRepository<Torneo> torneoRepo,
             PropuestaTorneoCEN propuestaCEN,
@@ -299,8 +300,9 @@ namespace NeuralPlay.Controllers
                     usuario // Creador del torneo
                 );
 
-                TempData["SuccessMessage"] = $"Torneo '{torneo.Nombre}' creado correctamente con estado PENDIENTE. Se abrirá automáticamente cuando tenga al menos 2 participaciones.";
-                return RedirectToAction(nameof(Index));
+                TempData["SuccessMessage"] = $"Torneo '{torneo.Nombre}' creado correctamente con estado PENDIENTE. El creador podrá abrir o finalizar el torneo desde la edición.";
+                // Redirigir a la comunidad desde la que se creó el torneo
+                return RedirectToAction("Details", "Comunidad", new { id = comunidadSeleccionada.IdComunidad });
             }
             catch (System.Exception ex)
             {
@@ -335,10 +337,12 @@ namespace NeuralPlay.Controllers
                 Nombre = torneo.Nombre,
                 FechaInicio = torneo.FechaInicio,
                 Reglas = torneo.Reglas,
-                Premios = torneo.Premios
+                Premios = torneo.Premios,
+                Estado = torneo.Estado
             };
 
             ViewBag.IdTorneo = id;
+            ViewBag.Estados = EstadosPermitidos;
             return View(model);
         }
 
@@ -364,9 +368,15 @@ namespace NeuralPlay.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            if (!EstadosPermitidos.Contains(model.Estado ?? string.Empty, System.StringComparer.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError("Estado", "Estado no válido.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.IdTorneo = id;
+                ViewBag.Estados = EstadosPermitidos;
                 return View(model);
             }
 
@@ -376,15 +386,23 @@ namespace NeuralPlay.Controllers
                 torneo.FechaInicio = model.FechaInicio;
                 torneo.Reglas = model.Reglas;
                 torneo.Premios = model.Premios;
+                torneo.Estado = (model.Estado ?? torneo.Estado).ToUpperInvariant();
 
                 _torneoCEN.ModifyTorneo(torneo);
                 TempData["SuccessMessage"] = "Torneo actualizado correctamente.";
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             catch (System.Exception ex)
             {
                 ViewBag.ErrorMessage = $"Error al actualizar el torneo: {ex.Message}";
                 ViewBag.IdTorneo = id;
+                ViewBag.Estados = EstadosPermitidos;
                 return View(model);
             }
         }

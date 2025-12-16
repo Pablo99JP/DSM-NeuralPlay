@@ -1,47 +1,213 @@
 @model NeuralPlay.Models.TorneoCreateViewModel
 
+@{
+    ViewData["Title"] = "Editar Torneo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.OcultarNavbar = true;
+    var estadosDisponibles = ViewBag.Estados as IEnumerable<string> ?? new List<string>();
+}
+
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h2>Editar Torneo</h2>
+<style>
+    .page-header { margin-bottom: 50px; }
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
+    .form-control, .form-select, .form-textarea {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(69, 69, 69, 0.8);
+        border: 2px solid var(--np-grey);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
 
-<form method="post" asp-action="Edit" asp-route-id="@ViewBag.IdTorneo">
-    <input type="hidden" name="id" value="@ViewBag.IdTorneo" />
-    <div class="form-group">
-        <label asp-for="Nombre">Nombre</label>
-        <input asp-for="Nombre" class="form-control" required />
-        <span asp-validation-for="Nombre" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="FechaInicio">Fecha de Inicio</label>
-        <input asp-for="FechaInicio" type="date" class="form-control" required />
-        <span asp-validation-for="FechaInicio" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Reglas">Reglas</label>
-        <textarea asp-for="Reglas" class="form-control" rows="5"></textarea>
-        <span asp-validation-for="Reglas" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Premios">Premios</label>
-        <textarea asp-for="Premios" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Premios" class="text-danger"></span>
-    </div>
-    
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
-    </div>
-</form>
+    .form-control:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--np-red);
+        background: rgba(69, 69, 69, 1);
+        box-shadow: 0 0 10px rgba(229, 10, 70, 0.3);
+    }
+
+    .form-select option {
+        background: var(--np-dark-grey);
+        color: white;
+        padding: 10px;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-label {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        margin-bottom: 10px;
+        display: block;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .text-danger {
+        color: var(--np-red);
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        display: block;
+        margin-top: 8px;
+    }
+
+    /* Botones */
+    .btn-submit {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: var(--np-red);
+        color: white;
+        border: 2px solid var(--np-red);
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        min-width: 160px;
+    }
+
+    .btn-submit:hover {
+        background: transparent;
+        color: var(--np-red);
+        transform: scale(1.05);
+    }
+
+    .btn-cancel {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.3rem;
+        padding: 15px 40px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        margin-left: 15px;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 160px;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: white;
+        color: var(--np-dark-grey);
+    }
+
+    /* Nota informativa */
+    .form-note {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        color: #aaa;
+        font-style: italic;
+        margin-top: 5px;
+    }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .page-title { font-size: 3.6rem; }
+        .page-header { margin-bottom: 30px; }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        .content-container { padding: 80px 12px 110px; }
+        .page-title { font-size: 2.8rem; text-align: center; }
+        .page-header { margin-bottom: 16px; text-align: center; }
+        .form-card { padding: 16px; margin-bottom: 16px; }
+        .btn-submit, .btn-cancel { width: 100%; margin-left: 0; }
+        .form-actions { flex-direction: column; }
+    }
+</style>
+
+<!-- Contenedor principal - solo fondo -->
+<div class="main-container"></div>
+
+<!-- Contenedor de contenido - entre las barras laterales -->
+<div class="content-container">
+    <!-- Header -->
+    <header class="page-header">
+        <h1 class="page-title">Editar Torneo</h1>
+    </header>
+
+    <!-- Card del formulario -->
+    <section class="form-card">
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+                <strong>Error:</strong> @ViewBag.ErrorMessage
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+                <strong>Error:</strong> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form method="post" asp-action="Edit" asp-route-id="@ViewBag.IdTorneo">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@ViewBag.IdTorneo" />
+
+            <div class="form-group">
+                <label asp-for="Nombre" class="form-label">Nombre del Torneo</label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ej: Copa de Verano 2025" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FechaInicio" class="form-label">Fecha de Inicio</label>
+                <input asp-for="FechaInicio" type="date" class="form-control" />
+                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Reglas" class="form-label">Reglas del Torneo (Opcional)</label>
+                <textarea asp-for="Reglas" class="form-textarea" rows="5" placeholder="Describe las reglas del torneo..."></textarea>
+                <span asp-validation-for="Reglas" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Premios" class="form-label">Premios (Opcional)</label>
+                <textarea asp-for="Premios" class="form-textarea" rows="3" placeholder="Describe los premios del torneo..."></textarea>
+                <span asp-validation-for="Premios" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Estado" class="form-label">Estado del Torneo</label>
+                <select asp-for="Estado" class="form-select">
+                    @foreach (var estado in estadosDisponibles)
+                    {
+                        var selected = string.Equals(Model.Estado, estado, System.StringComparison.OrdinalIgnoreCase);
+                        <option value="@estado" selected="@(selected ? "selected" : null)">@estado</option>
+                    }
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+                <div class="form-note">Cambia el estado para abrir, finalizar o reabrir el torneo.</div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+                <a asp-action="Index" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

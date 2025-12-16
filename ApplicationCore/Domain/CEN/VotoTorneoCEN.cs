@@ -151,12 +151,6 @@ namespace ApplicationCore.Domain.CEN
 
                 // Guardar todos los cambios (voto + estado + participación + notificaciones)
                 _unitOfWork.SaveChanges();
-
-                // Validar y abrir torneo si tiene al menos 2 participaciones aceptadas
-                if (propuesta.Torneo != null)
-                {
-                    _torneoCEN.ValidarYAbrirTorneo(propuesta.Torneo.IdTorneo);
-                }
             }
             else if (anyFalse)
             {
