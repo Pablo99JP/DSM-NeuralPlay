@@ -427,50 +427,50 @@
                 <fieldset>
                     <legend>Formulario de Registro</legend>
                     
-                    <div class="form-group">
+                    <p class="form-group">
                         <input asp-for="Nombre" type="text" placeholder="Nombre de usuario" required />
                         <span asp-validation-for="Nombre" class="validation-error"></span>
-                    </div>
+                    </p>
 
-                    <div class="form-group">
+                    <p class="form-group">
                         <input asp-for="Email" type="email" placeholder="Email" required />
                         <span asp-validation-for="Email" class="validation-error"></span>
-                    </div>
+                    </p>
 
-                    <div class="form-group">
+                    <section class="form-group">
                         <input asp-for="Password" type="password" id="passwordInput" placeholder="Contraseña" required />
                         <span asp-validation-for="Password" class="validation-error"></span>
                         
                         <!-- Requisitos de contraseña -->
-                        <div class="password-requirements" id="passwordRequirements">
+                        <aside class="password-requirements" id="passwordRequirements">
                             <h4>Requisitos de Contraseña</h4>
-                            <div class="requirement-item" id="req-length">
+                            <p class="requirement-item" id="req-length">
                                 <span class="requirement-icon">✕</span>
                                 <span>Mínimo 8 caracteres</span>
-                            </div>
-                            <div class="requirement-item" id="req-uppercase">
+                            </p>
+                            <p class="requirement-item" id="req-uppercase">
                                 <span class="requirement-icon">✕</span>
                                 <span>Contiene mayúscula (A-Z)</span>
-                            </div>
-                            <div class="requirement-item" id="req-lowercase">
+                            </p>
+                            <p class="requirement-item" id="req-lowercase">
                                 <span class="requirement-icon">✕</span>
                                 <span>Contiene minúscula (a-z)</span>
-                            </div>
-                            <div class="requirement-item" id="req-number">
+                            </p>
+                            <p class="requirement-item" id="req-number">
                                 <span class="requirement-icon">✕</span>
                                 <span>Contiene número (0-9)</span>
-                            </div>
-                            <div class="requirement-item" id="req-special">
+                            </p>
+                            <p class="requirement-item" id="req-special">
                                 <span class="requirement-icon">✕</span>
                                 <span>Contiene carácter especial</span>
-                            </div>
-                        </div>
-                    </div>
+                            </p>
+                        </aside>
+                    </section>
 
-                    <div class="form-group">
+                    <p class="form-group">
                         <input type="password" id="passwordConfirm" placeholder="Confirmar Contraseña" required />
                         <span class="validation-error" id="confirmError"></span>
-                    </div>
+                    </p>
                 </fieldset>
 
                 <button type="submit">CREAR CUENTA</button>

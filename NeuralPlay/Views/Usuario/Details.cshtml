@@ -153,9 +153,9 @@
 </style>
 
 <header class="details-header">
-    <div class="details-title-align">
+    <section class="details-title-align">
         <h1>Detalle de usuario</h1>
-    </div>
+    </section>
     <div class="details-divider"></div>
 </header>
 
@@ -167,8 +167,8 @@
             <dt class="col-sm-4">Email</dt><dd class="col-sm-8">@Model.Email</dd>
             <dt class="col-sm-4">Fecha de registro</dt><dd class="col-sm-8">@Model.FechaRegistro.ToString("dd/MM/yyyy")</dd>
         </dl>
-        <div style="display: flex; justify-content: center; width: 100%;">
+        <footer style="display: flex; justify-content: center; width: 100%;">
             <a asp-action="Index" class="btn-volver">Volver</a>
-        </div>
+        </footer>
     </article>
 </main>
