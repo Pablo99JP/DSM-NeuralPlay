@@ -4,17 +4,38 @@
     ViewData["Title"] = "Eliminar Miembro";
 }
 
+<style>
+/* Reset para etiquetas semánticas */
+figure, hgroup, footer, hr, fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+fieldset {
+    border: none;
+    min-width: 0;
+}
+
+hr {
+    border: none;
+}
+</style>
+
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>@ViewData["Title"]</h1>
+<main>
+    <header>
+        <h1>@ViewData["Title"]</h1>
+    </header>
 
-<div class="alert alert-warning">
-    ¿Estás seguro de eliminar este miembro de la comunidad?
-</div>
+    <aside class="alert alert-warning" role="alert">
+        ¿Estás seguro de eliminar este miembro de la comunidad?
+    </aside>
 
-<dl class="row">
+    <section>
+        <dl class="row">
     <dt class="col-sm-3">Usuario</dt>
     <dd class="col-sm-9">@Model.NombreUsuario</dd>
 
@@ -29,12 +50,14 @@
 
     <dt class="col-sm-3">Fecha de Alta</dt>
     <dd class="col-sm-9">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</dd>
-</dl>
+        </dl>
+    </section>
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="IdMiembroComunidad" />
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
-</form>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="IdMiembroComunidad" />
+        <nav class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </nav>
+    </form>
+</main>

@@ -15,6 +15,17 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr {
+        margin: 0;
+        padding: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-transp: #21020a7a;
@@ -584,10 +595,10 @@
 <div class="menu-overlay" onclick="toggleMenu()"></div>
 
 <!-- Menú lateral desplegable -->
-<aside class="sidebar-menu">
-    <div class="sidebar-menu-header">
+<nav class="sidebar-menu" aria-label="Menú de opciones de comunidad">
+    <header class="sidebar-menu-header">
         <h2 class="sidebar-menu-title">@Model.Nombre</h2>
-    </div>
+    </header>
 
     @{
         var rolUsuario = ViewBag.RolUsuario as string ?? "MIEMBRO";
@@ -596,78 +607,78 @@
     }
 
     <!-- Opciones comunes para todos los usuarios -->
-    <div class="menu-section">
+    <section class="menu-section">
         <button class="menu-btn" onclick="verTorneos()">
             <span>VER TORNEOS</span>
             <i class="bi bi-trophy-fill"></i>
         </button>
-    </div>
+    </section>
 
     <!-- Opciones para Líder en exclusiva -->
     @if (esLider)
     {
-        <div class="menu-section">
+        <section class="menu-section">
             <button class="menu-btn" onclick="gestionarMiembros()">
                 <span>GESTIONAR MIEMBROS</span>
                 <i class="bi bi-people-fill"></i>
             </button>
-        </div>
+        </section>
     }
 
     <!-- Opciones para Líder y Colaboradores/Moderadores -->
     @if (esLider || esModerador)
     {
-        <div class="menu-section">
+        <section class="menu-section">
             <button class="menu-btn" onclick="verListaNegra()">
                 <span>LISTA NEGRA</span>
                 <i class="bi bi-ban"></i>
             </button>
-        </div>
+        </section>
     }
 
     <!-- Opciones para Líder y Moderadores (Colaborador/Moderador) -->
     @if (esLider || esModerador)
     {
-        <div class="menu-section">
+        <section class="menu-section">
             <button class="menu-btn" onclick="crearTorneo()">
                 <span>CREAR TORNEO</span>
                 <i class="bi bi-plus-circle-fill"></i>
             </button>
-        </div>
+        </section>
     }
 
-    <div class="menu-divider"></div>
+    <hr class="menu-divider" />
 
     <!-- Información del rol del usuario -->
-    <div class="menu-section">
-        <div class="menu-info-btn">
+    <section class="menu-section">
+        <aside class="menu-info-btn">
             <span class="role-label">TU ROL:</span>
             <span class="role-value">@rolUsuario</span>
-        </div>
-    </div>
+        </aside>
+    </section>
 
-    <div class="menu-divider"></div>
+    <hr class="menu-divider" />
 
     <!-- Opción de abandonar comunidad -->
-    <div class="menu-section">
+    <section class="menu-section">
         <button class="menu-btn menu-btn-danger" onclick="abandonarComunidad()">
             <span>ABANDONAR COMUNIDAD</span>
             <i class="bi bi-box-arrow-right"></i>
         </button>
-    </div>
-</aside>
+    </section>
+</nav>
 
 <!-- Contenedor principal - solo fondo -->
-<div class="main-container"></div>
+<main class="main-container"></main>
 
 <!-- Contenedor de contenido - entre las barras laterales -->
-<div class="content-container">
+<article class="content-container">
     <!-- Header con nombre de comunidad y foto de portada -->
     <header class="community-header">
-        <div class="community-title-container">
+        <hgroup class="community-title-container">
             <h1 class="community-title">@Model.Nombre</h1>
             <a asp-action="Miembros" asp-route-id="@Model.IdComunidad" class="community-members-count">@miembros.Count miembros</a>
-        </div>
+        </hgroup>
     </header>
 
     <!-- Contenido principal -->
@@ -679,27 +690,27 @@
             @foreach (var pub in publicaciones)
             {
                 <article class="publication-item">
-                    <div class="publication-header">
-                        <div class="publication-avatar">
+                    <header class="publication-header">
+                        <figure class="publication-avatar">
                             @if (!string.IsNullOrEmpty(pub.NickAutor))
                             {
                                 <span style="color: white; font-family: 'Neue', sans-serif; font-size: 1.2rem;">@pub.NickAutor.Substring(0, 1).ToUpper()</span>
                             }
-                        </div>
-                        <div class="publication-author">
+                        </figure>
+                        <hgroup class="publication-author">
                             <h3 class="author-name">@(pub.NickAutor ?? "Usuario")</h3>
                             <p class="author-role">Jugador</p>
-                        </div>
-                    </div>
+                        </hgroup>
+                    </header>
                     
                     <p class="publication-content">@pub.contenido</p>
                     
                     @* Aquí puedes agregar hashtags si los tienes en el modelo *@
                     @* <p class="publication-hashtags">#ejemplo #hashtag</p> *@
                     
-                    <p class="publication-meta">@pub.fechaCreacion.ToString("HH:mm") · @pub.fechaCreacion.ToString("dd/MM/yyyy")</p>
+                    <footer class="publication-meta">@pub.fechaCreacion.ToString("HH:mm") · @pub.fechaCreacion.ToString("dd/MM/yyyy")</footer>
                     
-                    <div class="publication-actions">
+                    <nav class="publication-actions">
                         <button class="action-btn toggle-like-btn @(pub.LikedByUser ? "liked" : "")" data-publicacion-id="@pub.idPublicacion">
                             <i class="bi bi-heart-fill" style="color: @(pub.LikedByUser ? "#e50a46" : "white");"></i>
                             <span class="like-count">@pub.LikeCount</span>
@@ -708,20 +719,20 @@
                             <i class="bi bi-chat-fill"></i>
                             <span class="comment-count" data-publicacion-id="@pub.idPublicacion">@pub.comentarios.Count()</span>
                         </a>
-                    </div>
+                    </nav>
                 </article>
             }
         }
         else
         {
-            <div class="no-content">
+            <aside class="no-content">
                 <p>Esta comunidad aún no tiene publicaciones.</p>
                 <p>¡Sé el primero en publicar!</p>
-            </div>
+            </aside>
         }
     </section>
 </main>
-</div>
+</article>
 
 <!-- Botón flotante para crear publicación -->
 <a asp-controller="Publicacion" asp-action="Create" asp-route-idComunidad="@Model.IdComunidad" class="btn-create-post" title="Crear publicación">

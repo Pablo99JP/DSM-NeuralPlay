@@ -8,13 +8,31 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
+<style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+</style>
+
 <h1>@ViewData["Title"]</h1>
 
 <div class="alert alert-warning">
     ¿Seguro que quieres borrar esta comunidad?
 </div>
 
-<div>
+<section>
     <dl class="row">
         <dt class="col-sm-3">Nombre</dt>
         <dd class="col-sm-9">@Model.Nombre</dd>
@@ -31,12 +49,12 @@
         <dt class="col-sm-3">Propietario</dt>
         <dd class="col-sm-9">@Model.Propietario</dd>
     </dl>
-</div>
+</section>
 
 <form asp-action="Delete" method="post">
     <input type="hidden" asp-for="IdComunidad" />
-    <div class="d-flex gap-2">
+    <nav class="d-flex gap-2">
         <button type="submit" class="btn btn-danger">Eliminar</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
+    </nav>
 </form>

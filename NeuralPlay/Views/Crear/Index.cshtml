@@ -9,6 +9,16 @@
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hr {
+        margin: 0;
+        padding: 0;
+    }
+
+    hr {
+        border: none;
+        height: 3px;
+    }
 
     /* Header con el título */
     .create-header {
@@ -191,27 +201,27 @@
     <header class="create-header">
         <h1>CREAR NEURAL</h1>
         <p class="create-subtitle">Crea una comunidad sobre un juego e invita a otros jugadores a ella,<br>o bien crea un equipo para jugar con tus amigos.</p>
-        <div class="create-divider"></div>
+        <hr class="create-divider" />
     </header>
 
-    <div class="create-grid">
+    <section class="create-grid">
         <!-- Card Comunidad -->
         <a href="@Url.Action("Create", "Comunidad")" class="create-card">
             <img src="/Recursos/Comunidades/comunidad.jpg" alt="Crear Comunidad" class="create-card-img" />
-            <div class="create-card-overlay">
+            <aside class="create-card-overlay">
                 <span class="create-card-action">Crear</span>
-            </div>
-            <span class="create-card-title">Comunidad</span>
+            </aside>
+            <h2 class="create-card-title">Comunidad</h2>
         </a>
 
         <!-- Card Equipo -->
         <a href="@Url.Action("Create", "Equipo")" class="create-card">
             <img src="/Recursos/Equipos/equipo.png" alt="Crear Equipo" class="create-card-img" />
-            <div class="create-card-overlay">
+            <aside class="create-card-overlay">
                 <span class="create-card-action">Crear</span>
-            </div>
-            <span class="create-card-title">Equipo</span>
+            </aside>
+            <h2 class="create-card-title">Equipo</h2>
         </a>
-    </div>
+    </section>
 </main>
 

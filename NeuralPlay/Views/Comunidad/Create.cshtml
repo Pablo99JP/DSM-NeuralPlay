@@ -12,6 +12,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
+    /* Resetear estilos de fieldset para comportamiento semántico */
+    fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+        min-width: 0;
+    }
 
     .page-header {
         display: flex;
@@ -82,43 +89,43 @@
     }
 </style>
 
-<div class="main-container"></div>
+<main class="main-container"></main>
 
-<div class="content-container">
+<article class="content-container">
     <header class="page-header">
-        <div>
+        <hgroup>
             <h1 class="page-title">Crear Comunidad</h1>
             <p class="page-subtitle">Define los datos principales de tu nueva comunidad</p>
-        </div>
+        </hgroup>
     </header>
 
     <section class="form-card">
-        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
+        <aside asp-validation-summary="ModelOnly" class="validation-panel"></aside>
 
         <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="form-group">
+            <fieldset class="form-group">
                 <label asp-for="Nombre" class="form-label">Nombre</label>
                 <input asp-for="Nombre" class="form-input" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            </fieldset>
 
-            <div class="form-group">
+            <fieldset class="form-group">
                 <label asp-for="Descripcion" class="form-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-input" rows="3"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+            </fieldset>
 
-            <div class="form-group">
+            <fieldset class="form-group">
                 <label asp-for="ImagenArchivo" class="form-label">Logo de la comunidad</label>
                 <input asp-for="ImagenArchivo" type="file" class="form-input" accept="image/*" style="padding: 10px;" />
                 <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
-                <div class="form-note">Opcional: Sube una imagen para el logo de la comunidad (jpg, png, gif, webp).</div>
-            </div>
+                <small class="form-note">Opcional: Sube una imagen para el logo de la comunidad (jpg, png, gif, webp).</small>
+            </fieldset>
 
-            <div class="actions">
+            <nav class="actions">
                 <button type="submit" class="btn-submit">Guardar</button>
                 <a asp-controller="Comunidades" asp-action="Index" class="btn-cancel">Cancelar</a>
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</article>

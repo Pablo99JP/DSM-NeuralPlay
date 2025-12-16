@@ -11,6 +11,21 @@
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset, time {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-transp: #21020a7a;
@@ -275,18 +290,20 @@
 <div class="main-container"></div>
 
 <!-- Contenedor de contenido: TODO EL CONTENIDO -->
-<div class="content-container">
-    <div class="page-header">
-        <h1 class="page-title">Nueva Publicación</h1>
-        @if (!string.IsNullOrEmpty(Model.NombreComunidad))
-        {
-            <p class="page-subtitle">En la comunidad: @Model.NombreComunidad</p>
-        }
-    </div>
+<section class="content-container">
+    <header class="page-header">
+        <hgroup>
+            <h1 class="page-title">Nueva Publicación</h1>
+            @if (!string.IsNullOrEmpty(Model.NombreComunidad))
+            {
+                <p class="page-subtitle">En la comunidad: @Model.NombreComunidad</p>
+            }
+        </hgroup>
+    </header>
 
-    <div class="form-card">
+    <section class="form-card">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <aside asp-validation-summary="ModelOnly" class="validation-summary-errors"></aside>
             
             @* Campo oculto para mantener el IdComunidad *@
             @if (Model.IdComunidad.HasValue)
@@ -294,16 +311,16 @@
                 <input type="hidden" asp-for="IdComunidad" />
             }
             
-            <div class="form-group">
+            <fieldset class="form-group">
                 <label asp-for="contenido" class="form-label">Contenido</label>
                 <textarea asp-for="contenido" 
                           class="form-textarea" 
                           placeholder="Escribe el contenido de tu publicación..."></textarea>
                 <span asp-validation-for="contenido" class="text-danger"></span>
                 <p class="form-note">Comparte tus ideas, logros o preguntas con la comunidad</p>
-            </div>
+            </fieldset>
 
-            <div class="form-actions">
+            <nav class="form-actions">
                 <button type="submit" class="btn-submit">Publicar</button>
                 @if (Model.IdComunidad.HasValue)
                 {
@@ -313,10 +330,10 @@
                 {
                     <a asp-action="Index" asp-controller="Home" class="btn-cancel">Cancelar</a>
                 }
-            </div>
+            </nav>
         </form>
-    </div>
-</div>
+    </section>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

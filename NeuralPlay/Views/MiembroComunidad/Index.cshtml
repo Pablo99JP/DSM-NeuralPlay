@@ -8,16 +8,20 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>@ViewData["Title"]</h1>
+<main>
+    <header>
+        <h1>@ViewData["Title"]</h1>
+    </header>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+    @if (TempData["Error"] != null)
+    {
+        <aside class="alert alert-danger" role="alert">@TempData["Error"]</aside>
+    }
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Agregar Miembro</a>
-</p>
+    <nav>
+        <a asp-action="Create" class="btn btn-primary">Agregar Miembro</a>
+    </nav>
+</main>
 <table class="table table-striped table-bordered">
     <thead>
         <tr>

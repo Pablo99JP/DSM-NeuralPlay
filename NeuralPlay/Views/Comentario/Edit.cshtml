@@ -8,24 +8,45 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>Editar Comentario</h1>
+<style>
+/* Reset para etiquetas semánticas */
+figure, hgroup, footer, hr, fieldset, time {
+    margin: 0;
+    padding: 0;
+}
 
-<form asp-action="Edit" method="post">
- @Html.AntiForgeryToken()
- <input type="hidden" asp-for="idComentario" />
- <input type="hidden" asp-for="publicacionId" />
+fieldset {
+    border: none;
+    min-width: 0;
+}
 
- <div class="form-group mb-3">
- <label asp-for="contenido" class="form-label"></label>
- <textarea asp-for="contenido" class="form-control" rows="4"></textarea>
- <span asp-validation-for="contenido" class="text-danger"></span>
- </div>
+hr {
+    border: none;
+}
+</style>
 
- <div class="d-flex gap-2">
- <button type="submit" class="btn btn-primary">Guardar</button>
- <a asp-controller="Publicacion" asp-action="Details" asp-route-id="@Model.publicacionId" class="btn btn-secondary">Cancelar</a>
- </div>
-</form>
+<header>
+    <h1>Editar Comentario</h1>
+</header>
+
+<section>
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="idComentario" />
+        <input type="hidden" asp-for="publicacionId" />
+
+        <fieldset class="form-group mb-3">
+            <label asp-for="contenido" class="form-label"></label>
+            <textarea asp-for="contenido" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="contenido" class="text-danger"></span>
+        </fieldset>
+
+        <nav class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-controller="Publicacion" asp-action="Details" asp-route-id="@Model.publicacionId" class="btn btn-secondary">Cancelar</a>
+        </nav>
+    </form>
+</section>
 
 @section Scripts {
  @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

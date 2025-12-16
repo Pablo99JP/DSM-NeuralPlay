@@ -8,31 +8,55 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>Edit</h1>
+<style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset, time {
+        margin: 0;
+        padding: 0;
+    }
 
-<h4>PublicacionViewModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" method="post">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="idPublicacion" type="hidden" />
-            <div class="form-group">
-                <label asp-for="contenido" class="control-label"></label>
-                <input asp-for="contenido" class="form-control" />
-                <span asp-validation-for="contenido" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    hr {
+        border: none;
+    }
+</style>
+
+<section>
+    <header>
+        <h1>Edit</h1>
+        <hgroup>
+            <h4>PublicacionViewModel</h4>
+        </hgroup>
+    </header>
+    
+    <hr />
+    
+    <section class="row">
+        <section class="col-md-4">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <aside asp-validation-summary="ModelOnly" class="text-danger"></aside>
+                <input asp-for="idPublicacion" type="hidden" />
+                <fieldset class="form-group">
+                    <label asp-for="contenido" class="control-label"></label>
+                    <input asp-for="contenido" class="form-control" />
+                    <span asp-validation-for="contenido" class="text-danger"></span>
+                </fieldset>
+                <nav class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </nav>
+            </form>
+        </section>
+    </section>
+
+    <nav>
+        <a asp-action="Index">Back to List</a>
+    </nav>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

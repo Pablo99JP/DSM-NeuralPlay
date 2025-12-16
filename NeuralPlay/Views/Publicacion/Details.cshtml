@@ -16,6 +16,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset, time {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-transp: #21020a7a;
@@ -396,24 +411,44 @@
         border-color: white;
     }
 
+    /* Media queries para tablet */
+    @@media (min-width: 581px) and (max-width: 1024px) {
+        .content-container {
+            padding: 100px 40px 60px 40px;
+        }
+
+        .content-wrapper {
+            padding: 0 30px;
+        }
+
+        .publication-detail-card {
+            padding: 30px 25px;
+        }
+
+        .comments-section {
+            padding: 30px 25px;
+        }
+    }
+
     /* Media queries para móvil */
     @@media (max-width: 580px) {
         .content-container {
             left: 0;
             width: 100%;
-            padding: 15px;
+            padding: 80px 15px 120px 15px;
         }
 
         .content-wrapper {
             max-width: 100%;
+            padding: 0 15px;
         }
 
         .publication-detail-card {
-            padding: 20px;
+            padding: 20px 15px;
         }
 
         .comments-section {
-            padding: 20px;
+            padding: 20px 15px;
         }
 
         .comments-title {
@@ -439,7 +474,7 @@
 <div class="main-container"></div>
 
 <!-- Contenedor de contenido - entre las barras laterales -->
-<div class="content-container">
+<section class="content-container">
     <div class="content-wrapper">
         <button onclick="history.back()" class="btn-back">
             <i class="bi bi-arrow-left"></i>
@@ -447,26 +482,28 @@
         </button>
 
         <!-- Publicación principal -->
-        <div class="publication-detail-card">
-        <div class="publication-header">
-            <div class="publication-avatar">
+        <article class="publication-detail-card">
+        <header class="publication-header">
+            <figure class="publication-avatar">
                 <span style="color: white; font-family: 'Neue', sans-serif; font-size: 1.5rem;">
                     @(Model.NickAutor?.Substring(0, 1).ToUpper() ?? "U")
                 </span>
-            </div>
-            <div class="publication-author">
+            </figure>
+            <hgroup class="publication-author">
                 <h2 class="author-name">@(Model.NickAutor ?? "Usuario")</h2>
                 <p class="author-community">@(Model.NombreComunidad ?? "Comunidad")</p>
-            </div>
-        </div>
+            </hgroup>
+        </header>
 
         <p class="publication-content">@Model.contenido</p>
         
-        <p class="publication-meta">
-            @Model.fechaCreacion.ToString("HH:mm") · @Model.fechaCreacion.ToString("dd/MM/yyyy")
-        </p>
+        <footer class="publication-meta">
+            <time datetime="@Model.fechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss")">
+                @Model.fechaCreacion.ToString("HH:mm") · @Model.fechaCreacion.ToString("dd/MM/yyyy")
+            </time>
+        </footer>
 
-        <div class="publication-actions">
+        <nav class="publication-actions">
             <button id="like-publicacion-btn" data-publicacion-id="@Model.idPublicacion" class="action-btn @(Model.LikedByUser ? "active" : "")">
                 <i class="bi bi-heart-fill"></i>
                 <span id="like-publicacion-count">@Model.LikeCount</span>
@@ -475,11 +512,11 @@
                 <i class="bi bi-chat-fill"></i>
                 <span id="comment-count">@Model.comentarios.Count()</span>
             </div>
-        </div>
-    </div>
+        </nav>
+    </article>
 
     <!-- Sección de comentarios -->
-    <div class="comments-section">
+    <section class="comments-section">
         <h3 class="comments-title">Comentarios</h3>
         
         @if (userId.HasValue)
@@ -489,38 +526,38 @@
             </button>
 
             <!-- Formulario de comentario (oculto por defecto) -->
-            <div id="comment-form-container" style="display: none; margin-bottom: 20px;">
+            <aside id="comment-form-container" style="display: none; margin-bottom: 20px;">
                 <form asp-controller="Comentario" asp-action="Create" method="post" class="comment-form">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="publicacionId" value="@Model.idPublicacion" />
                     
-                    <div class="form-group">
+                    <fieldset class="form-group">
                         <textarea name="contenido" class="form-control comment-textarea" placeholder="Escribe tu comentario..." rows="4" required></textarea>
-                    </div>
+                    </fieldset>
                     
-                    <div class="form-actions">
+                    <nav class="form-actions">
                         <button type="submit" class="btn-submit-comment">
                             <i class="bi bi-send-fill"></i> Publicar
                         </button>
                         <button type="button" id="btn-cancel-comment" class="btn-cancel-comment">
                             Cancelar
                         </button>
-                    </div>
+                    </nav>
                 </form>
-            </div>
+            </aside>
         }
 
         @if (Model.comentarios != null && Model.comentarios.Any())
         {
             @foreach (var c in Model.comentarios)
             {
-                <div class="comment-item">
-                    <div class="comment-header">
+                <article class="comment-item">
+                    <header class="comment-header">
                         <h4 class="comment-author">@(c.autorNick ?? "Usuario")</h4>
-                        <span class="comment-date">@c.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
-                    </div>
+                        <time class="comment-date" datetime="@c.fechaCreacion.ToString("yyyy-MM-ddTHH:mm:ss")">@c.fechaCreacion.ToString("dd/MM/yyyy HH:mm")</time>
+                    </header>
                     <p class="comment-content">@c.contenido</p>
-                    <div class="comment-actions">
+                    <footer class="comment-actions">
                         <button class="comment-like-btn toggle-like-comentario @(c.LikedByUser ? "active" : "")" data-comentario-id="@c.idComentario">
                             <i class="bi bi-heart-fill"></i>
                             <span class="like-count">@c.LikeCount</span>
@@ -531,20 +568,20 @@
                             <span style="color: #666;">|</span>
                             <a asp-controller="Comentario" asp-action="Delete" asp-route-id="@c.idComentario" class="comment-edit-link">Eliminar</a>
                         }
-                    </div>
-                </div>
+                    </footer>
+                </article>
             }
         }
         else
         {
-            <div class="no-comments">
+            <aside class="no-comments">
                 <p>No hay comentarios todavía.</p>
                 <p>¡Sé el primero en comentar!</p>
-            </div>
+            </aside>
         }
+    </section>
     </div>
-    </div>
-</div>
+</section>
 
 @section Scripts {
     <script>

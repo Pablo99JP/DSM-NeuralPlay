@@ -4,13 +4,34 @@
     ViewData["Title"] = "Detalles del Miembro";
 }
 
+<style>
+/* Reset para etiquetas semánticas */
+figure, hgroup, footer, hr, fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+fieldset {
+    border: none;
+    min-width: 0;
+}
+
+hr {
+    border: none;
+}
+</style>
+
 @Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>@ViewData["Title"]</h1>
+<main>
+    <header>
+        <h1>@ViewData["Title"]</h1>
+    </header>
 
-<dl class="row">
+    <section>
+        <dl class="row">
     <dt class="col-sm-3">Usuario</dt>
     <dd class="col-sm-9">@Model.NombreUsuario</dd>
 
@@ -37,9 +58,11 @@
         <dt class="col-sm-3">Fecha de Baja</dt>
         <dd class="col-sm-9">@Model.FechaBaja.Value.ToString("dd/MM/yyyy HH:mm")</dd>
     }
-</dl>
+        </dl>
+    </section>
 
-<div class="d-flex gap-2">
-    <a asp-action="Edit" asp-route-id="@Model.IdMiembroComunidad" class="btn btn-primary">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</div>
+    <nav class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.IdMiembroComunidad" class="btn btn-primary">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </nav>
+</main>

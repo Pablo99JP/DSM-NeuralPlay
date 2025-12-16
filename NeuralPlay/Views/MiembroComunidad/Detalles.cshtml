@@ -15,6 +15,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-transp: #21020a7a;
@@ -270,38 +285,42 @@
     }
 </style>
 
-<div class="main-container"></div>
+<section class="main-container"></section>
 
-<div class="content-container">
-    <div class="page-header">
-        <a asp-controller="Comunidad" asp-action="Details" asp-route-id="@Model.IdComunidad" class="btn-back">
-            <i class="bi bi-arrow-left"></i>
-            Volver a la comunidad
-        </a>
+<main class="content-container">
+    <header class="page-header">
+        <nav>
+            <a asp-controller="Comunidad" asp-action="Details" asp-route-id="@Model.IdComunidad" class="btn-back">
+                <i class="bi bi-arrow-left"></i>
+                Volver a la comunidad
+            </a>
+        </nav>
         
-        <h1 class="page-title">Gestionar Miembros</h1>
-        <p class="page-subtitle">@Model.Nombre</p>
-    </div>
+        <hgroup>
+            <h1 class="page-title">Gestionar Miembros</h1>
+            <p class="page-subtitle">@Model.Nombre</p>
+        </hgroup>
+    </header>
 
     @if (miembros.Any())
     {
-        <div class="members-grid">
+        <section class="members-grid">
             @foreach (var miembro in miembros)
             {
-                <div class="member-card" data-card-id="@miembro.IdMiembroComunidad">
-                    <div class="member-avatar">
+                <article class="member-card" data-card-id="@miembro.IdMiembroComunidad">
+                    <figure class="member-avatar">
                         @if (!string.IsNullOrEmpty(miembro.Avatar))
                         {
                             <img src="@miembro.Avatar" alt="@miembro.NombreUsuario" />
                         }
                         else
                         {
-                            <div class="member-avatar-placeholder">
+                            <section class="member-avatar-placeholder">
                                 @miembro.NombreUsuario.Substring(0, 1).ToUpper()
-                            </div>
+                            </section>
                         }
-                    </div>
-                    <div class="member-info">
+                    </figure>
+                    <section class="member-info">
                         <a href="#" class="member-name">@miembro.NombreUsuario</a>
                         
                         <!-- Select para cambiar el rol -->
@@ -314,9 +333,9 @@
                             }
                         </select>
 
-                        <p class="member-date">Miembro desde @miembro.FechaAlta.ToString("dd/MM/yyyy")</p>
+                        <footer class="member-date">Miembro desde @miembro.FechaAlta.ToString("dd/MM/yyyy")</footer>
 
-                        <div class="member-actions">
+                        <nav class="member-actions">
                             <button class="btn-action btn-save" onclick="cambiarRol(@miembro.IdMiembroComunidad)" style="display:none;">
                                 <i class="bi bi-check-lg"></i>
                                 Guardar rol
@@ -325,19 +344,19 @@
                                 <i class="bi bi-person-x-fill"></i>
                                 Expulsar
                             </button>
-                        </div>
-                    </div>
-                </div>
+                        </nav>
+                    </section>
+                </article>
             }
-        </div>
+        </section>
     }
     else
     {
-        <div class="no-members">
+        <aside class="no-members">
             <p>Esta comunidad aún no tiene miembros.</p>
-        </div>
+        </aside>
     }
-</div>
+</main>
 
 @section Scripts {
     <script>

@@ -8,42 +8,60 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
+<style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+</style>
+
 <h1>@ViewData["Title"]</h1>
 <!-- Formulario para editar una comunidad -->
-<div class="row">
+<section class="row">
     <div class="col-md-8 col-lg-6">
         <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <input type="hidden" asp-for="IdComunidad" />
 
-            <div class="form-group mb-3">
+            <fieldset class="form-group mb-3">
                 <label asp-for="Nombre" class="form-label">Nombre</label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            </fieldset>
 
-            <div class="form-group mb-3">
+            <fieldset class="form-group mb-3">
                 <label asp-for="Descripcion" class="form-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+            </fieldset>
 
-            <div class="form-group form-check mb-3">
+            <fieldset class="form-group form-check mb-3">
                 <input asp-for="EsPublica" class="form-check-input" />
                 <label asp-for="EsPublica" class="form-check-label">Es pública</label>
                 <span asp-validation-for="EsPublica" class="text-danger"></span>
-            </div>
+            </fieldset>
 
-            <div class="form-group mb-4">
+            <fieldset class="form-group mb-4">
                 <label class="form-label">Fecha de creación</label>
                 <input class="form-control" value="@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")" readonly />
-            </div>
+            </fieldset>
 
-            <div class="d-flex gap-2">
+            <nav class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <a asp-action="Index" class="btn btn-secondary">Volver</a>
-            </div>
+            </nav>
         </form>
     </div>
-</div>
+</section>

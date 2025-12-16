@@ -21,6 +21,17 @@
 </script>
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hr {
+        margin: 0;
+        padding: 0;
+    }
+
+    hr {
+        border: none;
+        height: 3px;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-grey: #454545;
@@ -366,7 +377,7 @@
 {
     <header class="profile-header">
         <h1>Bienvenido, <span class="username">@currentUser.Nick</span></h1>
-        <div class="profile-divider"></div>
+        <hr class="profile-divider" />
         <h2 class="profile-section-title">Tus Comunidades</h2>
     </header>
 }
@@ -374,7 +385,7 @@ else
 {
     <header class="profile-header">
         <h1>Bienvenido</h1>
-        <div class="profile-divider"></div>
+        <hr class="profile-divider" />
         <h2 class="profile-section-title">Tus Comunidades</h2>
     </header>
 }
@@ -382,33 +393,33 @@ else
 <main class="content-wrapper">
     @if (Model != null && Model.Any())
     {
-        <div class="comunidades-grid">
+        <section class="comunidades-grid">
             @foreach (var comunidad in Model)
             {
-                <div class="comunidad-card" onclick="irAComunidad(@comunidad.IdComunidad)">
+                <article class="comunidad-card" onclick="irAComunidad(@comunidad.IdComunidad)">
                     <img src="@(string.IsNullOrEmpty(comunidad.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : comunidad.ImagenUrl)" 
                          alt="@comunidad.Nombre" 
                          class="comunidad-img" />
-                    <div class="comunidad-overlay">
+                    <aside class="comunidad-overlay">
                         <span class="comunidad-ver">Ver</span>
-                    </div>
-                    <span class="comunidad-title">@comunidad.Nombre</span>
-                </div>
+                    </aside>
+                    <h3 class="comunidad-title">@comunidad.Nombre</h3>
+                </article>
             }
-        </div>
+        </section>
     }
     else
     {
-        <div class="no-comunidades-message">
-            <div class="no-comunidades-icon">
+        <aside class="no-comunidades-message">
+            <figure class="no-comunidades-icon">
                 <i class="bi bi-people"></i>
-            </div>
+            </figure>
             <h3 class="no-comunidades-title">No perteneces a ninguna comunidad</h3>
             <p class="no-comunidades-text">Explora y únete a comunidades para conectar con otros jugadores</p>
             <a href="@Url.Action("Index", "Home")" class="btn-explore-comunidades">
                 <i class="bi bi-search"></i> Explorar Comunidades
             </a>
-        </div>
+        </aside>
     }
 </main>
 

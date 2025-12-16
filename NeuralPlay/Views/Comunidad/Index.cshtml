@@ -8,6 +8,24 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
+<style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+</style>
+
 <h1>@ViewData["Title"]</h1>
 
 @if (TempData["Error"] != null)
@@ -15,9 +33,9 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<p>
+<nav>
     <a asp-action="Create" class="btn btn-primary">Crear Nuevo</a>
-</p>
+</nav>
 <table class="table table-striped table-bordered">
     <thead>
         <tr>

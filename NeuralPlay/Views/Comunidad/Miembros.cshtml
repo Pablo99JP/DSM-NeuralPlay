@@ -12,6 +12,22 @@
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+
     /* Sobrescribir display flex del layout para permitir flex row en esta página */
     body .content-container {
         display: block !important;
@@ -141,8 +157,8 @@
 <div class="main-container"></div>
 
 <!-- Contenedor de contenido - entre las barras laterales -->
-<div class="content-container">
-    <div class="page-header">
+<section class="content-container">
+    <header class="page-header">
         <a asp-action="Details" asp-route-id="@Model.IdComunidad" class="btn-back">
             <i class="bi bi-arrow-left"></i>
             Volver a la comunidad
@@ -150,15 +166,15 @@
         
         <h1 class="page-title">Miembros</h1>
         <p class="page-subtitle">@Model.Nombre</p>
-    </div>
+    </header>
 
     @if (miembros.Any())
     {
-        <div class="members-grid">
+        <section class="members-grid">
             @foreach (var miembro in miembros)
             {
-                <div class="member-card">
-                    <div class="member-avatar">
+                <article class="member-card">
+                    <figure class="member-avatar">
                         @if (!string.IsNullOrEmpty(miembro.Avatar))
                         {
                             <img src="@miembro.Avatar" alt="@miembro.NombreUsuario" />
@@ -169,21 +185,21 @@
                                 @miembro.NombreUsuario.Substring(0, 1).ToUpper()
                             </div>
                         }
-                    </div>
+                    </figure>
                     <div class="member-info">
                         <a href="#" class="member-name">@miembro.NombreUsuario</a>
                         <p class="member-role">@miembro.Rol</p>
                         <p class="member-date">Miembro desde @miembro.FechaAlta.ToString("dd/MM/yyyy")</p>
                     </div>
-                </div>
+                </article>
             }
-        </div>
+        </section>
     }
     else
     {
-        <div class="no-members">
+        <aside class="no-members">
             <p>Esta comunidad aún no tiene miembros.</p>
-        </div>
+        </aside>
     }
-</div>
+</section>
 

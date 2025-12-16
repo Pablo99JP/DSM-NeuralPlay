@@ -12,6 +12,22 @@
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
 <style>
+    /* Reset para etiquetas semánticas */
+    figure, hgroup, footer, hr, fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset {
+        border: none;
+        min-width: 0;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+    }
+
     :root {
         --np-red: #e50a46;
         --np-transp: #21020a7a;
@@ -248,8 +264,8 @@
 <div class="main-container"></div>
 
 <!-- Contenedor de contenido - entre las barras laterales -->
-<div class="content-container">
-    <div class="page-header">
+<section class="content-container">
+    <header class="page-header">
         <a asp-action="Details" asp-route-id="@Model.IdComunidad" class="btn-back">
             <i class="bi bi-arrow-left"></i>
             Volver a la comunidad
@@ -257,17 +273,17 @@
         
         <h1 class="page-title">Lista Negra</h1>
         <p class="page-subtitle">@Model.Nombre - Usuarios expulsados</p>
-    </div>
+    </header>
 
     <div id="alertMessage" class="alert"></div>
 
     @if (miembrosExpulsados.Any())
     {
-        <div class="members-grid">
+        <section class="members-grid">
             @foreach (var miembro in miembrosExpulsados)
             {
-                <div class="member-card" id="member-@miembro.IdMiembroComunidad">
-                    <div class="member-avatar">
+                <article class="member-card" id="member-@miembro.IdMiembroComunidad">
+                    <figure class="member-avatar">
                         @if (!string.IsNullOrEmpty(miembro.Avatar))
                         {
                             <img src="@miembro.Avatar" alt="@miembro.NombreUsuario" />
@@ -278,7 +294,7 @@
                                 @(miembro.NombreUsuario?.Substring(0, 1).ToUpper() ?? "?")
                             </div>
                         }
-                    </div>
+                    </figure>
                     <div class="member-info">
                         <span class="member-name">@miembro.NombreUsuario</span>
                         <p class="member-status">
@@ -293,21 +309,21 @@
                             Permitir reingreso
                         </button>
                     </div>
-                </div>
+                </article>
             }
-        </div>
+        </section>
     }
     else
     {
-        <div class="no-members">
+        <aside class="no-members">
             <i class="bi bi-check-circle"></i>
             <p>No hay usuarios en la lista negra.</p>
             <p style="font-size: 1rem; color: #666; margin-top: 10px;">
                 Todos los miembros están en buenos términos con la comunidad.
             </p>
-        </div>
+        </aside>
     }
-</div>
+</section>
 
 <script>
     function permitirReingreso(miembroId, nombreUsuario) {
