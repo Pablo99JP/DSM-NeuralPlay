@@ -47,10 +47,16 @@
         left: 11%;
         width: 83%; /* 100% - 11% (izq) - 6% (der) */
         height: 100vh;
+        min-height: 100vh;
         overflow-y: auto;
         overflow-x: hidden;
         z-index: 2;
         padding-bottom: 50px;
+    }
+
+    html, body {
+        height: auto;
+        overflow: visible;
     }
 
     /* Contenedor interior para centralizar contenido */
@@ -198,8 +204,10 @@
 
     .torneos-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 25px;
+        max-width: 1100px;
+        margin: 0 auto;
     }
 
     .torneo-card {
@@ -356,29 +364,36 @@
 
     /* Ajustes tablet */
     @@media (max-width: 1024px) {
-        .content-wrapper { left: 0; width: 100%; }
-        .content-inner { max-width: 100%; padding: 0 16px; }
+        .content-wrapper { left: 0; width: 100%; position: relative; height: auto; min-height: 100vh; padding-bottom: 110px; padding-right: 100px; }
+        .content-inner { max-width: 1000px; padding: 0 24px; margin-right: auto; margin-left: auto; }
         .torneos-header { padding-left: 12px; padding-right: 12px; }
         .torneos-header h1 { font-size: 2.6rem; }
         .torneos-header-subtitle { font-size: 1.2rem; }
         .torneos-header-actions { flex-direction: column; gap: 12px; }
         .actions-left, .actions-right { width: 100%; }
-        .torneos-grid { grid-template-columns: 1fr; }
-        .torneo-card { padding: 16px; }
+        .torneos-list { padding: 0 24px 90px 24px; }
+        .torneos-grid { grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; padding-right: 20px; }
+        .torneo-card { padding: 18px; }
         .torneo-card-title { font-size: 1.4rem; }
     }
 
     /* Ajustes mobile */
     @@media (max-width: 580px) {
-        .content-wrapper { padding-top: 20px; padding-bottom: 100px; }
-        .content-inner { padding: 0 12px; }
-        .torneos-header { padding: 12px 8px; }
-        .torneos-header h1 span { font-size: 3rem; }
+        body { height: auto; overflow-y: auto; }
+        .main-container { position: static; width: 100%; height: auto; min-height: 100vh; overflow: visible; background-attachment: scroll; }
+        .content-wrapper { position: static; left: 0; width: 100%; height: auto; min-height: 100vh; padding-top: 16px; padding-bottom: 120px; padding-left: 0; padding-right: 0; overflow: visible; }
+        .content-inner { padding: 0 16px; max-width: 100%; width: calc(100% - 32px); margin: 0 auto; }
+        .torneos-header { padding: 12px 8px; margin: 0 auto; }
+        .torneos-header h1 { font-size: 3.5rem; font-weight: bold; }
+        .torneos-header h1 span { font-size: inherit; }
+        .torneos-divider { margin: 20px auto 30px auto; width: calc(100% - 32px); }
         .torneos-header-subtitle { display: none; }
-        .torneos-header-actions { flex-direction: column; gap: 10px; margin-top: 12px; }
+        .actions-bar { padding: 0 8px; margin: 0 auto 40px auto; max-width: calc(100% - 16px); }
         .actions-left, .actions-right { width: 100%; }
         .btn-custom { width: 100%; }
-        .torneo-card { padding: 12px; }
+        .torneos-list { padding: 0 8px; margin: 0 auto; max-width: 100%; }
+        .torneos-grid { grid-template-columns: 1fr; gap: 16px; max-width: calc(100% - 16px); margin: 0 auto; padding: 0; }
+        .torneo-card { padding: 14px; }
         .torneo-card-title { font-size: 1.2rem; }
     }
 </style>

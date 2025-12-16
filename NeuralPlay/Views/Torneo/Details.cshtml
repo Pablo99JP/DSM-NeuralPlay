@@ -351,8 +351,11 @@
         color: var(--np-red);
         font-weight: bold;
         min-width: 70px;
-        text-align: right;
+        text-align: center;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .classification-ranking-label {
@@ -488,6 +491,50 @@
 
     .alert-custom a:hover {
         text-decoration: underline;
+    }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .content-wrapper { margin-left: 0; width: 100%; position: relative; height: auto; min-height: 100vh; padding-bottom: 110px; padding-right: 100px; }
+        .content-inner { max-width: 1000px; padding: 0 24px; margin-right: auto; margin-left: auto; }
+        .torneo-header { padding: 16px 8px; }
+        .torneo-header h1 { font-size: 2.6rem; }
+        .torneo-divider { margin: 20px auto 40px auto; }
+        .info-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .tabs-section { padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .actions-section { padding: 0 8px; max-width: 900px; margin: 0 auto; }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        body { height: auto; overflow-y: auto; }
+        .main-container { position: static; width: 100%; height: auto; min-height: 100vh; overflow: visible; background-attachment: scroll; }
+        .content-wrapper { position: static; margin-left: 0; width: 100%; height: auto; min-height: 100vh; padding-top: 16px; padding-bottom: 120px; padding-left: 0; padding-right: 0; overflow: visible; }
+        .content-inner { padding: 0 16px; max-width: 100%; width: calc(100% - 32px); margin: 0 auto; }
+        .torneo-header { padding: 12px 8px; margin: 0 auto; }
+        .torneo-header h1 { font-size: 2.2rem; font-weight: bold; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.2; }
+        .torneo-header h1 span { font-size: inherit; }
+        .torneo-header .torneo-subtitle { font-size: 1rem; }
+        .torneo-divider { margin: 20px auto 30px auto; width: calc(100% - 32px); }
+        .info-grid { grid-template-columns: 1fr; gap: 16px; padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .info-card { padding: 14px; }
+        .info-card-title { font-size: 0.9rem; }
+        .info-card-value { font-size: 1.3rem; }
+        .tabs-section { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .tabs-nav { padding: 0 8px; gap: 8px; }
+        .tabs-nav button { font-size: 0.9rem; padding: 12px 14px; }
+        .tabs-content { padding: 18px; min-height: 250px; border-radius: 6px; }
+        .tab-pane-title { font-size: 1.5rem; margin-bottom: 18px; }
+        .tab-pane-text { font-size: 0.95rem; }
+        .classification-item { padding: 12px 14px; gap: 14px; }
+        .classification-image { width: 55px; height: 55px; }
+        .classification-team-name { font-size: 1.1rem; }
+        .classification-ranking { font-size: 1.4rem; min-width: 45px; }
+        .team-item { padding: 14px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .team-action { width: 100%; }
+        .btn-custom { font-size: 0.9rem; padding: 10px 18px; width: 100%; }
+        .btn-outline { width: 100%; }
+        .actions-section { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto; flex-direction: column; gap: 12px; }
     }
 </style>
 
@@ -631,7 +678,6 @@
                                             <h3 class="classification-team-name">@(p.Equipo?.Nombre ?? "-")</h3>
                                         </div>
                                         <div class="classification-ranking">
-                                            <div style="font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Posición</div>
                                             @posicion
                                         </div>
                                     </div>

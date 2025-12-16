@@ -1,15 +1,10 @@
 @model NeuralPlay.Models.PropuestaTorneoDetailsViewModel
+
 @{
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Detalles de Propuesta";
     ViewBag.OcultarNavbar = true;
-}
-
-@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
-@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
-@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
-
-@{
+    
     var votosTotales = Model.Propuesta.Votos?.Count() ?? 0;
     var votosDistinct = Model.Propuesta.Votos?
         .Where(v => v.Votante != null)
@@ -23,56 +18,575 @@
     var hayDuplicados = votosTotales != votosDistinct;
 }
 
-<h2>Propuesta para @Model.Propuesta.Torneo?.Nombre</h2>
+@Html.Partial("~/Views/Shared/_SidebarLeft.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
+@Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<div>
-    <p><strong>Equipo proponente:</strong> @Model.Propuesta.EquipoProponente?.Nombre</p>
-    <p><strong>Estado:</strong> @Model.Propuesta.Estado</p>
-    <p><strong>Votos (únicos):</strong> @votosDistinct / @miembrosCount</p>
-    @if (hayDuplicados)
-    {
-        <p class="text-warning"><strong>Advertencia:</strong> Se encontraron @votosTotales votos, hay @(@votosTotales - votosDistinct) duplicados que serán limpiados al siguiente voto.</p>
+<style>
+    :root {
+        --np-red: #e50a46;
+        --np-grey: #454545;
+        --np-dark-grey: #242424;
     }
-    <p><strong>Usuario actual ID:</strong> @(currentUserId?.ToString() ?? "No hay sesión")</p>
 
-    <div class="progress" style="height:24px; width:400px;">
-        <div class="progress-bar" role="progressbar" style="width:@porcentaje%" aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100">@porcentaje% votos</div>
+    @@font-face {
+        font-family: 'Neue';
+        src: url('/Recursos/NeuePower-Ultra.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @@font-face {
+        font-family: 'Lexend';
+        src: url('/Recursos/Lexend-Medium.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background: url('/Recursos/WALLPAPER_GRIS.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    /* Contenedor principal */
+    .main-container {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        z-index: 1;
+    }
+
+    /* Contenedor del contenido */
+    .content-wrapper {
+        position: relative;
+        margin-left: 5.5%;
+        width: 88.5%;
+        min-height: 100vh;
+        padding-bottom: 60px;
+        z-index: 2;
+    }
+
+    /* Encabezado */
+    .propuesta-header {
+        text-align: left;
+        margin-bottom: 30px;
+        padding-top: 30px;
+        padding-left: 16px;
+        padding-right: 20px;
+    }
+
+    .propuesta-header h1 {
+        font-family: 'Neue', sans-serif;
+        font-size: 3.5rem;
+        color: white;
+        margin: 0 0 10px 0;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .propuesta-header h1 .highlight {
+        color: var(--np-red);
+    }
+
+    .propuesta-subtitle {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.2rem;
+        color: #aaa;
+        margin: 5px 0 0 0;
+    }
+
+    .propuesta-divider {
+        height: 2px;
+        background: linear-gradient(90deg, var(--np-red) 0%, transparent 100%);
+        margin: 20px 16px 40px 16px;
+    }
+
+    .content-inner {
+        margin: 0 auto;
+        padding: 0;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    /* Tarjetas de información */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+        padding: 0 16px;
+    }
+
+    .info-card {
+        background: var(--np-dark-grey);
+        border-left: 4px solid var(--np-red);
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(229, 10, 70, 0.2);
+    }
+
+    .info-card-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 0.95rem;
+        color: var(--np-red);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
+
+    .info-card-value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1.5rem;
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Barra de progreso */
+    .voting-progress {
+        margin-bottom: 40px;
+        padding: 0 16px;
+    }
+
+    .progress-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        margin-bottom: 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .progress-bar-container {
+        background: var(--np-dark-grey);
+        border-radius: 8px;
+        overflow: hidden;
+        height: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(229, 10, 70, 0.2);
+    }
+
+    .progress-bar-fill {
+        background: linear-gradient(90deg, var(--np-red) 60%, #ff4b7d 100%);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-family: 'Neue', sans-serif;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: width 0.4s ease;
+    }
+
+    /* Sección de votación */
+    .voting-section {
+        margin-bottom: 40px;
+        padding: 0 16px;
+    }
+
+    .voting-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .voting-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .btn-vote {
+        font-family: 'Neue', sans-serif;
+        font-size: 1rem;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 150px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-vote-yes {
+        background: linear-gradient(90deg, #4caf50 60%, #81c784 100%);
+        color: white;
+    }
+
+    .btn-vote-yes:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-vote-yes:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-vote-no {
+        background: linear-gradient(90deg, #ff5252 60%, #ff7272 100%);
+        color: white;
+    }
+
+    .btn-vote-no:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3);
+    }
+
+    .btn-vote-no:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .vote-status {
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+        color: var(--np-red);
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    /* Alertas */
+    .alert-custom {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4caf50;
+        border-radius: 6px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        font-family: 'Lexend', sans-serif;
+        color: #c8e6c9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .alert-warning {
+        background: rgba(255, 152, 0, 0.1);
+        border-left-color: #ff9800;
+        color: #ffe0b2;
+    }
+
+    .alert-info {
+        background: rgba(33, 150, 243, 0.1);
+        border-left-color: #2196f3;
+        color: #bbdefb;
+    }
+
+    .alert-danger {
+        background: rgba(255, 82, 82, 0.1);
+        border-left-color: #ff5252;
+        color: #ffcdd2;
+    }
+
+    .alert-custom i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    /* Lista de miembros */
+    .members-section {
+        margin-bottom: 40px;
+        padding: 0 16px;
+    }
+
+    .members-title {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .members-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .member-item {
+        background: var(--np-dark-grey);
+        border: 1px solid rgba(229, 10, 70, 0.2);
+        border-radius: 6px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .member-item:hover {
+        background: rgba(69, 69, 69, 0.6);
+        border-color: var(--np-red);
+    }
+
+    .member-name {
+        font-family: 'Neue', sans-serif;
+        font-size: 1.1rem;
+        color: white;
+        font-weight: bold;
+    }
+
+    .member-vote {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 1rem;
+    }
+
+    .vote-yes {
+        color: #4caf50;
+        font-weight: bold;
+    }
+
+    .vote-no {
+        color: #ff5252;
+        font-weight: bold;
+    }
+
+    .vote-pending {
+        color: #aaa;
+        font-style: italic;
+    }
+
+    /* Botón volver */
+    .btn-back {
+        display: inline-block;
+        background: transparent;
+        border: 2px solid var(--np-red);
+        color: var(--np-red);
+        padding: 12px 24px;
+        font-family: 'Neue', sans-serif;
+        font-size: 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-left: 16px;
+        margin-bottom: 40px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-back:hover {
+        background: var(--np-red);
+        color: white;
+    }
+
+    /* Ajustes tablet */
+    @@media (max-width: 1024px) {
+        .content-wrapper { margin-left: 0; width: 100%; position: relative; height: auto; min-height: 100vh; padding-bottom: 110px; padding-right: 100px; }
+        .content-inner { max-width: 1000px; padding: 0 24px; margin-right: auto; margin-left: auto; }
+        .propuesta-header { padding: 16px 8px; }
+        .propuesta-header h1 { font-size: 2.6rem; }
+        .propuesta-divider { margin: 20px auto 40px auto; }
+        .info-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .voting-progress { padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .voting-section { padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .voting-buttons { flex-direction: row; }
+        .members-section { padding: 0 8px; max-width: 900px; margin: 0 auto 40px auto; }
+        .btn-back { margin-left: 8px; }
+    }
+
+    /* Ajustes mobile */
+    @@media (max-width: 580px) {
+        body { height: auto; overflow-y: auto; }
+        .main-container { position: static; width: 100%; height: auto; min-height: 100vh; overflow: visible; background-attachment: scroll; }
+        .content-wrapper { position: static; margin-left: 0; width: 100%; height: auto; min-height: 100vh; padding-top: 16px; padding-bottom: 120px; padding-left: 0; padding-right: 0; overflow: visible; }
+        .content-inner { padding: 0 16px; max-width: 100%; width: calc(100% - 32px); margin: 0 auto; }
+        .propuesta-header { padding: 12px 8px; margin: 0 auto; }
+        .propuesta-header h1 { font-size: 2.2rem; font-weight: bold; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.2; }
+        .propuesta-header h1 span { font-size: inherit; }
+        .propuesta-subtitle { font-size: 1rem; }
+        .propuesta-divider { margin: 20px auto 30px auto; width: calc(100% - 32px); }
+        .info-grid { grid-template-columns: 1fr; gap: 16px; padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .info-card { padding: 14px; }
+        .info-card-title { font-size: 0.9rem; }
+        .info-card-value { font-size: 1.3rem; }
+        .voting-progress { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .progress-bar-container { height: 36px; }
+        .progress-bar-fill { font-size: 0.9rem; }
+        .voting-section { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .voting-title { font-size: 1.2rem; margin-bottom: 18px; }
+        .voting-buttons { flex-direction: column; gap: 12px; }
+        .btn-vote { font-size: 0.95rem; padding: 12px 20px; min-width: auto; width: 100%; }
+        .members-section { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto 40px auto; }
+        .members-title { font-size: 1.2rem; margin-bottom: 18px; }
+        .member-item { padding: 14px; flex-direction: column; align-items: flex-start; gap: 10px; }
+        .member-vote { width: 100%; }
+        .btn-back { margin-left: 8px; margin-top: 10px; width: calc(100% - 32px); text-align: center; }
+    }
+</style>
+
+<!-- Contenedor principal -->
+<div class="main-container">
+    <!-- Contenedor de contenido -->
+    <div class="content-wrapper">
+        <div class="content-inner">
+            <!-- Encabezado -->
+            <div class="propuesta-header">
+                <h1>
+                    <span>Votación:</span> <span class="highlight">@Model.Propuesta.Torneo?.Nombre</span>
+                </h1>
+                <p class="propuesta-subtitle">Equipo: @Model.Propuesta.EquipoProponente?.Nombre</p>
+            </div>
+
+            <div class="propuesta-divider"></div>
+
+            <!-- Tarjetas de información -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-shield-check"></i> Estado</div>
+                    <div class="info-card-value">@Model.Propuesta.Estado</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-people-fill"></i> Votos</div>
+                    <div class="info-card-value">@votosDistinct / @miembrosCount</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title"><i class="bi bi-percent"></i> Progreso</div>
+                    <div class="info-card-value">@porcentaje%</div>
+                </div>
+            </div>
+
+            <!-- Mensajes -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert-custom">
+                    <div>
+                        <i class="bi bi-check-circle"></i>
+                        <span>@TempData["Success"]</span>
+                    </div>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert-custom alert-danger">
+                    <div>
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>@TempData["Error"]</span>
+                    </div>
+                </div>
+            }
+
+            @if (hayDuplicados)
+            {
+                <div class="alert-custom alert-warning">
+                    <div>
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Se encontraron votos duplicados que serán limpiados.</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Barra de progreso -->
+            <div class="voting-progress">
+                <div class="progress-title">Progreso de Votación</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: @porcentaje%">@porcentaje%</div>
+                </div>
+            </div>
+
+            <!-- Sección de votación -->
+            <div class="voting-section">
+                @if (!esMiembro)
+                {
+                    <div class="alert-custom alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Solo los miembros del equipo pueden votar esta propuesta.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="voting-title">Emitir tu voto</div>
+                    <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo" class="voting-buttons">
+                        <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
+                        @if (yaVoto)
+                        {
+                            <button type="submit" name="decision" value="true" class="btn-vote btn-vote-yes" disabled>
+                                <i class="bi bi-check-circle"></i> Sí
+                            </button>
+                            <button type="submit" name="decision" value="false" class="btn-vote btn-vote-no" disabled>
+                                <i class="bi bi-x-circle"></i> No
+                            </button>
+                            <span class="vote-status">✓ Ya has votado</span>
+                        }
+                        else
+                        {
+                            <button type="submit" name="decision" value="true" class="btn-vote btn-vote-yes">
+                                <i class="bi bi-check-circle"></i> Votar Sí
+                            </button>
+                            <button type="submit" name="decision" value="false" class="btn-vote btn-vote-no">
+                                <i class="bi bi-x-circle"></i> Votar No
+                            </button>
+                        }
+                    </form>
+                }
+            </div>
+
+            <!-- Lista de miembros -->
+            <div class="members-section">
+                <div class="members-title">Miembros del Equipo</div>
+                <div class="members-list">
+                    @foreach (var m in Model.MiembrosEquipo)
+                    {
+                        var voto = Model.Propuesta.Votos?.FirstOrDefault(v => v.Votante != null && v.Votante.IdUsuario == m.IdUsuario);
+                        <div class="member-item">
+                            <span class="member-name">@m.Nick</span>
+                            <div class="member-vote">
+                                @if (voto != null)
+                                {
+                                    if (voto.Valor)
+                                    {
+                                        <span class="vote-yes"><i class="bi bi-check-circle-fill"></i> Votó Sí</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="vote-no"><i class="bi bi-x-circle-fill"></i> Votó No</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="vote-pending"><i class="bi bi-clock"></i> Pendiente</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Botón volver -->
+            <a href="@Url.Action("Index", "Torneo")" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
     </div>
 </div>
-
-<div style="margin-top:12px;">
-    @if (!esMiembro)
-    {
-        <div class="alert alert-info">Solo los miembros del equipo pueden votar esta propuesta.</div>
-    }
-    else
-    {
-        <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo">
-            <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
-            <button type="submit" name="decision" value="true" class="btn btn-success" @(yaVoto ? "disabled=\"disabled\"" : "")>✅ VOTAR SÍ</button>
-            <button type="submit" name="decision" value="false" class="btn btn-danger" @(yaVoto ? "disabled=\"disabled\"" : "")>❌ VOTAR NO</button>
-            @if (yaVoto)
-            {
-                <span class="text-muted" style="margin-left:10px;">Ya has votado</span>
-            }
-        </form>
-    }
-</div>
-
-<h3 style="margin-top:16px;">Miembros del equipo</h3>
-<ul>
-    @foreach (var m in Model.MiembrosEquipo)
-    {
-        var voto = Model.Propuesta.Votos?.FirstOrDefault(v => v.Votante != null && v.Votante.IdUsuario == m.IdUsuario);
-        <li>@m.Nick (@m.IdUsuario) @if (voto != null) { <span>- @(voto.Valor ? "Sí" : "No")</span> }</li>
-    }
-</ul>
