@@ -2,9 +2,21 @@
 @using ApplicationCore.Domain.EN
 @using Infrastructure.NHibernate
 @inject NeuralPlay.Services.IUsuarioAuth UsuarioAuth
+@inject ApplicationCore.Domain.CEN.NotificacionCEN NotificacionCEN
 
 @{
     var currentUser = UsuarioAuth.GetUsuarioActual();
+    
+    // Obtener notificaciones no leídas
+    var unread = 0;
+    if (currentUser != null)
+    {
+        try
+        {
+            unread = NotificacionCEN.ReadAll_Notificacion().Count(n => n != null && n.Destinatario != null && n.Destinatario.IdUsuario == currentUser.IdUsuario && !n.Leida);
+        }
+        catch { unread = 0; }
+    }
     
     // Obtener compañeros de equipo
     List<NeuralPlay.Models.CompaneroEquipoViewModel> companeros = new List<NeuralPlay.Models.CompaneroEquipoViewModel>();
@@ -383,6 +395,10 @@
     <div class="sidebar-down-icon">
         <a href="@Url.Action("Index", "Notificacion")" class="notification-icon">
             <i class="bi bi-bell-fill"></i>
+            @if (unread > 0)
+            {
+                <span class="notification-badge">@unread</span>
+            }
         </a>
     </div>
 

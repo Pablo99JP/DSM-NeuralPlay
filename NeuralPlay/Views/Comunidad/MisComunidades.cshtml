@@ -248,6 +248,50 @@
         transform: scale(1.05);
     }
 
+    /* Media queries - Tablet */
+    @@media screen and (min-width: 581px) and (max-width: 1024px) {
+        body {
+            padding-right: 12vw;
+        }
+
+        .profile-header {
+            margin: 0 auto;
+            max-width: 750px;
+            padding: 10px 20px 0 20px;
+        }
+
+        .profile-header h1 {
+            margin-left: 0;
+            margin-right: 0;
+            text-align: center;
+        }
+
+        .profile-divider {
+            margin-left: auto;
+            margin-right: auto;
+            width: 70%;
+        }
+
+        .profile-section-title {
+            margin-left: 0;
+            padding-left: 0;
+            text-align: center;
+            font-size: 4rem;
+        }
+
+        .content-wrapper {
+            margin: 0 auto;
+            padding: 0 20px;
+            max-width: 750px;
+        }
+
+        .comunidades-grid {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+            gap: 20px;
+        }
+    }
+
     /* Media queries - Mobile */
     @@media screen and (max-width: 580px) {
         .profile-header h1 {
