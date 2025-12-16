@@ -326,9 +326,9 @@
 </style>
 
 <header class="index-header">
-    <div class="index-title-align">
+    <section class="index-title-align">
         <h1>@ViewData["Title"]</h1>
-    </div>
+    </section>
     <div class="index-divider"></div>
 </header>
 
@@ -351,18 +351,18 @@
                     <td>@u.Email</td>
                     <td>@u.FechaRegistro.ToString("dd/MM/yyyy")</td>
                     <td>
-                        <div class="acciones-btn-group">
+                        <nav class="acciones-btn-group">
                             <a asp-action="Details" asp-route-id="@u.Id" class="btn-detalles">Detalles</a>
                             <a asp-action="Edit" asp-route-id="@u.Id" class="btn-detalles">Editar</a>
                             <a asp-action="Delete" asp-route-id="@u.Id" class="btn-detalles">Eliminar</a>
-                        </div>
+                        </nav>
                     </td>
                 </tr>
             }
             </tbody>
         </table>
-    <div style="display: flex; justify-content: center; width: 100%; margin-top: 6px;">
+    <footer style="display: flex; justify-content: center; width: 100%; margin-top: 6px;">
             <a asp-action="Create" class="btn-crear">Crear usuario</a>
-        </div>
+        </footer>
     </article>
 </main>

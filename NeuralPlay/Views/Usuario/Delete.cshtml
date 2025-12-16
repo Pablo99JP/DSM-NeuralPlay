@@ -180,10 +180,10 @@
         <p>¿Desea eliminar al usuario <strong>@Model.Nombre</strong>?</p>
         <form asp-action="Delete" method="post">
             <input type="hidden" asp-for="Id" />
-            <div class="form-actions">
+            <footer class="form-actions">
                 <button type="submit" class="btn-eliminar">Eliminar</button>
                 <a asp-action="Index" class="btn-cancelar">Cancelar</a>
-            </div>
+            </footer>
         </form>
     </article>
 </main>

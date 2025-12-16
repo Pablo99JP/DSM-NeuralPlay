@@ -211,28 +211,28 @@
         <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="Id" />
 
-            <div class="form-group">
+            <p class="form-group">
                 <label asp-for="Nombre" class="control-label">Nombre</label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            </p>
 
-            <div class="form-group">
+            <p class="form-group">
                 <label asp-for="Email" class="control-label">Email</label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+            </p>
 
-            <div class="form-group">
+            <p class="form-group">
                 <label asp-for="Password" class="control-label">Contraseña</label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+            </p>
 
-            <div class="form-actions">
+            <footer class="form-actions">
                 <input type="submit" value="Guardar" class="btn-custom" />
                 <a asp-action="Index" class="btn-custom btn-cancel">Cancelar</a>
-            </div>
+            </footer>
         </form>
     </article>
 </main>
