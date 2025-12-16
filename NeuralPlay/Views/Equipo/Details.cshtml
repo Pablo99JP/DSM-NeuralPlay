@@ -662,7 +662,7 @@
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="panel" style="border: 1px solid rgba(76, 175, 80, 0.45); background: rgba(76, 175, 80, 0.08); margin-bottom: 16px; color: #d0f5d6;">
+        <div id="success-message-alert" class="panel" style="border: 1px solid rgba(76, 175, 80, 0.45); background: rgba(76, 175, 80, 0.08); margin-bottom: 16px; color: #d0f5d6; transition: opacity 0.5s ease-out;">
             <span style="font-family: 'Lexend', sans-serif; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="bi bi-check-circle" style="color:#81c784;"></i>
                 @TempData["SuccessMessage"]
@@ -932,3 +932,18 @@
         });
     })();
 </script>
+<script>
+    // Auto-ocultar mensaje de éxito después de 5 segundos
+    (function() {
+        const successAlert = document.getElementById('success-message-alert');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.style.display = 'none';
+                }, 500); // Esperar a que termine la animación de fade out
+            }, 5000); // 5 segundos
+        }
+    })();
+</script>
+

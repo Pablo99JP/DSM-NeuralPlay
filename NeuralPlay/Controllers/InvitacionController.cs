@@ -218,6 +218,22 @@ namespace NeuralPlay.Controllers
 			ViewBag.Comunidades = comunidadesEmisor;
 			ViewBag.Equipos = equiposEmisor;
 			ViewBag.ReturnEquipoId = returnEquipoId;
+
+			// Mantener preselección cuando viene desde Equipo/Details o cuando se indicó en el POST
+			if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO)
+			{
+				var preEqId = equipoId ?? returnEquipoId;
+				if (preEqId.HasValue)
+				{
+					var preEq = _equipoRepo.ReadById(preEqId.Value);
+					if (preEq != null)
+					{
+						ViewBag.PrefillEquipoId = preEq.IdEquipo;
+						ViewBag.PrefillEquipoNombre = preEq.Nombre;
+						ViewBag.PrefillTipo = ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO;
+					}
+				}
+			}
  
  return View();
  }
