@@ -679,43 +679,43 @@
     <section class="container-fluid">
         <div class="row justify-content-center">
             <section class="col-12">
-                <div class="search-bar">
+                <form class="search-bar" onsubmit="event.preventDefault(); buscar();">
                     <input type="text" class="search-input" placeholder="Buscar comunidades, equipos o juegos..." value="@Model.SearchTerm" />
-                    <button type="button" class="btn-search" onclick="buscar()">Buscar</button>
-                </div>
-                <div class="tab-selector">
+                    <button type="submit" class="btn-search">Buscar</button>
+                </form>
+                <nav class="tab-selector">
                     <button class="tab-btn active" id="tab-comunidades" onclick="showTab('comunidades')">Comunidades</button>
                     <button class="tab-btn" id="tab-equipos" onclick="showTab('equipos')">Equipos</button>
                     <button class="tab-btn" id="tab-juegos" onclick="showTab('juegos')">Juegos</button>
-                </div>
-                <div class="tab-content">
-                    <div id="comunidades-content">
+                </nav>
+                <article class="tab-content">
+                    <section id="comunidades-content">
 
-                        <div class="comunidades-grid">
+                        <section class="comunidades-grid">
                             @foreach (var item in Model.Comunidades)
                             {
-                                <div class="comunidad-card" data-comunidad-id="@item.IdComunidad" data-is-member="@item.IsMember.ToString().ToLower()" onclick="@(item.IsMember ? "verComunidad(event)" : "unirse(event)")">
+                                <article class="comunidad-card" data-comunidad-id="@item.IdComunidad" data-is-member="@item.IsMember.ToString().ToLower()" onclick="@(item.IsMember ? "verComunidad(event)" : "unirse(event)")">
                                     <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="comunidad-img" />
                                     <div class="comunidad-overlay">
                                         <span class="comunidad-unirse">@(item.IsMember ? "Ver" : "Unirse")</span>
                                     </div>
                                     <span class="comunidad-title">@item.Nombre</span>
-                                </div>
+                                </article>
                             }
-                        </div>
-                    </div>
-                    <div id="equipos-content" style="display:none;">
-                        <div class="equipos-list">
+                        </section>
+                    </section>
+                    <section id="equipos-content" style="display:none;">
+                        <section class="equipos-list">
                             @foreach (var item in Model.Equipos)
                             {
-                                <div class="equipo-card" data-equipo-id="@item.IdEquipo">
-                                    <div class="equipo-header">
+                                <article class="equipo-card" data-equipo-id="@item.IdEquipo">
+                                    <header class="equipo-header">
                                         <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Equipos/default.webp" : item.ImagenUrl)" class="equipo-logo" alt="@item.Nombre" />
                                         <div class="equipo-info">
                                             <span class="equipo-nombre">@item.Nombre</span>
                                             <button type="button" class="btn-vermas" onclick="toggleEquipoExpanded(event)">Ver más</button>
                                         </div>
-                                    </div>
+                                    </header>
                                     <div class="equipo-detalles">
                                         <div class="equipo-detalles-content">
                                             <div class="equipo-detalles-item">
@@ -731,7 +731,7 @@
                                                 @(item.FechaCreacion != DateTime.MinValue ? item.FechaCreacion.ToString("dd/MM/yyyy") : "No disponible")
                                             </div>
                                         </div>
-                                        <div class="equipo-acciones">
+                                        <footer class="equipo-acciones">
                                             @if (item.IsMember)
                                             {
                                                 <button type="button" class="btn-solicitar" onclick="entrarEquipo(event)">Entrar</button>
@@ -740,27 +740,27 @@
                                             {
                                                 <button type="button" class="btn-solicitar" onclick="solicitarEntrada(event)">Solicitar Entrada</button>
                                             }
-                                        </div>
+                                        </footer>
                                     </div>
-                                </div>
+                                </article>
                             }
-                        </div>
-                    </div>
-                    <div id="juegos-content" style="display:none;">
-                        <div class="juegos-grid">
+                        </section>
+                    </section>
+                    <section id="juegos-content" style="display:none;">
+                        <section class="juegos-grid">
                             @foreach (var item in Model.Juegos)
                             {
-                                <div class="juego-card" data-juego-id="@item.IdJuego" onclick="verDetallesJuego(event)">
+                                <article class="juego-card" data-juego-id="@item.IdJuego" onclick="verDetallesJuego(event)">
                                     <img src="@(string.IsNullOrEmpty(item.ImagenUrl) ? "/Recursos/Juegos/default.webp" : item.ImagenUrl)" alt="@item.Nombre" class="juego-img" />
                                     <div class="juego-overlay">
                                         <span class="juego-unirse">Detalles</span>
                                     </div>
                                     <span class="juego-title">@item.Nombre</span>
-                                </div>
+                                </article>
                             }
-                        </div>
-                    </div>
-                </div>
+                        </section>
+                    </section>
+                </article>
             </section>
         </div>
     </section>
@@ -801,7 +801,7 @@
         // Mostrar mensaje si no hay resultados
         if (comunidadesCount === 0 && comunidadesContent.style.display !== 'none') {
             if (!comunidadesContent.querySelector('.empty-message')) {
-                const emptyMsg = document.createElement('div');
+                const emptyMsg = document.createElement('p');
                 emptyMsg.className = 'empty-message';
                 emptyMsg.textContent = 'No hay comunidades que coincidan con tu búsqueda';
                 comunidadesContent.innerHTML = '';
@@ -811,7 +811,7 @@
         
         if (equiposCount === 0 && equiposContent.style.display !== 'none') {
             if (!equiposContent.querySelector('.empty-message')) {
-                const emptyMsg = document.createElement('div');
+                const emptyMsg = document.createElement('p');
                 emptyMsg.className = 'empty-message';
                 emptyMsg.textContent = 'No hay equipos que coincidan con tu búsqueda';
                 equiposContent.innerHTML = '';
@@ -821,7 +821,7 @@
         
         if (juegosCount === 0 && juegosContent.style.display !== 'none') {
             if (!juegosContent.querySelector('.empty-message')) {
-                const emptyMsg = document.createElement('div');
+                const emptyMsg = document.createElement('p');
                 emptyMsg.className = 'empty-message';
                 emptyMsg.textContent = 'No hay juegos que coincidan con tu búsqueda';
                 juegosContent.innerHTML = '';
