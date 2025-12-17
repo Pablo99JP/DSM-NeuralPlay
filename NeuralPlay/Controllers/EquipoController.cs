@@ -105,25 +105,20 @@ namespace NeuralPlay.Controllers
                 ViewBag.Torneos = (object?)torneos;
 
                 // Cargar el palmarés (torneos finalizados con su posición)
-                var palmares = new Dictionary<ApplicationCore.Domain.EN.Torneo, int>();
+                var palmares = new Dictionary<ApplicationCore.Domain.EN.Torneo, int?>();
                 var torneosFinalizados = torneos.Where(t => t.Estado == "FINALIZADO").ToList();
                 
                 foreach (var torneo in torneosFinalizados)
                 {
-                    // Obtener todas las participaciones del torneo
-                    var participacionesTorneo = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
-                        .Where(p => p.Torneo != null && p.Torneo.IdTorneo == torneo.IdTorneo)
-                        .ToList();
+                    // Obtener la participación de este equipo en el torneo
+                    var participacionEquipo = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
+                        .FirstOrDefault(p => p.Torneo != null && p.Torneo.IdTorneo == torneo.IdTorneo &&
+                                             p.Equipo != null && p.Equipo.IdEquipo == id);
                     
-                    // Calcular la posición del equipo (todos tienen 0 puntos por defecto, así que es el orden de participación)
-                    var posicion = participacionesTorneo
-                        .OrderBy(p => p.IdParticipacion)
-                        .ToList()
-                        .FindIndex(p => p.Equipo != null && p.Equipo.IdEquipo == id) + 1;
-                    
-                    if (posicion > 0)
+                    // Usar el campo Posicion real si está asignado
+                    if (participacionEquipo != null && participacionEquipo.Posicion.HasValue)
                     {
-                        palmares[torneo] = posicion;
+                        palmares[torneo] = participacionEquipo.Posicion;
                     }
                 }
                 

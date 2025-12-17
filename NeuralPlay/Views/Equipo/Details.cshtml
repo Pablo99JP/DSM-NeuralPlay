@@ -5,7 +5,7 @@
     ViewBag.OcultarNavbar = true;
     var miembros = ViewBag.Miembros as List<NeuralPlay.Models.MiembroEquipoViewModel> ?? new List<NeuralPlay.Models.MiembroEquipoViewModel>();
     var torneos = ViewBag.Torneos as List<ApplicationCore.Domain.EN.Torneo> ?? new List<ApplicationCore.Domain.EN.Torneo>();
-    var palmares = ViewBag.Palmares as Dictionary<ApplicationCore.Domain.EN.Torneo, int> ?? new Dictionary<ApplicationCore.Domain.EN.Torneo, int>();
+    var palmares = ViewBag.Palmares as Dictionary<ApplicationCore.Domain.EN.Torneo, int?> ?? new Dictionary<ApplicationCore.Domain.EN.Torneo, int?>();
     var logo = string.IsNullOrEmpty(Model.ImagenUrl) ? "/Recursos/Equipos/default.webp" : Model.ImagenUrl;
     var isLeader = ViewBag.IsLeader as bool? ?? false;
     var equipoId = ViewBag.EquipoId as long? ?? 0;
@@ -867,10 +867,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in palmares.OrderBy(x => x.Value))
+                        @foreach (var item in palmares.Where(x => x.Value.HasValue).OrderBy(x => x.Value))
                         {
                             var torneo = item.Key;
-                            var posicion = item.Value;
+                            var posicion = item.Value.Value;
                             <tr>
                                 <td>@torneo.Nombre</td>
                                 <td>

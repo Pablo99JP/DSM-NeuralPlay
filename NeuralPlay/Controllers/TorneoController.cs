@@ -485,5 +485,52 @@ namespace NeuralPlay.Controllers
                 return RedirectToAction("Index", "Comunidad");
             }
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ActualizarPosiciones(long id, Dictionary<long, int?> posiciones)
+        {
+            var torneo = _torneoRepo.ReadById(id);
+            if (torneo == null) return NotFound();
+
+            var usuario = _usuarioAuth.GetUsuarioActual();
+            if (usuario == null)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
+            {
+                TempData["ErrorMessage"] = "Solo el creador del torneo puede gestionar la clasificación.";
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+                return RedirectToAction("Index", "Comunidad");
+            }
+
+            var participaciones = _participacionTorneoCEN.ReadAll_ParticipacionTorneo()
+                .Where(p => p.Torneo != null && p.Torneo.IdTorneo == id)
+                .ToList();
+
+            foreach (var p in participaciones)
+            {
+                if (posiciones != null && posiciones.TryGetValue(p.IdParticipacion, out var pos))
+                {
+                    p.Posicion = pos;
+                }
+                else
+                {
+                    p.Posicion = null;
+                }
+
+                _participacionTorneoCEN.ModifyParticipacionTorneo(p);
+            }
+
+            TempData["SuccessMessage"] = "Clasificación actualizada correctamente.";
+            return RedirectToAction("Details", new { id });
+        }
     }
 }

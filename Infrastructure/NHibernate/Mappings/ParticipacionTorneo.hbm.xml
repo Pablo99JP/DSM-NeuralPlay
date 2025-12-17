@@ -9,6 +9,7 @@
     </id>
   <property name="FechaAlta" column="FechaAlta" />
     <property name="Estado" column="Estado" />
+    <property name="Posicion" column="Posicion" />
 
     <many-to-one name="Equipo" class="ApplicationCore.Domain.EN.Equipo, ApplicationCore" column="EquipoId" />
     <many-to-one name="Torneo" class="ApplicationCore.Domain.EN.Torneo, ApplicationCore" column="TorneoId" />
