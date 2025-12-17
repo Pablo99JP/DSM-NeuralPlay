@@ -432,21 +432,35 @@ namespace NeuralPlay.Controllers
                             var perfilActual = await session.GetAsync<Perfil>(viewModel.IdPerfil);
                             if (perfilActual != null && !string.IsNullOrEmpty(perfilActual.FotoPerfilUrl))
                             {
-                                // Borrar la imagen antigua si existe
-                                try
+                                // Verificar si la imagen actual NO es Default.png antes de borrarla
+                                string imagenActual = perfilActual.FotoPerfilUrl;
+                                bool esImagenPorDefecto = imagenActual.EndsWith("Default.png", StringComparison.OrdinalIgnoreCase) ||
+                                                         imagenActual.EndsWith("/Default.png", StringComparison.OrdinalIgnoreCase) ||
+                                                         imagenActual.Contains("Default.png", StringComparison.OrdinalIgnoreCase);
+                                
+                                // Solo borrar si NO es la imagen por defecto
+                                if (!esImagenPorDefecto)
                                 {
-                                    string rutaImagenAntigua = Path.Combine(_webHostEnvironment.WebRootPath, 
-                                        perfilActual.FotoPerfilUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                                    
-                                    if (System.IO.File.Exists(rutaImagenAntigua))
+                                    try
                                     {
-                                        System.IO.File.Delete(rutaImagenAntigua);
+                                        string rutaImagenAntigua = Path.Combine(_webHostEnvironment.WebRootPath, 
+                                            perfilActual.FotoPerfilUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                                        
+                                        if (System.IO.File.Exists(rutaImagenAntigua))
+                                        {
+                                            System.IO.File.Delete(rutaImagenAntigua);
+                                        }
+                                    }
+                                    catch (Exception deleteEx)
+                                    {
+                                        // Log de error pero continuar con la actualización
+                                        Console.WriteLine($"Error al borrar imagen antigua: {deleteEx.Message}");
                                     }
                                 }
-                                catch (Exception deleteEx)
+                                else
                                 {
-                                    // Log de error pero continuar con la actualización
-                                    Console.WriteLine($"Error al borrar imagen antigua: {deleteEx.Message}");
+                                    // Log informativo (opcional)
+                                    Console.WriteLine($"Imagen por defecto '{imagenActual}' no se borrará del sistema de archivos.");
                                 }
                             }
                         }
