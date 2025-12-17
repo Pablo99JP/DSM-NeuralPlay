@@ -3,6 +3,7 @@ using ApplicationCore.Domain.CEN;
 using ApplicationCore.Domain.EN;
 using ApplicationCore.Domain.Repositories;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NeuralPlay.Controllers
 {
@@ -20,6 +21,13 @@ namespace NeuralPlay.Controllers
         private readonly MensajeChatCEN _mensajeChatCEN;
         private readonly IUnitOfWork _unitOfWork;
         private static readonly string[] EstadosPermitidos = { "PENDIENTE", "ABIERTO", "FINALIZADO" };
+
+        // Devuelve los equipos en los que el usuario tiene membresía activa
+        private List<Equipo> GetEquiposActivosDelUsuario(long usuarioId)
+        {
+            var equipos = _miembroEquipoCEN.ReadFilter_EquiposByUsuarioMembership(usuarioId) ?? Enumerable.Empty<Equipo>();
+            return equipos.Where(e => e != null).ToList();
+        }
 
         public TorneoController(ApplicationCore.Domain.Repositories.IRepository<Torneo> torneoRepo,
             PropuestaTorneoCEN propuestaCEN,
@@ -80,16 +88,7 @@ namespace NeuralPlay.Controllers
             var usuario = _usuarioAuth.GetUsuarioActual();
             if (usuario != null)
             {
-                var miembros = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
-                var equipos = new List<Equipo>();
-                foreach (var m in miembros)
-                {
-                    if (m.Equipo != null && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
-                    {
-                        equipos.Add(m.Equipo);
-                    }
-                }
-                vm.EquiposUsuario = equipos;
+                vm.EquiposUsuario = GetEquiposActivosDelUsuario(usuario.IdUsuario);
             }
 
             // Crear clasificación con 0 puntos por defecto para todos los equipos participantes
@@ -120,15 +119,7 @@ namespace NeuralPlay.Controllers
             }
 
             // Obtener solo los equipos donde el usuario tiene membresía ACTIVA
-            var miembros = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
-            var equipos = new List<Equipo>();
-            foreach (var m in miembros)
-            {
-                if (m.Equipo != null && m.Estado == ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
-                {
-                    equipos.Add(m.Equipo);
-                }
-            }
+            var equipos = GetEquiposActivosDelUsuario(usuario.IdUsuario);
 
             vm.EquiposDisponibles = equipos;
             
@@ -167,9 +158,9 @@ namespace NeuralPlay.Controllers
             }
 
             // 2) Validar que el usuario pertenezca al equipo (cualquier rol, estado ACTIVO)
-            var miembrosUsuario = _miembroEquipoCEN.BuscarMiembrosEquipoPorNickUsuario(usuario.Nick);
-            var miembroProp = miembrosUsuario.FirstOrDefault(m => m.Equipo != null && m.Equipo.IdEquipo == equipo.IdEquipo);
-            if (miembroProp == null || miembroProp.Estado != ApplicationCore.Domain.Enums.EstadoMembresia.ACTIVA)
+            var equiposUsuario = GetEquiposActivosDelUsuario(usuario.IdUsuario);
+            var pertenece = equiposUsuario.Any(e => e.IdEquipo == equipo.IdEquipo);
+            if (!pertenece)
             {
                 TempData["ErrorMessage"] = "Solo miembros activos del equipo pueden proponer participación.";
                 return RedirectToAction(nameof(ProponerParticipacion), new { id = torneo.IdTorneo });
@@ -235,7 +226,7 @@ namespace NeuralPlay.Controllers
             if (!comunidadesValidas.Any())
             {
                 TempData["ErrorMessage"] = "Solo los líderes y moderadores de comunidad pueden crear torneos.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Comunidad");
             }
 
             ViewBag.Comunidades = comunidadesValidas;
@@ -270,7 +261,7 @@ namespace NeuralPlay.Controllers
             if (!comunidadesValidas.Any())
             {
                 TempData["ErrorMessage"] = "Solo los líderes y moderadores de comunidad pueden crear torneos.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Comunidad");
             }
 
             if (!ModelState.IsValid)
@@ -329,7 +320,12 @@ namespace NeuralPlay.Controllers
             if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
             {
                 TempData["ErrorMessage"] = "Solo el creador del torneo puede editarlo.";
-                return RedirectToAction(nameof(Index));
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
 
             var model = new NeuralPlay.Models.TorneoCreateViewModel
@@ -343,6 +339,7 @@ namespace NeuralPlay.Controllers
 
             ViewBag.IdTorneo = id;
             ViewBag.Estados = EstadosPermitidos;
+            ViewBag.ComunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
             return View(model);
         }
 
@@ -365,7 +362,12 @@ namespace NeuralPlay.Controllers
             if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
             {
                 TempData["ErrorMessage"] = "Solo el creador del torneo puede editarlo.";
-                return RedirectToAction(nameof(Index));
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
 
             if (!EstadosPermitidos.Contains(model.Estado ?? string.Empty, System.StringComparer.OrdinalIgnoreCase))
@@ -396,7 +398,7 @@ namespace NeuralPlay.Controllers
                     return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Comunidad");
             }
             catch (System.Exception ex)
             {
@@ -425,7 +427,12 @@ namespace NeuralPlay.Controllers
             if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
             {
                 TempData["ErrorMessage"] = "Solo el creador del torneo puede eliminarlo.";
-                return RedirectToAction(nameof(Index));
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
 
             return View(torneo);
@@ -450,19 +457,32 @@ namespace NeuralPlay.Controllers
             if (torneo.Creador == null || torneo.Creador.IdUsuario != usuario.IdUsuario)
             {
                 TempData["ErrorMessage"] = "Solo el creador del torneo puede eliminarlo.";
-                return RedirectToAction(nameof(Index));
+                var comunidadId = torneo.ComunidadOrganizadora?.IdComunidad;
+                if (comunidadId.HasValue)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = comunidadId.Value });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
 
             try
             {
                 _torneoCEN.DestroyTorneo(id);
                 TempData["SuccessMessage"] = "Torneo eliminado correctamente.";
-                return RedirectToAction(nameof(Index));
+                if (torneo.ComunidadOrganizadora != null)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = torneo.ComunidadOrganizadora.IdComunidad });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
             catch (System.Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al eliminar el torneo: {ex.Message}";
-                return RedirectToAction(nameof(Index));
+                if (torneo.ComunidadOrganizadora != null)
+                {
+                    return RedirectToAction("Details", "Comunidad", new { id = torneo.ComunidadOrganizadora.IdComunidad });
+                }
+                return RedirectToAction("Index", "Comunidad");
             }
         }
     }

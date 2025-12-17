@@ -32,7 +32,14 @@
     </div>
 </div>
 
+@{
+    var comunidadId = Model.ComunidadOrganizadora?.IdComunidad;
+    var cancelUrl = comunidadId.HasValue
+        ? Url.Action("Details", "Comunidad", new { id = comunidadId.Value })
+        : Url.Action("Index", "Comunidad");
+}
+
 <form method="post" asp-action="Delete" asp-route-id="@Model.IdTorneo">
     <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
-    <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+    <a class="btn btn-secondary" href="@cancelUrl">Cancelar</a>
 </form>

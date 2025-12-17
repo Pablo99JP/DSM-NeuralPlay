@@ -201,9 +201,15 @@
                 <div class="form-note">Cambia el estado para abrir, finalizar o reabrir el torneo.</div>
             </div>
 
+            @{
+                var comunidadId = ViewBag.ComunidadId as long?;
+                var cancelarUrl = comunidadId.HasValue
+                    ? Url.Action("Details", "Comunidad", new { id = comunidadId.Value })
+                    : Url.Action("Index", "Torneo");
+            }
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Guardar cambios</button>
-                <a asp-action="Index" class="btn-cancel">Cancelar</a>
+                <a href="@cancelarUrl" class="btn-cancel">Cancelar</a>
             </div>
         </form>
     </section>

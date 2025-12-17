@@ -171,7 +171,7 @@
 
             <div class="form-group">
                 <label asp-for="ComunidadId" class="form-label">Comunidad Organizadora</label>
-                <select class="form-select" disabled>
+                <select id="comunidadSelect" asp-for="ComunidadId" class="form-select" disabled="@(ViewBag.Comunidades == null || ViewBag.Comunidades.Count == 0 ? "disabled" : null)">
                     @if (ViewBag.Comunidades != null)
                     {
                         foreach (var comunidad in ViewBag.Comunidades)
@@ -223,7 +223,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Crear Torneo</button>
-                <a asp-action="Index" class="btn-cancel">Cancelar</a>
+                <a href="#" class="btn-cancel" id="cancelCreate">Cancelar</a>
             </div>
         </form>
     </section>
@@ -231,4 +231,21 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        (function() {
+            const cancelBtn = document.getElementById("cancelCreate");
+            if (!cancelBtn) return;
+            cancelBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                const select = document.getElementById("comunidadSelect");
+                const selectedId = select && select.value ? select.value : "";
+                if (selectedId) {
+                    window.location.href = `/Comunidad/Details/${selectedId}`;
+                } else {
+                    window.location.href = "/Comunidad";
+                }
+            });
+        })();
+    </script>
 }

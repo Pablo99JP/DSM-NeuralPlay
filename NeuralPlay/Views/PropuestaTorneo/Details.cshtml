@@ -584,7 +584,14 @@
             </div>
 
             <!-- Botón volver -->
-            <a href="@Url.Action("Index", "Torneo")" class="btn-back">
+            @{
+                var comunidadId = Model.Propuesta.Torneo?.ComunidadOrganizadora?.IdComunidad;
+                var torneoId = Model.Propuesta.Torneo?.IdTorneo;
+                var backUrl = comunidadId.HasValue
+                    ? Url.Action("Details", "Comunidad", new { id = comunidadId.Value })
+                    : (torneoId.HasValue ? Url.Action("Details", "Torneo", new { id = torneoId.Value }) : Url.Action("Index", "Comunidad"));
+            }
+            <a href="@backUrl" class="btn-back">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
         </div>
