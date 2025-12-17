@@ -4,39 +4,43 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h2>Proponer participación</h2>
+<main>
+    <header>
+        <h2>Proponer participación</h2>
+    </header>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <h3 class="card-title">@Model.Torneo.Nombre</h3>
-        <p><strong>Fecha inicio:</strong> @(Model.Torneo.FechaInicio == default ? "-" : Model.Torneo.FechaInicio.ToString("yyyy-MM-dd"))</p>
-        <p><strong>Estado:</strong> @Model.Torneo.Estado</p>
+    <article class="card mb-3">
+        <div class="card-body">
+            <h3 class="card-title">@Model.Torneo.Nombre</h3>
+            <p><strong>Fecha inicio:</strong> @(Model.Torneo.FechaInicio == default ? "-" : Model.Torneo.FechaInicio.ToString("yyyy-MM-dd"))</p>
+            <p><strong>Estado:</strong> @Model.Torneo.Estado</p>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Message))
-        {
-            <div class="alert alert-warning">@Model.Message</div>
-        }
+            @if (!string.IsNullOrWhiteSpace(Model.Message))
+            {
+                <aside class="alert alert-warning">@Model.Message</aside>
+            }
 
-        @if (Model.EquiposDisponibles != null && Model.EquiposDisponibles.Any())
-        {
-            <form method="post" asp-action="ProponerParticipacion" asp-route-id="@Model.Torneo.IdTorneo">
-                <div class="mb-3">
-                    <label for="equipos" class="form-label">Selecciona tu equipo</label>
-                    <select id="equipos" name="SelectedEquipoId" class="form-select">
-                        @foreach (var e in Model.EquiposDisponibles)
-                        {
-                            <option value="@e.IdEquipo">@e.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar propuesta</button>
+            @if (Model.EquiposDisponibles != null && Model.EquiposDisponibles.Any())
+            {
+                <form method="post" asp-action="ProponerParticipacion" asp-route-id="@Model.Torneo.IdTorneo">
+                    <div class="mb-3">
+                        <label for="equipos" class="form-label">Selecciona tu equipo</label>
+                        <select id="equipos" name="SelectedEquipoId" class="form-select">
+                            @foreach (var e in Model.EquiposDisponibles)
+                            {
+                                <option value="@e.IdEquipo">@e.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar propuesta</button>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Torneo.IdTorneo">Volver</a>
+                </form>
+            }
+            else
+            {
+                <p>No tienes equipos disponibles para proponer participación en este momento.</p>
                 <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Torneo.IdTorneo">Volver</a>
-            </form>
-        }
-        else
-        {
-            <p>No tienes equipos disponibles para proponer participación en este momento.</p>
-            <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Torneo.IdTorneo">Volver</a>
-        }
-    </div>
-</div>
+            }
+        </div>
+    </article>
+</main>

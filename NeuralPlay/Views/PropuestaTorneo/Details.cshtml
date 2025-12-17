@@ -326,6 +326,9 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
     .member-item {
@@ -444,89 +447,89 @@
 </style>
 
 <!-- Contenedor principal -->
-<div class="main-container">
+<main class="main-container">
     <!-- Contenedor de contenido -->
     <div class="content-wrapper">
         <div class="content-inner">
             <!-- Encabezado -->
-            <div class="propuesta-header">
+            <header class="propuesta-header">
                 <h1>
                     <span>Votación:</span> <span class="highlight">@Model.Propuesta.Torneo?.Nombre</span>
                 </h1>
                 <p class="propuesta-subtitle">Equipo: @Model.Propuesta.EquipoProponente?.Nombre</p>
-            </div>
+            </header>
 
             <div class="propuesta-divider"></div>
 
             <!-- Tarjetas de información -->
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-shield-check"></i> Estado</div>
-                    <div class="info-card-value">@Model.Propuesta.Estado</div>
-                </div>
+            <section class="info-grid">
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-shield-check"></i> Estado</h3>
+                    <p class="info-card-value">@Model.Propuesta.Estado</p>
+                </article>
 
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-people-fill"></i> Votos</div>
-                    <div class="info-card-value">@votosDistinct / @miembrosCount</div>
-                </div>
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-people-fill"></i> Votos</h3>
+                    <p class="info-card-value">@votosDistinct / @miembrosCount</p>
+                </article>
 
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-percent"></i> Progreso</div>
-                    <div class="info-card-value">@porcentaje%</div>
-                </div>
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-percent"></i> Progreso</h3>
+                    <p class="info-card-value">@porcentaje%</p>
+                </article>
             </div>
 
             <!-- Mensajes -->
             @if (TempData["Success"] != null)
             {
-                <div class="alert-custom">
+                <aside class="alert-custom">
                     <div>
                         <i class="bi bi-check-circle"></i>
                         <span>@TempData["Success"]</span>
                     </div>
-                </div>
+                </aside>
             }
 
             @if (TempData["Error"] != null)
             {
-                <div class="alert-custom alert-danger">
+                <aside class="alert-custom alert-danger">
                     <div>
                         <i class="bi bi-exclamation-circle"></i>
                         <span>@TempData["Error"]</span>
                     </div>
-                </div>
+                </aside>
             }
 
             @if (hayDuplicados)
             {
-                <div class="alert-custom alert-warning">
+                <aside class="alert-custom alert-warning">
                     <div>
                         <i class="bi bi-exclamation-triangle"></i>
                         <span>Se encontraron votos duplicados que serán limpiados.</span>
                     </div>
-                </div>
+                </aside>
             }
 
             <!-- Barra de progreso -->
-            <div class="voting-progress">
-                <div class="progress-title">Progreso de Votación</div>
+            <section class="voting-progress">
+                <h3 class="progress-title">Progreso de Votación</h3>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" style="width: @porcentaje%">@porcentaje%</div>
                 </div>
-            </div>
+            </section>
 
             <!-- Sección de votación -->
-            <div class="voting-section">
+            <section class="voting-section">
                 @if (!esMiembro)
                 {
-                    <div class="alert-custom alert-info">
+                    <aside class="alert-custom alert-info">
                         <i class="bi bi-info-circle"></i>
                         <span>Solo los miembros del equipo pueden votar esta propuesta.</span>
-                    </div>
+                    </aside>
                 }
                 else
                 {
-                    <div class="voting-title">Emitir tu voto</div>
+                    <h3 class="voting-title">Emitir tu voto</h3>
                     <form method="post" asp-action="Votar" asp-controller="PropuestaTorneo" class="voting-buttons">
                         <input type="hidden" name="propuestaId" value="@Model.Propuesta.IdPropuesta" />
                         @if (yaVoto)
@@ -550,16 +553,16 @@
                         }
                     </form>
                 }
-            </div>
+            </section>
 
             <!-- Lista de miembros -->
-            <div class="members-section">
-                <div class="members-title">Miembros del Equipo</div>
-                <div class="members-list">
+            <section class="members-section">
+                <h3 class="members-title">Miembros del Equipo</h3>
+                <ul class="members-list">
                     @foreach (var m in Model.MiembrosEquipo)
                     {
                         var voto = Model.Propuesta.Votos?.FirstOrDefault(v => v.Votante != null && v.Votante.IdUsuario == m.IdUsuario);
-                        <div class="member-item">
+                        <li class="member-item">
                             <span class="member-name">@m.Nick</span>
                             <div class="member-vote">
                                 @if (voto != null)
@@ -578,9 +581,9 @@
                                     <span class="vote-pending"><i class="bi bi-clock"></i> Pendiente</span>
                                 }
                             </div>
-                        </div>
+                        </li>
                     }
-                </div>
+                </ul>
             </div>
 
             <!-- Botón volver -->
@@ -596,4 +599,4 @@
             </a>
         </div>
     </div>
-</div>
+</main>
