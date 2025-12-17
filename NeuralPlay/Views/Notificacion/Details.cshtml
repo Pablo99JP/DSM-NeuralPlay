@@ -180,8 +180,15 @@
         background: rgba(255, 255, 255, 0.04);
     }
 
-    .btn-primary-ghost { }
-    .btn-primary-ghost:hover { color: var(--np-red) !important; }
+    .btn-primary-ghost { 
+        border-color: var(--np-red);
+        background: rgba(229, 10, 70, 0.1);
+    }
+    .btn-primary-ghost:hover { 
+        color: var(--np-red) !important;
+        background: rgba(229, 10, 70, 0.2);
+        transform: translateY(-1px);
+    }
 
     .btn-success-solid { background: #4caf50; border-color: #4caf50; }
     .btn-success-solid:hover { filter: brightness(1.05); transform: translateY(-1px); }
@@ -451,6 +458,24 @@
                     </form>
                 }
                 
+                <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver notificaciones</a>
+            </nav>
+        }
+        else if (Model.Tipo == ApplicationCore.Domain.Enums.TipoNotificacion.ALERTA && Model.Texto.Contains("solicita unirse a tu equipo") && ViewBag.SolicitudEquipoId != null)
+        {
+            <article style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <h2 style="font-family: 'Neue', sans-serif; font-size: 1.8rem; margin-bottom: 16px; color: var(--np-red);">
+                    <i class="bi bi-person-plus"></i> Solicitud de Ingreso a Equipo
+                </h2>
+                <p class="meta-value">
+                    Esta notificación corresponde a una solicitud de ingreso a tu equipo. Puedes gestionarla desde la página del equipo.
+                </p>
+            </article>
+
+            <nav class="actions">
+                <a asp-controller="Equipo" asp-action="Details" asp-route-id="@ViewBag.SolicitudEquipoId" asp-route-tab="miembros" class="btn-primary-ghost">
+                    <i class="bi bi-people"></i> Gestionar Solicitud
+                </a>
                 <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver notificaciones</a>
             </nav>
         }

@@ -932,18 +932,31 @@
         const buttons = document.querySelectorAll('.tab-button');
         const panels = document.querySelectorAll('.tab-panel');
 
+        function activateTab(targetId) {
+            buttons.forEach(b => b.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+
+            const btn = document.querySelector(`.tab-button[data-target="${targetId}"]`);
+            const panel = document.getElementById(targetId);
+
+            if (btn) btn.classList.add('active');
+            if (panel) panel.classList.add('active');
+        }
+
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-target');
-
-                buttons.forEach(b => b.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
-
-                btn.classList.add('active');
-                const panel = document.getElementById(target);
-                if (panel) panel.classList.add('active');
+                activateTab(target);
             });
         });
+
+        // Activar pestaña desde parámetro URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            const tabId = 'tab-' + tabParam;
+            activateTab(tabId);
+        }
     })();
 </script>
 <script>

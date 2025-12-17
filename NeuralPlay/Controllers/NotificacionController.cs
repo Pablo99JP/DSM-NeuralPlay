@@ -13,21 +13,23 @@ namespace NeuralPlay.Controllers
     public class NotificacionController : BasicController
     {
         private readonly NotificacionCEN _notificacionCEN;
-        private readonly InvitacionCEN? _invitacionCEN;
-        private readonly IMiembroComunidadRepository? _miembroComunidadRepo;
-        private readonly IMiembroEquipoRepository? _miembroEquipoRepo;
-        private readonly MensajeChatCEN? _mensajeChatCEN;
-        private readonly ApplicationCore.Domain.Repositories.IUnitOfWork? _uow;
+        private readonly InvitacionCEN _invitacionCEN;
+        private readonly IMiembroComunidadRepository _miembroComunidadRepo;
+        private readonly IMiembroEquipoRepository _miembroEquipoRepo;
+        private readonly MensajeChatCEN _mensajeChatCEN;
+        private readonly ApplicationCore.Domain.Repositories.IUnitOfWork _uow;
+        private readonly SolicitudIngresoCEN _solicitudCEN;
 
         public NotificacionController(
             UsuarioCEN usuarioCEN, 
             IUsuarioRepository usuarioRepository, 
             NotificacionCEN notificacionCEN, 
-            InvitacionCEN invitacionCEN = null, 
-            IMiembroComunidadRepository miembroComunidadRepo = null, 
-            IMiembroEquipoRepository miembroEquipoRepo = null, 
-            MensajeChatCEN mensajeChatCEN = null, 
-            ApplicationCore.Domain.Repositories.IUnitOfWork uow = null)
+            InvitacionCEN invitacionCEN, 
+            IMiembroComunidadRepository miembroComunidadRepo, 
+            IMiembroEquipoRepository miembroEquipoRepo, 
+            MensajeChatCEN mensajeChatCEN, 
+            ApplicationCore.Domain.Repositories.IUnitOfWork uow,
+            SolicitudIngresoCEN solicitudCEN)
             : base(usuarioCEN, usuarioRepository)
         {
             _notificacionCEN = notificacionCEN;
@@ -36,6 +38,7 @@ namespace NeuralPlay.Controllers
             _miembroEquipoRepo = miembroEquipoRepo;
             _mensajeChatCEN = mensajeChatCEN;
             _uow = uow;
+            _solicitudCEN = solicitudCEN;
         }
 
         // GET: /Notificacion
@@ -102,7 +105,7 @@ namespace NeuralPlay.Controllers
             var vm = NotificacionAssembler.ConvertENToViewModel(n);
 
             // Si es una notificación de invitación, buscar la invitación pendiente más reciente para este usuario
-            if (_invitacionCEN != null && n.Tipo == TipoNotificacion.SISTEMA && n.Mensaje.Contains("invitación"))
+            if (n.Tipo == TipoNotificacion.SISTEMA && n.Mensaje.Contains("invitación"))
             {
                 var invitacionPendiente = _invitacionCEN.ReadAll_Invitacion()
                     .Where(inv => inv.Destinatario != null && inv.Destinatario.IdUsuario == userId.Value
@@ -116,6 +119,30 @@ namespace NeuralPlay.Controllers
                 }
             }
 
+            // Si es una notificación de solicitud de ingreso a equipo, buscar la solicitud y pasar info del equipo
+            if (n.Tipo == TipoNotificacion.ALERTA && n.Mensaje.Contains("solicita unirse a tu equipo"))
+            {
+                // Buscar solicitudes pendientes de equipos donde el usuario actual es admin
+                var solicitudesPendientes = _solicitudCEN.ReadAll_SolicitudIngreso()
+                    .Where(sol => sol.Estado == EstadoSolicitud.PENDIENTE 
+                                  && sol.Tipo == TipoInvitacion.EQUIPO
+                                  && sol.Equipo != null
+                                  && sol.Equipo.Miembros != null
+                                  && sol.Equipo.Miembros.Any(m => m.Rol == RolEquipo.ADMIN && m.Usuario != null && m.Usuario.IdUsuario == userId.Value))
+                    .OrderByDescending(sol => sol.FechaSolicitud)
+                    .ToList();
+
+                if (solicitudesPendientes.Any())
+                {
+                    // Encontrar la solicitud que coincide con el mensaje de la notificación
+                    var solicitudRelacionada = solicitudesPendientes.FirstOrDefault();
+                    if (solicitudRelacionada?.Equipo != null)
+                    {
+                        ViewBag.SolicitudEquipoId = solicitudRelacionada.Equipo.IdEquipo;
+                    }
+                }
+            }
+
             return View(vm);
         }
 
@@ -124,12 +151,6 @@ namespace NeuralPlay.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AcceptInvitation(long invitacionId, long notificacionId)
         {
-            if (_invitacionCEN == null || _miembroComunidadRepo == null || _miembroEquipoRepo == null || _mensajeChatCEN == null || _uow == null)
-            {
-                TempData["ErrorMessage"] = "Servicio no disponible.";
-                return RedirectToAction(nameof(Index));
-            }
-
             var inv = _invitacionCEN.ReadOID_Invitacion(invitacionId);
             if (inv == null) return NotFound();
             
@@ -210,12 +231,6 @@ namespace NeuralPlay.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RejectInvitation(long invitacionId, long notificacionId)
         {
-            if (_invitacionCEN == null || _uow == null)
-            {
-                TempData["ErrorMessage"] = "Servicio no disponible.";
-                return RedirectToAction(nameof(Index));
-            }
-
             var inv = _invitacionCEN.ReadOID_Invitacion(invitacionId);
             if (inv == null) return NotFound();
             
@@ -225,7 +240,7 @@ namespace NeuralPlay.Controllers
             inv.Estado = EstadoSolicitud.RECHAZADA;
             inv.FechaRespuesta = DateTime.UtcNow;
             _invitacionCEN.ModifyInvitacion(inv);
-            try { _uow?.SaveChanges(); } catch { }
+            try { _uow.SaveChanges(); } catch { }
             
             TempData["SuccessMessage"] = "Invitación rechazada.";
             return RedirectToAction(nameof(Index));
@@ -236,12 +251,6 @@ namespace NeuralPlay.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteInvitation(long invitacionId, long notificacionId)
         {
-            if (_invitacionCEN == null || _uow == null)
-            {
-                TempData["ErrorMessage"] = "Servicio no disponible.";
-                return RedirectToAction(nameof(Index));
-            }
-
             var inv = _invitacionCEN.ReadOID_Invitacion(invitacionId);
             if (inv == null) return NotFound();
             
@@ -249,7 +258,7 @@ namespace NeuralPlay.Controllers
             if (!uid.HasValue || inv.Destinatario == null || inv.Destinatario.IdUsuario != uid.Value) return Forbid();
             
             _invitacionCEN.DestroyInvitacion(invitacionId);
-            try { _uow?.SaveChanges(); } catch { }
+            try { _uow.SaveChanges(); } catch { }
             
             TempData["SuccessMessage"] = "Invitación eliminada.";
             return RedirectToAction(nameof(Index));
