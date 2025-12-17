@@ -41,11 +41,13 @@
     }
 </style>
 
-<div class="game-details-container">
-    <h1>@Model.NombreJuego</h1>
-    <p class="text-muted">@Model.Genero</p>
+<main class="game-details-container">
+    <header>
+        <h1>@Model.NombreJuego</h1>
+        <p class="text-muted">@Model.Genero</p>
+    </header>
 
-    <div class="form-actions">
+    <nav class="form-actions">
         <a href="#" class="btn-cancel" id="btn-volver">Volver a Explorar</a>
         @if (ViewBag.UsuarioLoggeado == true && ViewBag.TieneJuego == true)
         {
@@ -59,8 +61,8 @@
         {
             <a href="@Url.Action("Login", "Account")" class="btn-submit">Inicia sesión para añadir</a>
         }
-    </div>
-</div>
+    </nav>
+</main>
 
 <script>
     // Redirigir a la página de explorar con la pestaña de juegos activa
