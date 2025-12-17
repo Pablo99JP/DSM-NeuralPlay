@@ -233,6 +233,33 @@ namespace NeuralPlay.Controllers
                     }).ToList();
                 }
 
+                // Determinar si el usuario actual es admin del equipo
+                long? currentUserId = null;
+                if (User?.Identity?.IsAuthenticated == true)
+                {
+                    var nameId = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    if (long.TryParse(nameId, out var parsed)) currentUserId = parsed;
+                }
+                if (currentUserId == null && HttpContext?.Session != null)
+                {
+                    currentUserId = HttpContext.Session.GetInt32("UsuarioId");
+                }
+
+                bool isLeader = false;
+                if (currentUserId.HasValue)
+                {
+                    var membership = _miembroEquipoRepository.ReadAll()
+                        .FirstOrDefault(m =>
+                            m.Usuario != null && m.Usuario.IdUsuario == currentUserId.Value &&
+                            m.Equipo != null && m.Equipo.IdEquipo == id &&
+                            m.Estado == EstadoMembresia.ACTIVA);
+                    isLeader = membership?.Rol == RolEquipo.ADMIN;
+                }
+
+                ViewBag.IsLeader = isLeader;
+                ViewBag.EquipoId = id;
+                ViewBag.CurrentUserId = currentUserId;
+
                 var chatViewModel = new EquipoChatViewModel
                 {
                     IdEquipo = equipo.IdEquipo,

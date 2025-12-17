@@ -231,6 +231,21 @@ namespace NeuralPlay.Controllers
              s.Estado = EstadoSolicitud.ACEPTADA;
              s.FechaResolucion = DateTime.UtcNow;
              _solCEN.ModifySolicitudIngreso(s);
+             
+             // Enviar notificación al solicitante de que su solicitud fue aceptada
+             if (s.Solicitante != null)
+             {
+                 if (s.Equipo != null)
+                 {
+                     var mensaje = $"Tu solicitud para unirte al equipo '{s.Equipo.Nombre}' ha sido aceptada. ¡Bienvenido!";
+                     _notificacionCEN.NewNotificacion(TipoNotificacion.SISTEMA, mensaje, s.Solicitante);
+                 }
+                 else if (s.Comunidad != null)
+                 {
+                     var mensaje = $"Tu solicitud para unirte a la comunidad '{s.Comunidad.Nombre}' ha sido aceptada. ¡Bienvenido!";
+                     _notificacionCEN.NewNotificacion(TipoNotificacion.SISTEMA, mensaje, s.Solicitante);
+                 }
+             }
          }
 
          // Eliminar el mensaje de solicitud del chat si existe (incluso si ya estaba aceptada)
@@ -286,6 +301,21 @@ namespace NeuralPlay.Controllers
              s.Estado = EstadoSolicitud.RECHAZADA;
              s.FechaResolucion = DateTime.UtcNow;
              _solCEN.ModifySolicitudIngreso(s);
+             
+             // Enviar notificación al solicitante de que su solicitud fue rechazada
+             if (s.Solicitante != null)
+             {
+                 if (s.Equipo != null)
+                 {
+                     var mensaje = $"Tu solicitud para unirte al equipo '{s.Equipo.Nombre}' ha sido rechazada.";
+                     _notificacionCEN.NewNotificacion(TipoNotificacion.ALERTA, mensaje, s.Solicitante);
+                 }
+                 else if (s.Comunidad != null)
+                 {
+                     var mensaje = $"Tu solicitud para unirte a la comunidad '{s.Comunidad.Nombre}' ha sido rechazada.";
+                     _notificacionCEN.NewNotificacion(TipoNotificacion.ALERTA, mensaje, s.Solicitante);
+                 }
+             }
          }
          
          // Eliminar el mensaje de solicitud del chat si existe
