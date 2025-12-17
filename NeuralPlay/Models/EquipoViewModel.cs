@@ -40,5 +40,8 @@ namespace NeuralPlay.Models
 
         // Indica si el usuario actual es miembro del equipo
         public bool IsMember { get; set; }
+
+        // Indica si el usuario tiene una solicitud pendiente para este equipo
+        public bool HasPendingRequest { get; set; }
     }
 }

@@ -111,6 +111,22 @@ namespace NeuralPlay.Controllers
  Comunidad? com = null; Equipo? eq = null;
  if (comunidadId.HasValue) com = _comRepo.ReadById(comunidadId.Value);
  if (equipoId.HasValue) eq = _equipoRepo.ReadById(equipoId.Value);
+ 
+ // Verificar si ya existe una solicitud pendiente para este equipo/comunidad
+ if (tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO && equipoId.HasValue)
+ {
+ var solicitudExistente = _solCEN.ReadAll_SolicitudIngreso()
+ .FirstOrDefault(s => s.Solicitante != null && s.Solicitante.IdUsuario == solicitanteId
+ && s.Equipo != null && s.Equipo.IdEquipo == equipoId.Value
+ && s.Estado == EstadoSolicitud.PENDIENTE);
+ 
+ if (solicitudExistente != null)
+ {
+ TempData["ErrorMessage"] = "Ya tienes una solicitud pendiente para este equipo. Espera a que sea aceptada o rechazada.";
+ return RedirectToAction("Index", "Home", new { tab = "equipos" });
+ }
+ }
+ 
  try
  {
  var s = _solCEN.NewSolicitudIngreso(tipo, solicitante!, com, eq);

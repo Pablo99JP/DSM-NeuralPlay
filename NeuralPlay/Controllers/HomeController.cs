@@ -17,13 +17,15 @@ namespace NeuralPlay.Controllers
         private readonly ApplicationCore.Domain.CEN.JuegoCEN _juegoCEN;
         private readonly IMiembroComunidadRepository _miembroComunidadRepository;
         private readonly IMiembroEquipoRepository _miembroEquipoRepository;
+        private readonly ApplicationCore.Domain.CEN.SolicitudIngresoCEN _solicitudIngresoCEN;
 
         public HomeController(ILogger<HomeController> logger, 
             ApplicationCore.Domain.CEN.ComunidadCEN comunidadCEN,
             ApplicationCore.Domain.CEN.EquipoCEN equipoCEN,
             ApplicationCore.Domain.CEN.JuegoCEN juegoCEN,
             IMiembroComunidadRepository miembroComunidadRepository,
-            IMiembroEquipoRepository miembroEquipoRepository)
+            IMiembroEquipoRepository miembroEquipoRepository,
+            ApplicationCore.Domain.CEN.SolicitudIngresoCEN solicitudIngresoCEN)
         {
             _logger = logger;
             _comunidadCEN = comunidadCEN;
@@ -31,6 +33,7 @@ namespace NeuralPlay.Controllers
             _juegoCEN = juegoCEN;
             _miembroComunidadRepository = miembroComunidadRepository;
             _miembroEquipoRepository = miembroEquipoRepository;
+            _solicitudIngresoCEN = solicitudIngresoCEN;
         }
 
         public IActionResult Index(string searchTerm = "")
@@ -67,16 +70,26 @@ namespace NeuralPlay.Controllers
                         .Select(m => m.Equipo.IdEquipo)
                         .ToHashSet();
 
+                    // Obtener todas las solicitudes pendientes del usuario para equipos
+                    var solicitudesPendientes = _solicitudIngresoCEN.ReadAll_SolicitudIngreso()
+                        .Where(s => s.Solicitante != null && s.Solicitante.IdUsuario == usuarioId.Value 
+                                    && s.Estado == ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE
+                                    && s.Tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO
+                                    && s.Equipo != null)
+                        .Select(s => s.Equipo.IdEquipo)
+                        .ToHashSet();
+
                     // Marcar las comunidades donde el usuario es miembro
                     foreach (var comunidad in listaComunidadesVM)
                     {
                         comunidad.IsMember = miembrosComunidad.Contains(comunidad.IdComunidad);
                     }
 
-                    // Marcar los equipos donde el usuario es miembro
+                    // Marcar los equipos donde el usuario es miembro o tiene solicitud pendiente
                     foreach (var equipo in listaEquiposVM)
                     {
                         equipo.IsMember = miembrosEquipo.Contains(equipo.IdEquipo);
+                        equipo.HasPendingRequest = solicitudesPendientes.Contains(equipo.IdEquipo);
                     }
                 }
 
