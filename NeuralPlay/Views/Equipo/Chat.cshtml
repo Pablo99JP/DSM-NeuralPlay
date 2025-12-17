@@ -468,32 +468,27 @@
                         <div class="message-text @(isPropuesta ? "alert-propuesta" : (isSolicitud ? "alert-propuesta" : string.Empty))">@contenidoMostrado</div>
                         @if (isSolicitud)
                         {
-                            <div class="solicitud-actions">
-                                @if (solicitudId > 0)
-                                {
-                                    <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn-solicitud btn-aceptar">
-                                            <i class="bi bi-check-circle-fill"></i> Aceptar
-                                        </button>
-                                    </form>
-                                    <form asp-action="Reject" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn-solicitud btn-rechazar">
-                                            <i class="bi bi-x-circle-fill"></i> Rechazar
-                                        </button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn-solicitud btn-aceptar" onclick="alert('Aceptar solicitud')">
-                                        <i class="bi bi-check-circle-fill"></i> Aceptar
-                                    </button>
-                                    <button type="button" class="btn-solicitud btn-rechazar" onclick="alert('Rechazar solicitud')">
-                                        <i class="bi bi-x-circle-fill"></i> Rechazar
-                                    </button>
-                                }
-                            </div>
+                            var isLeader = (bool)(ViewBag.IsLeader ?? false);
+                            if (isLeader)
+                            {
+                                <div class="solicitud-actions">
+                                    @if (solicitudId > 0)
+                                    {
+                                        <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-solicitud btn-aceptar">
+                                                <i class="bi bi-check-circle-fill"></i> Aceptar
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-solicitud btn-rechazar">
+                                                <i class="bi bi-x-circle-fill"></i> Rechazar
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
                         }
                     </div>
                 </div>
