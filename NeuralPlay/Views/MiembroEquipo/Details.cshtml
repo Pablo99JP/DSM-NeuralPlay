@@ -211,55 +211,55 @@
     }
 </style>
 
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <div>
+        <section>
             <h1 class="page-title">Miembro del equipo</h1>
             <p class="page-subtitle">Consulta los datos de este miembro</p>
-        </div>
+        </section>
     </header>
 
     <section class="info-card">
-        <div class="info-grid">
-            <div class="info-block">
+        <section class="info-grid">
+            <section class="info-block">
                 <p class="info-label">Equipo</p>
                 <p class="info-value">@Model.NombreEquipo</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Usuario</p>
                 <p class="info-value">@Model.NombreUsuario</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Rol</p>
                 <p class="info-value">@Model.Rol</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Estado</p>
                 <p class="info-value">@Model.Estado</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Fecha de alta</p>
                 <p class="info-value">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</p>
-            </div>
+            </section>
             @if (Model.FechaAccion.HasValue)
             {
-                <div class="info-block">
+                <section class="info-block">
                     <p class="info-label">Fecha de acción</p>
                     <p class="info-value">@Model.FechaAccion.Value.ToString("dd/MM/yyyy HH:mm")</p>
-                </div>
+                </section>
             }
             @if (Model.FechaBaja.HasValue)
             {
-                <div class="info-block">
+                <section class="info-block">
                     <p class="info-label">Fecha de baja</p>
                     <p class="info-value">@Model.FechaBaja.Value.ToString("dd/MM/yyyy HH:mm")</p>
-                </div>
+                </section>
             }
-        </div>
+        </section>
 
-        <div class="actions">
+        <nav class="actions" aria-label="Acciones de detalles">
             <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Volver</a>
-        </div>
+        </nav>
     </section>
-</div>
+</main>
 

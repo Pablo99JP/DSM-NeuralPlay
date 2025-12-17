@@ -174,18 +174,18 @@
     .action-delete:hover { background: #f44336; color: #0d1b2a; }
 </style>
 
-<div class="content-container">
-    <div class="page-header">
-        <div>
+<main class="content-container" role="main">
+    <header class="page-header">
+        <section>
             <h1 class="page-title">Miembros de equipo</h1>
             <p class="page-subtitle">Gestiona roles y estados de los miembros</p>
-        </div>
+        </section>
         <a asp-action="Create" class="cta-add"><i class="bi bi-person-plus"></i> Añadir miembro</a>
-    </div>
+    </header>
 
     @if (TempData["Error"] != null)
     {
-        <div class="validation-panel">@TempData["Error"]</div>
+        <section class="validation-panel" role="alert" aria-live="polite">@TempData["Error"]</section>
     }
 
     <section class="card-panel">
@@ -210,16 +210,16 @@
                         <td><span class="badge-pill">@item.Estado</span></td>
                         <td>@item.FechaAlta.ToString("dd/MM/yyyy")</td>
                         <td>
-                            <div class="actions-inline">
+                            <nav class="actions-inline" aria-label="Acciones del miembro">
                                 <a asp-action="Edit" asp-route-id="@item.IdMiembroEquipo" class="action-btn action-edit"><i class="bi bi-pencil-square"></i> Editar</a>
                                 <a asp-action="Details" asp-route-id="@item.IdMiembroEquipo" class="action-btn action-view"><i class="bi bi-eye"></i> Detalles</a>
                                 <a asp-action="Delete" asp-route-id="@item.IdMiembroEquipo" class="action-btn action-delete"><i class="bi bi-trash"></i> Eliminar</a>
-                            </div>
+                            </nav>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </section>
-</div>
+</main>
 

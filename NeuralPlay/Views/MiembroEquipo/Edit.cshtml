@@ -186,54 +186,70 @@
     }
 </style>
 
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <div>
+        <section>
             <h1 class="page-title">Editar miembro</h1>
             <p class="page-subtitle">Actualiza el rol y estado del miembro</p>
-        </div>
+        </section>
     </header>
 
     <section class="form-card">
-        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
+        <section asp-validation-summary="ModelOnly" class="validation-panel" role="alert" aria-live="polite"></section>
+
+        @if (ViewBag.EsUnicoAdmin == true)
+        {
+            <section class="validation-panel" role="alert" style="background: rgba(255, 152, 0, 0.1); color: #fff3cd; border-left-color: #ff9800;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Eres el único administrador del equipo. No puedes cambiar tu rol hasta que asignes a otro miembro como administrador.
+            </section>
+        }
 
         <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="IdMiembroEquipo" />
             <input type="hidden" asp-for="IdUsuario" />
             <input type="hidden" asp-for="IdEquipo" />
 
-            <div class="form-group">
+            <section class="form-group">
                 <label class="form-label">Equipo</label>
                 <div class="readonly-pill">@Model.NombreEquipo</div>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label class="form-label">Usuario</label>
                 <div class="readonly-pill">@Model.NombreUsuario</div>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Rol" class="form-label">Rol</label>
-                <select asp-for="Rol" asp-items="ViewBag.Roles" class="form-select"></select>
+                @if (ViewBag.EsUnicoAdmin == true)
+                {
+                    <select asp-for="Rol" asp-items="ViewBag.Roles" class="form-select" disabled></select>
+                    <input type="hidden" asp-for="Rol" />
+                    <p style="color: #ff9800; font-size: 0.9rem; margin-top: 8px;"><i class="bi bi-info-circle"></i> No puedes modificar tu rol siendo el único administrador</p>
+                }
+                else
+                {
+                    <select asp-for="Rol" asp-items="ViewBag.Roles" class="form-select"></select>
+                }
                 <span asp-validation-for="Rol" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Estado" class="form-label">Estado</label>
                 <select asp-for="Estado" asp-items="ViewBag.Estados" class="form-select"></select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label class="form-label">Fecha de Alta</label>
                 <div class="readonly-pill">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</div>
-            </div>
+            </section>
 
-            <div class="actions">
+            <nav class="actions" aria-label="Acciones del formulario">
                 <button type="submit" class="btn-primary-custom"><i class="bi bi-save"></i> Guardar cambios</button>
                 <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Volver</a>
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</main>
 

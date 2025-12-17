@@ -10,12 +10,12 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<div class="row">
-    <div class="col-md-8 col-lg-6">
+<main role="main">
+    <section>
         <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <section asp-validation-summary="ModelOnly" class="text-danger" role="alert" aria-live="polite"></section>
 
-            <div class="form-group mb-3">
+            <section class="form-group mb-3">
                 <label asp-for="IdEquipo" class="form-label">Selecciona el Equipo</label>
                 <select asp-for="IdEquipo" asp-items="ViewBag.Equipos" class="form-select">
                     <option value="">-- Seleccione un equipo --</option>
@@ -37,12 +37,12 @@
                     <option value="">-- Seleccione un rol --</option>
                 </select>
                 <span asp-validation-for="Rol" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="d-flex gap-2">
+            <nav class="d-flex gap-2" aria-label="Acciones del formulario">
                 <button type="submit" class="btn btn-primary">Añadir al Equipo</button>
                 <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-            </div>
+            </nav>
         </form>
-    </div>
-</div>
+    </section>
+</main>

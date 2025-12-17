@@ -173,6 +173,16 @@ namespace NeuralPlay.Controllers
                 if (en == null) return NotFound();
                 var vm = MiembroEquipoAssembler.ConvertENToViewModel(en);
 
+                // Verificar si es el único admin del equipo
+                var esUnicoAdmin = false;
+                if (en.Rol == RolEquipo.ADMIN && en.Equipo != null)
+                {
+                    var cantidadAdmins = _miembroEquipoRepository.ReadAll()
+                        .Count(m => m.Equipo.IdEquipo == en.Equipo.IdEquipo && m.Rol == RolEquipo.ADMIN);
+                    esUnicoAdmin = cantidadAdmins == 1;
+                }
+                ViewBag.EsUnicoAdmin = esUnicoAdmin;
+
                 // Cargar roles y estados disponibles
                 ViewBag.Roles = new SelectList(System.Enum.GetValues(typeof(RolEquipo)));
                 ViewBag.Estados = new SelectList(System.Enum.GetValues(typeof(EstadoMembresia)));
@@ -204,6 +214,22 @@ namespace NeuralPlay.Controllers
 
                 var oldRol = en.Rol;
                 var oldEstado = en.Estado;
+
+                // VALIDACIÓN: No permitir que el único admin cambie su rol
+                if (oldRol == RolEquipo.ADMIN && model.Rol != RolEquipo.ADMIN && en.Equipo != null)
+                {
+                    var cantidadAdmins = _miembroEquipoRepository.ReadAll()
+                        .Count(m => m.Equipo.IdEquipo == en.Equipo.IdEquipo && m.Rol == RolEquipo.ADMIN);
+                    
+                    if (cantidadAdmins == 1)
+                    {
+                        ModelState.AddModelError(string.Empty, "No puedes cambiar tu rol de administrador siendo el único admin. Primero asigna a otro miembro como administrador.");
+                        ViewBag.Roles = new SelectList(System.Enum.GetValues(typeof(RolEquipo)));
+                        ViewBag.Estados = new SelectList(System.Enum.GetValues(typeof(EstadoMembresia)));
+                        ViewBag.EsUnicoAdmin = true;
+                        return View(model);
+                    }
+                }
 
                 // Si se está asignando el rol de ADMIN a este usuario
                 if (model.Rol == RolEquipo.ADMIN && oldRol != RolEquipo.ADMIN)
@@ -285,6 +311,22 @@ namespace NeuralPlay.Controllers
                 var en = _miembroEquipoCEN.ReadOID_MiembroEquipo(id);
                 if (en == null) return NotFound();
                 var vm = MiembroEquipoAssembler.ConvertENToViewModel(en);
+                
+                // Verificar si es el usuario actual abandonando su propio equipo
+                var currentUserId = HttpContext.Session.GetInt32("UsuarioId");
+                var esAbandonoVoluntario = currentUserId.HasValue && en.Usuario != null && currentUserId.Value == en.Usuario.IdUsuario;
+                ViewBag.EsAbandonoVoluntario = esAbandonoVoluntario;
+                
+                // Verificar si es el único admin
+                var esUnicoAdmin = false;
+                if (en.Rol == RolEquipo.ADMIN && en.Equipo != null)
+                {
+                    var cantidadAdmins = _miembroEquipoRepository.ReadAll()
+                        .Count(m => m.Equipo.IdEquipo == en.Equipo.IdEquipo && m.Rol == RolEquipo.ADMIN);
+                    esUnicoAdmin = cantidadAdmins == 1;
+                }
+                ViewBag.EsUnicoAdmin = esUnicoAdmin;
+                
                 return View(vm);
             }
             catch (System.Exception ex)
@@ -302,20 +344,60 @@ namespace NeuralPlay.Controllers
             {
                 var en = _miembroEquipoCEN.ReadOID_MiembroEquipo(id);
                 var equipoId = en?.Equipo?.IdEquipo;
+                
+                // Verificar si es abandono voluntario
+                var currentUserId = HttpContext.Session.GetInt32("UsuarioId");
+                var esAbandonoVoluntario = currentUserId.HasValue && en?.Usuario != null && currentUserId.Value == en.Usuario.IdUsuario;
+
+                // VALIDACIÓN: No permitir que el único admin sea eliminado
+                if (en != null && en.Rol == RolEquipo.ADMIN && en.Equipo != null)
+                {
+                    var cantidadAdmins = _miembroEquipoRepository.ReadAll()
+                        .Count(m => m.Equipo.IdEquipo == en.Equipo.IdEquipo && m.Rol == RolEquipo.ADMIN);
+                    
+                    if (cantidadAdmins == 1)
+                    {
+                        TempData["Error"] = "No puedes " + (esAbandonoVoluntario ? "abandonar" : "eliminar al único administrador del") + " equipo. Primero asigna a otro miembro como administrador.";
+                        return RedirectToAction(nameof(DeleteConfirm), new { id });
+                    }
+                }
 
                 if (en != null && en.Usuario != null && en.Equipo != null)
                 {
-                    _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has sido expulsado del equipo '{en.Equipo.Nombre}'.", en.Usuario);
-
-                    // Crear mensaje en el chat del equipo cuando se expulsa a un miembro
-                    if (en.Equipo.Chat != null)
+                    // Mensaje diferente según si es abandono o expulsión
+                    if (esAbandonoVoluntario)
                     {
-                        _mensajeChatCEN.NewMensajeChat($"{en.Usuario.Nick} ha sido expulsado del equipo.", en.Usuario, en.Equipo.Chat);
+                        _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has abandonado el equipo '{en.Equipo.Nombre}'.", en.Usuario);
+                        
+                        // Mensaje en el chat
+                        if (en.Equipo.Chat != null)
+                        {
+                            _mensajeChatCEN.NewMensajeChat($"{en.Usuario.Nick} ha abandonado el equipo.", en.Usuario, en.Equipo.Chat);
+                        }
+                    }
+                    else
+                    {
+                        _notificacionCEN.NewNotificacion(ApplicationCore.Domain.Enums.TipoNotificacion.SISTEMA, $"Has sido expulsado del equipo '{en.Equipo.Nombre}'.", en.Usuario);
+
+                        // Mensaje en el chat
+                        if (en.Equipo.Chat != null)
+                        {
+                            _mensajeChatCEN.NewMensajeChat($"{en.Usuario.Nick} ha sido expulsado del equipo.", en.Usuario, en.Equipo.Chat);
+                        }
                     }
                 }
 
                 _miembroEquipoCEN.DestroyMiembroEquipo(id);
                 try { _unitOfWork?.SaveChanges(); } catch { }
+                
+                // Si es abandono voluntario, redirigir a la lista de equipos con mensaje
+                if (esAbandonoVoluntario)
+                {
+                    TempData["SuccessMessage"] = "Has abandonado el equipo exitosamente.";
+                    return RedirectToAction("Index", "Equipos");
+                }
+                
+                // Si es expulsión, volver al detalle del equipo
                 if (equipoId.HasValue)
                 {
                     return RedirectToAction("Details", "Equipo", new { id = equipoId.Value });

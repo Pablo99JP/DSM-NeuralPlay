@@ -407,26 +407,27 @@
     }
 </style>
 
-<div class="chat-wrapper">
-    <div class="chat-header">
+<main class="chat-wrapper" role="main">
+    <header class="chat-header">
         <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-back" title="Volver al equipo">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <div class="chat-avatar">
+        <figure class="chat-avatar">
             <img src="@logo" alt="@Model.NombreEquipo" />
-        </div>
-        <div class="chat-title">
+            <figcaption class="visually-hidden">Logo del equipo</figcaption>
+        </figure>
+        <section class="chat-title">
             <h1>@Model.NombreEquipo</h1>
             <div class="chat-divider"></div>
-        </div>
-    </div>
+        </section>
+    </header>
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert-error">@TempData["Error"]</div>
+        <section class="alert-error">@TempData["Error"]</section>
     }
 
-    <div class="messages-container" id="chat-scroll">
+    <section class="messages-container" id="chat-scroll">
         @if (Model.Mensajes != null && Model.Mensajes.Any())
         {
             @foreach (var m in Model.Mensajes)
@@ -456,22 +457,23 @@
                     contenidoMostrado = m.Contenido;
                 }
 
-                <div class="message-item @(isPropuesta ? "alert-propuesta-bg" : (isSolicitud ? "alert-propuesta-bg" : string.Empty))">
-                    <div class="message-avatar">
+                <article class="message-item @(isPropuesta ? "alert-propuesta-bg" : (isSolicitud ? "alert-propuesta-bg" : string.Empty))">
+                    <figure class="message-avatar">
                         <img src="@avatar" alt="@m.NickAutor" />
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
+                        <figcaption class="visually-hidden">Avatar de @m.NickAutor</figcaption>
+                    </figure>
+                    <section class="message-content">
+                        <header class="message-header">
                             <span class="message-author">@m.NickAutor</span>
                             <span class="message-time">@m.FechaEnvio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
-                        </div>
-                        <div class="message-text @(isPropuesta ? "alert-propuesta" : (isSolicitud ? "alert-propuesta" : string.Empty))">@contenidoMostrado</div>
+                        </header>
+                        <p class="message-text @(isPropuesta ? "alert-propuesta" : (isSolicitud ? "alert-propuesta" : string.Empty))">@contenidoMostrado</p>
                         @if (isSolicitud)
                         {
                             var isLeader = (bool)(ViewBag.IsLeader ?? false);
                             if (isLeader)
                             {
-                                <div class="solicitud-actions">
+                                <nav class="solicitud-actions" aria-label="Acciones de solicitud">
                                     @if (solicitudId > 0)
                                     {
                                         <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@solicitudId" method="post" style="display: inline;">
@@ -487,32 +489,32 @@
                                             </button>
                                         </form>
                                     }
-                                </div>
+                                </nav>
                             }
                         }
-                    </div>
-                </div>
+                    </section>
+                </article>
             }
         }
         else
         {
-            <div class="empty-messages">
+            <section class="empty-messages">
                 <i class="bi bi-chat-left" style="font-size: 3rem; margin-bottom: 16px; display: block; opacity: 0.3;"></i>
                 No hay mensajes aún. ¡Escribe el primero!
-            </div>
+            </section>
         }
-    </div>
+    </section>
 
     <form asp-action="EnviarMensaje" asp-controller="Equipo" asp-route-id="@Model.IdEquipo" method="post" class="input-container">
         @Html.AntiForgeryToken()
-        <div class="message-input-wrapper">
+        <section class="message-input-wrapper">
             <textarea name="contenido" class="message-input" rows="1" placeholder="Escribe tu mensaje..." required></textarea>
-        </div>
+        </section>
         <button type="submit" class="btn-send">
             <i class="bi bi-send-fill"></i> <span>Enviar</span>
         </button>
     </form>
-</div>
+</main>
 
 <script>
     (function () {

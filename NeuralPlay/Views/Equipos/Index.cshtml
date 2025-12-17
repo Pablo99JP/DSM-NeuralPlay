@@ -339,7 +339,7 @@
 {
     <header class="profile-header">
         <h1>Bienvenido, <span class="username">@currentUser.Nick</span></h1>
-        <div class="profile-divider"></div>
+        <hr class="profile-divider" />
         <h2 class="profile-section-title">Tus Equipos</h2>
     </header>
 }
@@ -347,71 +347,88 @@ else
 {
     <header class="profile-header">
         <h1>Bienvenido</h1>
-        <div class="profile-divider"></div>
-        <h2 class="profile-section-title">Tus Equipos</h2>
+        <hr class="profile-divider" />
+        <h2 class="profile-section-title">Equipos</h2>
     </header>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="background: rgba(76, 175, 80, 0.1); color: #d4edda; border-left: 4px solid #4caf50; padding: 15px 20px; margin: 20px auto; max-width: 1020px; border-radius: 8px; font-family: 'Lexend', sans-serif; font-size: 1rem;">
+        <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="background: rgba(229, 10, 70, 0.1); color: #ffdce6; border-left: 4px solid var(--np-red); padding: 15px 20px; margin: 20px auto; max-width: 1020px; border-radius: 8px; font-family: 'Lexend', sans-serif; font-size: 1rem;">
+        <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+    </div>
 }
 
 <main class="content-wrapper">
     @if (noAutenticado)
     {
         <!-- Mensaje: Necesitas iniciar sesión -->
-        <div class="no-equipos-message">
-            <div class="no-equipos-icon">
+        <section class="no-equipos-message" role="status" aria-live="polite">
+            <figure class="no-equipos-icon">
                 <i class="bi bi-person-lock"></i>
-            </div>
+                <figcaption class="visually-hidden">Icono de candado</figcaption>
+            </figure>
             <h3 class="no-equipos-title">Necesitas iniciar sesión</h3>
             <p class="no-equipos-text">Para ver tus equipos debes estar autenticado en la plataforma.</p>
-            <div class="no-equipos-actions">
+            <nav class="no-equipos-actions" aria-label="Acciones de equipos">
                 <a href="@Url.Action("Create", "Equipo")" class="btn-equipos">
                     <i class="bi bi-plus-circle"></i> Crear Equipo
                 </a>
                 <a href="/" class="btn-equipos">
                     <i class="bi bi-search"></i> Explorar Equipos
                 </a>
-            </div>
-        </div>
+            </nav>
+        </section>
     }
     else if (!Model.Any())
     {
         <!-- Mensaje: No perteneces a ningún equipo -->
-        <div class="no-equipos-message">
-            <div class="no-equipos-icon">
+        <section class="no-equipos-message" role="status" aria-live="polite">
+            <figure class="no-equipos-icon">
                 <i class="bi bi-people"></i>
-            </div>
+                <figcaption class="visually-hidden">Icono de personas</figcaption>
+            </figure>
             <h3 class="no-equipos-title">No perteneces a ningún equipo</h3>
             <p class="no-equipos-text">Aún no formas parte de ningún equipo. ¡Crea uno o únete a uno existente!</p>
-            <div class="no-equipos-actions">
+            <nav class="no-equipos-actions" aria-label="Acciones de equipos">
                 <a href="@Url.Action("Create", "Equipo")" class="btn-equipos">
                     <i class="bi bi-plus-circle"></i> Crear Equipo
                 </a>
                 <a href="/" class="btn-equipos">
                     <i class="bi bi-search"></i> Explorar Equipos
                 </a>
-            </div>
-        </div>
+            </nav>
+        </section>
     }
     else
     {
         <!-- Lista de equipos -->
-        <div class="teams-list">
+        <section class="teams-list" aria-label="Tus equipos">
             @foreach (var equipo in Model)
             {
-                <div class="team-card" data-equipo-id="@equipo.IdEquipo" onclick="entrarEquipo(event)">
-                    <div class="team-icon">
+                <article class="team-card" data-equipo-id="@equipo.IdEquipo" onclick="entrarEquipo(event)" role="link" tabindex="0" aria-label="Abrir equipo @equipo.Nombre">
+                    <figure class="team-icon">
                         <img src="@(string.IsNullOrEmpty(equipo.ImagenUrl) ? "/Recursos/Equipos/default.webp" : equipo.ImagenUrl)" alt="@equipo.Nombre" />
-                    </div>
+                        <figcaption class="visually-hidden">Logo de @equipo.Nombre</figcaption>
+                    </figure>
                     
                     <h3 class="team-name">@equipo.Nombre</h3>
 
-                    <div class="team-actions">
+                    <nav class="team-actions" aria-label="Acciones del equipo @equipo.Nombre">
                         <a href="@Url.Action("Details", "Equipo", new { id = equipo.IdEquipo })" class="team-access" title="Acceder al equipo" onclick="event.stopPropagation();">
                             <i class="bi bi-arrow-right-circle-fill"></i>
                         </a>
-                    </div>
-                </div>
+                    </nav>
+                </article>
             }
-        </div>
+        </section>
     }
 </main>
 
@@ -423,4 +440,19 @@ else
         // Redirigir a Equipo/Details con el ID del equipo
         window.location.href = '/Equipo/Details/' + equipoId;
     }
+
+    // Auto-ocultar mensaje de éxito después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const successMessage = document.querySelector('[style*="rgba(76, 175, 80"]');
+        if (successMessage) {
+            setTimeout(function() {
+                successMessage.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                successMessage.style.opacity = '0';
+                successMessage.style.transform = 'translateY(-10px)';
+                setTimeout(function() {
+                    successMessage.remove();
+                }, 500);
+            }, 5000);
+        }
+    });
 </script>

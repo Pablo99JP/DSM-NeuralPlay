@@ -205,26 +205,24 @@
     }
 </style>
 
-<div class="main-container"></div>
-
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <div>
+        <section>
             <h1 class="page-title">Enviar Invitación</h1>
             <p class="page-subtitle">Invita a un usuario a unirse a tu equipo o comunidad</p>
-        </div>
+        </section>
     </header>
 
     <section class="form-card">
         @if (!ViewData.ModelState.IsValid || TempData["ErrorMessage"] != null)
         {
-            <div style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);">
+            <section style="color: var(--np-red); font-family: 'Lexend', sans-serif; font-size: 1.2rem; margin-bottom: 20px; padding: 15px; background: rgba(229, 10, 70, 0.1); border-radius: 8px; border-left: 4px solid var(--np-red);" role="alert" aria-live="polite">
                 @Html.ValidationSummary(false, "", new { @class = "text-danger" })
                 @if (TempData["ErrorMessage"] != null)
                 {
                     @TempData["ErrorMessage"]
                 }
-            </div>
+            </section>
         }
 
         <form asp-action="Create" method="post">
@@ -234,12 +232,12 @@
                 <input type="hidden" name="equipoId" value="@ViewBag.PrefillEquipoId" />
                 <input type="hidden" name="returnEquipoId" value="@ViewBag.PrefillEquipoId" />
             }
-            <div class="form-group">
+            <section class="form-group">
                 <label class="form-label">Emisor</label>
                 <div class="display-box">@ViewBag.EmisorNick</div>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label for="destinatarioId" class="form-label">Destinatario</label>
                 <select name="destinatarioId" id="destinatarioId" class="form-select" required>
                     <option value="">-- Selecciona un usuario --</option>
@@ -248,21 +246,21 @@
                         <option value="@u.Id">@u.Name</option> 
                     }
                 </select>
-            </div>
+            </section>
 
             @if (ViewBag.PrefillEquipoId == null)
             {
-                <div class="form-group">
+                <section class="form-group">
                     <label for="tipo" class="form-label">Tipo de Invitación</label>
                     <select name="tipo" id="tipo" class="form-select" required>
                         <option value="">-- Selecciona el tipo --</option>
                         <option value="1">Invitación a Equipo</option>
                         <option value="0">Invitación a Comunidad</option>
                     </select>
-                </div>
+                </section>
             }
 
-            <div class="form-group dynamic-group @((ViewBag.PrefillEquipoId != null) ? "show" : "")" id="equipoGroup">
+            <section class="form-group dynamic-group @((ViewBag.PrefillEquipoId != null) ? "show" : "")" id="equipoGroup">
                 <label for="equipoId" class="form-label">Equipo</label>
                 @if (ViewBag.PrefillEquipoId != null)
                 {
@@ -278,9 +276,9 @@
                         }
                     </select>
                 }
-            </div>
+            </section>
 
-            <div class="form-group dynamic-group" id="comunidadGroup">
+            <section class="form-group dynamic-group" id="comunidadGroup">
                 <label for="comunidadId" class="form-label">Comunidad</label>
                 <select name="comunidadId" id="comunidadId" class="form-select">
                     <option value="">-- Selecciona una comunidad --</option>
@@ -290,9 +288,9 @@
                     }
                 </select>
                 <p class="form-note">Selecciona la comunidad a la que deseas invitar al usuario</p>
-            </div>
+            </section>
 
-            <div class="actions">
+            <nav class="actions" aria-label="Acciones del formulario">
                 <button type="submit" class="btn-submit">
                     <i class="bi bi-send-fill"></i> Enviar Invitación
                 </button>
@@ -308,10 +306,10 @@
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
                 }
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</main>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -360,8 +358,4 @@
         }
     });
 </script>
-
-@@section Scripts {
-    @@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
 

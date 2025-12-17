@@ -645,33 +645,34 @@
     }
 </style>
 
-<div class="page-wrapper">
-    <div class="team-hero">
-        <div class="team-avatar">
+<main class="page-wrapper" role="main">
+    <header class="team-hero">
+        <figure class="team-avatar">
             <img src="@logo" alt="@Model.Nombre" />
-        </div>
-        <div class="team-header-text">
+            <figcaption class="visually-hidden">Logo del equipo</figcaption>
+        </figure>
+        <section class="team-header-text">
             <h1>@Model.Nombre</h1>
-            <div class="team-divider"></div>
+            <hr class="team-divider" />
             @if (!string.IsNullOrEmpty(Model.Descripcion))
             {
                 <p class="team-subtitle">@Model.Descripcion</p>
             }
-        </div>
-    </div>
+        </section>
+    </header>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div id="success-message-alert" class="panel" style="border: 1px solid rgba(76, 175, 80, 0.45); background: rgba(76, 175, 80, 0.08); margin-bottom: 16px; color: #d0f5d6; transition: opacity 0.5s ease-out;">
+        <section id="success-message-alert" class="panel" style="border: 1px solid rgba(76, 175, 80, 0.45); background: rgba(76, 175, 80, 0.08); margin-bottom: 16px; color: #d0f5d6; transition: opacity 0.5s ease-out;">
             <span style="font-family: 'Lexend', sans-serif; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="bi bi-check-circle" style="color:#81c784;"></i>
                 @TempData["SuccessMessage"]
             </span>
-        </div>
+        </section>
     }
 
-    <div class="tabs-wrapper">
-        <div class="team-tabs">
+    <section class="tabs-wrapper">
+        <nav class="team-tabs" aria-label="Secciones del equipo">
             <button class="tab-button active" data-target="tab-chat"><i class="bi bi-chat-dots"></i> Chat de equipo</button>
             <button class="tab-button" data-target="tab-miembros"><i class="bi bi-people"></i> Miembros</button>
             <button class="tab-button" data-target="tab-torneos"><i class="bi bi-trophy"></i> Torneos</button>
@@ -680,37 +681,38 @@
             {
                 <button class="tab-button" data-target="tab-configuracion"><i class="bi bi-gear"></i> Configuración</button>
             }
-        </div>
-    </div>
+        </nav>
+    </section>
 
     <section id="tab-chat" class="tab-panel active">
-        <div class="panel">
+        <section class="panel">
             <h3>Chat del equipo</h3>
             <p>Entra al chat para coordinar con tu equipo.</p>
             <a class="cta-link" asp-action="Chat" asp-route-id="@Model.IdEquipo"><i class="bi bi-arrow-right-circle"></i> Abrir chat</a>
-        </div>
+        </section>
     </section>
 
     <section id="tab-miembros" class="tab-panel">
         @if (isLeader && solicitudesPendientes.Any())
         {
-            <div class="panel" style="margin-bottom: 24px; border: 1px solid rgba(229, 10, 70, 0.3); background: rgba(229, 10, 70, 0.05);">
+            <section class="panel" style="margin-bottom: 24px; border: 1px solid rgba(229, 10, 70, 0.3); background: rgba(229, 10, 70, 0.05);">
                 <h3 style="color: var(--np-red); margin-bottom: 16px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
                     <i class="bi bi-person-plus-fill"></i> Solicitudes Pendientes
                 </h3>
-                <div class="members-list">
+                <section class="members-list">
                     @foreach (var sol in solicitudesPendientes)
                     {
-                        <div class="member-card" style="border-left: 3px solid var(--np-red);">
-                            <div class="member-avatar" style="background: var(--np-red);">
+                        <article class="member-card" style="border-left: 3px solid var(--np-red);">
+                            <figure class="member-avatar" style="background: var(--np-red);">
                                 <i class="bi bi-person" style="font-size: 1.5rem; color: white;"></i>
-                            </div>
-                            <div class="member-meta">
+                                <figcaption class="visually-hidden">Avatar solicitante</figcaption>
+                            </figure>
+                            <section class="member-meta">
                                 <span class="member-role" style="color: var(--np-red);">Solicitante</span>
                                 <span class="member-name">@sol.SolicitanteNick</span>
                                 <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">@sol.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</span>
-                            </div>
-                            <div class="member-actions" style="gap: 8px;">
+                            </section>
+                            <nav class="member-actions" style="gap: 8px;" aria-label="Acciones de solicitud pendiente">
                                 <form asp-action="Accept" asp-controller="SolicitudIngreso" asp-route-id="@sol.IdSolicitud" method="post" style="display: inline;">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="member-btn" style="background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid #4caf50; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" title="Aceptar">
@@ -723,41 +725,53 @@
                                         <i class="bi bi-x-lg" style="font-size: 1.2rem;"></i>
                                     </button>
                                 </form>
-                            </div>
-                        </div>
+                            </nav>
+                        </article>
                     }
-                </div>
-            </div>
+                </section>
+            </section>
         }
 
-        <div class="members-actions">
+        <nav class="members-actions" aria-label="Acciones de miembros">
             <a class="cta-link" asp-controller="Invitacion" asp-action="Create" asp-route-equipoId="@Model.IdEquipo">
                 <i class="bi bi-person-plus"></i> Invitar miembros
             </a>
-        </div>
+            @if (!isLeader)
+            {
+                var miembroActual = miembros.FirstOrDefault(m => m.IdUsuario == currentUserId);
+                if (miembroActual != null)
+                {
+                    <a class="cta-link" style="background: transparent; border: 2px solid var(--np-red); color: var(--np-red);" 
+                       asp-controller="MiembroEquipo" asp-action="Delete" asp-route-id="@miembroActual.IdMiembroEquipo">
+                        <i class="bi bi-box-arrow-right"></i> Abandonar equipo
+                    </a>
+                }
+            }
+        </nav>
         @if (miembros.Any())
         {
-            <div class="members-list">
+            <section class="members-list">
                 @foreach (var miembro in miembros)
                 {
                     var avatar = string.IsNullOrEmpty(miembro.FotoPerfilUrl)
                         ? "/images/avatar_default.png"
                         : miembro.FotoPerfilUrl;
-                    <div class="member-card">
-                        <div class="member-avatar">
+                    <article class="member-card">
+                        <figure class="member-avatar">
                             <img src="@avatar" alt="@miembro.NombreUsuario" />
-                        </div>
-                        <div class="member-meta">
+                            <figcaption class="visually-hidden">Avatar de @miembro.NombreUsuario</figcaption>
+                        </figure>
+                        <section class="member-meta">
                             <span class="member-role">@miembro.Rol</span>
                             <span class="member-name">@miembro.NombreUsuario</span>
-                        </div>
-                        <div class="member-actions">
+                        </section>
+                        <nav class="member-actions" aria-label="Acciones del miembro @miembro.NombreUsuario">
                             <a href="@Url.Action("Details", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-view" title="Ver detalles del miembro">
                                 <i class="bi bi-eye-fill"></i>
                             </a>
                             @if (isLeader)
                             {
-                                <div class="member-actions-admin">
+                                <section class="member-actions-admin">
                                     <a href="@Url.Action("Edit", "MiembroEquipo", new { id = miembro.IdMiembroEquipo })" class="member-btn member-btn-edit" title="Editar miembro">
                                         <i class="bi bi-pencil-fill"></i>
                                     </a>
@@ -767,22 +781,22 @@
                                             <i class="bi bi-trash-fill"></i>
                                         </a>
                                     }
-                                </div>
+                                </section>
                             }
-                        </div>
-                    </div>
+                        </nav>
+                    </article>
                 }
-            </div>
+            </section>
         }
         else
         {
-            <div class="empty-state">Este equipo aún no tiene miembros.</div>
+            <section class="empty-state">Este equipo aún no tiene miembros.</section>
         }
     </section>
 
     <section id="tab-torneos" class="tab-panel">
-        <div class="torneos-grid">
-            <div>
+        <section class="torneos-grid">
+            <section>
                 @{
                     var propuestas = ViewBag.Propuestas as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
                 }
@@ -790,7 +804,7 @@
                 {
                     @foreach (var p in propuestas)
                     {
-                        <div class="proposal-card">
+                        <article class="proposal-card">
                             <h4>@p.Nombre</h4>
                             <p class="proposal-meta">Propuesto por @p.PropuestoPor</p>
 
@@ -803,43 +817,43 @@
                             <a class="cta-link" asp-controller="PropuestaTorneo" asp-action="Details" asp-route-id="@p.Id">
                                 <i class="bi bi-eye"></i> Ver votación
                             </a>
-                        </div>
+                        </article>
                     }
                 }
                 else
                 {
-                    <div class="empty-state">No hay propuestas de torneo pendientes.</div>
+                    <section class="empty-state">No hay propuestas de torneo pendientes.</section>
                 }
-            </div>
+            </section>
 
             @{
                 var abiertos = torneos.Where(t => t != null && t.Estado == "ABIERTO").ToList();
             }
-            <div class="participando">
+            <section class="participando">
                 <h4>Participando actualmente</h4>
-                <div class="participando-divider"></div>
+                <hr class="participando-divider" />
                 @if (abiertos.Any())
                 {
-                    <div class="participando-list">
+                    <section class="participando-list">
                         @foreach (var torneo in abiertos)
                         {
-                            <div class="participando-item">
+                            <article class="participando-item">
                                 <span class="participando-name">@torneo.Nombre</span>
                                 <a asp-controller="Torneo" asp-action="Details" asp-route-id="@torneo.IdTorneo" class="cta-link" style="padding: 8px 10px; font-size: 0.9rem;">Ver</a>
-                            </div>
+                            </article>
                         }
-                    </div>
+                    </section>
                 }
                 else
                 {
-                    <div class="empty-state">No está participando en torneos abiertos.</div>
+                    <section class="empty-state">No está participando en torneos abiertos.</section>
                 }
-            </div>
-        </div>
+            </section>
+        </section>
     </section>
 
     <section id="tab-palmares" class="tab-panel">
-        <div class="panel">
+        <section class="panel">
             <h3>Palmarés</h3>
             @if (palmares.Any())
             {
@@ -888,30 +902,30 @@
             }
             else
             {
-                <div class="empty-state">Este equipo no tiene palmarés todavía.</div>
+                <section class="empty-state">Este equipo no tiene palmarés todavía.</section>
             }
-        </div>
+        </section>
     </section>
 
     @if (isLeader)
     {
         <section id="tab-configuracion" class="tab-panel">
-            <div class="panel">
+            <section class="panel">
                 <h3><i class="bi bi-gear"></i> Configuración del equipo</h3>
                 <p style="color: #ccc; margin-bottom: 30px;">Como administrador del equipo, puedes editar la información o eliminar el equipo.</p>
                 
-                <div class="form-actions">
+                <nav class="form-actions" aria-label="Acciones de configuración">
                     <a href="@Url.Action("Edit", "Equipo", new { id = Model.IdEquipo })" class="btn-submit">
                         <i class="bi bi-pencil-fill"></i> Editar Equipo
                     </a>
                     <a href="@Url.Action("Delete", "Equipo", new { id = Model.IdEquipo })" class="btn-cancel" style="border-color: #e74c3c; color: #e74c3c;">
                         <i class="bi bi-trash-fill"></i> Eliminar Equipo
                     </a>
-                </div>
-            </div>
+                </nav>
+            </section>
         </section>
     }
-</div>
+</main>
 
 <script>
     (function() {

@@ -181,18 +181,18 @@
 	bool isDest = uid.HasValue && Model.DestinatarioId.HasValue && uid.Value == Model.DestinatarioId.Value;
 }
 
-<div class="content-container">
-	<div class="page-header">
-		<div>
+<main class="content-container" role="main">
+	<header class="page-header">
+		<section>
 			<h1 class="page-title">Invitacion @Model.IdInvitacion</h1>
 			<p class="page-subtitle">Consulta los detalles y acciones disponibles</p>
-		</div>
+		</section>
 		<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
-	</div>
+	</header>
 
 	<section class="card-panel">
-		<div class="meta-grid">
-			<div>
+		<section class="meta-grid">
+			<section>
 				<div class="meta-label">Estado</div>
 				@if (Model.Estado.ToString() == "PENDIENTE")
 				{
@@ -206,24 +206,24 @@
 				{
 					<span class="badge-pill badge-estado-rechazada"><i class="bi bi-x-circle"></i> Rechazada</span>
 				}
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Tipo</div>
 				<div class="meta-value">@Model.Tipo</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Emisor</div>
 				<div class="meta-value">@Model.EmisorNick</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Destinatario</div>
 				<div class="meta-value">@Model.DestinatarioNick</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Fecha envio</div>
 				<div class="meta-value">@Model.FechaEnvio.ToString("dd/MM/yyyy")</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Destino</div>
 				<div class="meta-value">
 					@if (Model.Tipo == ApplicationCore.Domain.Enums.TipoInvitacion.EQUIPO)
@@ -235,10 +235,10 @@
 						<text>Comunidad: @Model.ComunidadNombre</text>
 					}
 				</div>
-			</div>
-		</div>
+			</section>
+		</section>
 
-		<div class="actions">
+		<nav class="actions" aria-label="Acciones de invitación">
 			<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver listado</a>
 
 			@if (Model.Estado.ToString() == "PENDIENTE" && isDest)
@@ -257,7 +257,7 @@
 			{
 				<a asp-action="Delete" asp-route-id="@Model.IdInvitacion" class="btn-danger-solid" style="margin-left: 12px;"><i class="bi bi-trash"></i> Eliminar</a>
 			}
-		</div>
+		</nav>
 	</section>
-</div>
+</main>
 

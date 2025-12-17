@@ -1,7 +1,9 @@
 ﻿@model NeuralPlay.Models.MiembroEquipoViewModel
 
 @{
-    ViewData["Title"] = "Eliminar Miembro del Equipo";
+    var esAbandonoVoluntario = ViewBag.EsAbandonoVoluntario ?? false;
+    var esUnicoAdmin = ViewBag.EsUnicoAdmin ?? false;
+    ViewData["Title"] = esAbandonoVoluntario ? "Abandonar Equipo" : "Eliminar Miembro del Equipo";
     ViewBag.OcultarNavbar = true;
 }
 
@@ -210,46 +212,76 @@
     }
 </style>
 
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <h1 class="page-title">Expulsar miembro</h1>
+        <h1 class="page-title">@(esAbandonoVoluntario ? "Abandonar equipo" : "Expulsar miembro")</h1>
     </header>
 
-    <div class="alert-card">
-        ¿Seguro que quieres expulsar a este usuario del equipo?
-    </div>
+    @if (esUnicoAdmin)
+    {
+        <section class="alert-card" role="alert" aria-live="polite" style="background: rgba(255, 152, 0, 0.12); border-color: rgba(255, 152, 0, 0.5); color: #fff3cd;">
+            <i class="bi bi-exclamation-triangle-fill"></i> No puedes @(esAbandonoVoluntario ? "abandonar el equipo" : "ser eliminado") siendo el único administrador. Primero asigna a otro miembro como administrador.
+        </section>
+    }
+    else
+    {
+        <section class="alert-card" role="alert" aria-live="polite">
+            @if (esAbandonoVoluntario)
+            {
+                <text>¿Estás seguro de que quieres abandonar este equipo?</text>
+            }
+            else
+            {
+                <text>¿Seguro que quieres expulsar a este usuario del equipo?</text>
+            }
+        </section>
+    }
 
     <section class="info-card">
-        <div class="info-grid">
-            <div class="info-block">
+        <section class="info-grid">
+            <section class="info-block">
                 <p class="info-label">Equipo</p>
                 <p class="info-value">@Model.NombreEquipo</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Usuario</p>
                 <p class="info-value">@Model.NombreUsuario</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Rol</p>
                 <p class="info-value">@Model.Rol</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Estado</p>
                 <p class="info-value">@Model.Estado</p>
-            </div>
-            <div class="info-block">
+            </section>
+            <section class="info-block">
                 <p class="info-label">Fecha de alta</p>
                 <p class="info-value">@Model.FechaAlta.ToString("dd/MM/yyyy HH:mm")</p>
-            </div>
-        </div>
+            </section>
+        </section>
 
         <form asp-action="Delete" method="post">
             <input type="hidden" asp-for="IdMiembroEquipo" />
-            <div class="actions">
-                <button type="submit" class="btn-danger-custom"><i class="bi bi-trash-fill"></i> Eliminar</button>
-                <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Cancelar</a>
-            </div>
+            <nav class="actions" aria-label="Acciones de eliminación">
+                @if (esUnicoAdmin)
+                {
+                    <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Volver</a>
+                }
+                else
+                {
+                    @if (esAbandonoVoluntario)
+                    {
+                        <button type="submit" class="btn-danger-custom"><i class="bi bi-box-arrow-right"></i> Abandonar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn-danger-custom"><i class="bi bi-trash-fill"></i> Eliminar</button>
+                    }
+                    <a asp-controller="Equipo" asp-action="Details" asp-route-id="@Model.IdEquipo" class="btn-secondary-custom"><i class="bi bi-arrow-left"></i> Cancelar</a>
+                }
+            </nav>
         </form>
     </section>
-</div>
+</main>
 

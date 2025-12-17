@@ -182,17 +182,17 @@
 	.btn-primary-ghost:hover { background: #00b894; color: #0d1b2a; }
 </style>
 
-<div class="content-container">
-	<div class="page-header">
-		<div>
+<main class="content-container" role="main">
+	<header class="page-header">
+		<section>
 			<h1 class="page-title">Eliminar invitacion</h1>
 			<p class="page-subtitle">Confirma antes de borrar definitivamente</p>
-		</div>
+		</section>
 		<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
-	</div>
+	</header>
 
 	<section class="card-panel">
-		<div class="highlight-box">
+		<section class="highlight-box">
 			<div>
 				<div class="meta-label">Estado</div>
 				@if (Model.Estado.ToString() == "PENDIENTE")
@@ -208,32 +208,32 @@
 					<span class="badge-pill badge-estado-rechazada"><i class="bi bi-x-circle"></i> Rechazada</span>
 				}
 			</div>
-			<div>
+			<section>
 				<div class="meta-label">Emisor</div>
 				<div class="meta-value">@Model.EmisorNick</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Destinatario</div>
 				<div class="meta-value">@Model.DestinatarioNick</div>
-			</div>
-			<div>
+			</section>
+			<section>
 				<div class="meta-label">Tipo</div>
 				<div class="meta-value">@Model.Tipo</div>
-			</div>
-		</div>
+			</section>
+		</section>
 
-		<div class="warning-box">
+		<section class="warning-box" role="alert">
 			<i class="bi bi-exclamation-triangle-fill"></i>
 			Esta accion eliminara la invitacion de forma permanente. No podras recuperarla.
-		</div>
+		</section>
 
 		<form asp-action="Delete" method="post">
 			<input type="hidden" name="id" value="@Model.IdInvitacion" />
-			<div class="actions">
+			<nav class="actions" aria-label="Acciones de eliminación">
 				<button type="submit" class="btn-danger-solid"><i class="bi bi-trash"></i> Eliminar definitivamente</button>
 				<a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-x-circle"></i> Cancelar</a>
-			</div>
+			</nav>
 		</form>
 	</section>
-</div>
+</main>
 

@@ -146,22 +146,23 @@
 
 <div class="main-container"></div>
 
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <div class="team-avatar">
+        <figure class="team-avatar">
             <img src="@logo" alt="Logo equipo" />
-        </div>
-        <div>
+            <figcaption class="visually-hidden">Logo del equipo</figcaption>
+        </figure>
+        <section>
             <h1 class="page-title">Eliminar Equipo</h1>
             <p class="page-subtitle">Esta acción es irreversible. Se eliminará el equipo y sus datos asociados.</p>
-        </div>
+        </section>
     </header>
 
     <section class="card-delete">
-        <div class="warning">
+        <section class="warning" aria-label="Advertencia de eliminación">
             <i class="bi bi-exclamation-triangle-fill"></i>
             <span>Confirma que deseas eliminar este equipo.</span>
-        </div>
+        </section>
 
         <dl>
             <dt>ID</dt><dd>@Model.IdEquipo</dd>
@@ -175,10 +176,10 @@
 
         <form asp-action="Delete" asp-route-id="@Model.IdEquipo" method="post">
             <input type="hidden" name="id" value="@Model.IdEquipo" />
-            <div class="actions">
+            <nav class="actions" aria-label="Acciones de eliminación">
                 <button type="submit" class="btn-delete">Eliminar definitivamente</button>
                 <a asp-controller="Equipos" asp-action="Index" class="btn-cancel">Cancelar</a>
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</main>

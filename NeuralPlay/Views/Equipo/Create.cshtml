@@ -181,66 +181,66 @@
 
 <div class="main-container"></div>
 
-<div class="content-container">
+<main class="content-container" role="main">
     <header class="page-header">
-        <div>
+        <section>
             <h1 class="page-title">Crear Equipo</h1>
             <p class="page-subtitle">Define los datos principales de tu nuevo equipo</p>
-        </div>
+        </section>
     </header>
 
     <section class="form-card">
-        <div asp-validation-summary="ModelOnly" class="validation-panel"></div>
+        <section asp-validation-summary="ModelOnly" class="validation-panel" role="alert" aria-live="polite"></section>
 
         <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Nombre" class="form-label">Nombre</label>
                 <input asp-for="Nombre" class="form-input" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Descripcion" class="form-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-input" rows="3"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Actividad" class="form-label">Actividad</label>
                 <select asp-for="Actividad" class="form-select" asp-items="Html.GetEnumSelectList<ApplicationCore.Domain.Enums.Actividad>()"></select>
                 <span asp-validation-for="Actividad" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Pais" class="form-label">País</label>
                 <input asp-for="Pais" class="form-input" />
                 <span asp-validation-for="Pais" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="Idioma" class="form-label">Idioma</label>
                 <input asp-for="Idioma" class="form-input" />
                 <span asp-validation-for="Idioma" class="text-danger"></span>
-            </div>
+            </section>
 
-            <div class="form-group">
+            <section class="form-group">
                 <label asp-for="ImagenArchivo" class="form-label">Logo del equipo</label>
                 @if (!string.IsNullOrEmpty(Model?.ImagenUrl))
                 {
-                    <div style="margin-bottom: 12px;">
+                    <figure class="logo-preview" style="margin-bottom: 12px;">
                         <img src="@Model.ImagenUrl" alt="Logo actual" style="max-width: 150px; max-height: 150px; border-radius: 10px; border: 2px solid var(--np-red);" />
-                        <p style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Logo actual (si ya se cargó)</p>
-                    </div>
+                        <figcaption style="color: #ccc; font-size: 0.9rem; margin-top: 5px;">Logo actual (si ya se cargó)</figcaption>
+                    </figure>
                 }
                 <input asp-for="ImagenArchivo" type="file" class="form-input" accept="image/*" />
                 <span asp-validation-for="ImagenArchivo" class="text-danger"></span>
-                <div class="form-note">Selecciona un logo para tu equipo (opcional).</div>
-            </div>
+                <p class="form-note">Selecciona un logo para tu equipo (opcional).</p>
+            </section>
 
-            <div class="actions">
+            <nav class="actions" aria-label="Acciones del formulario">
                 <button type="submit" class="btn-submit">Guardar</button>
                 <a asp-controller="Equipos" asp-action="Index" class="btn-cancel">Cancelar</a>
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</main>
