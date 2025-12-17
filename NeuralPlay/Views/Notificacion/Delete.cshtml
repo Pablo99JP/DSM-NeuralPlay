@@ -285,14 +285,14 @@
     }
 </style>
 
-<div class="content-container">
-    <div class="page-header">
+<main class="content-container">
+    <header class="page-header">
         <div>
             <h1 class="page-title">Eliminar notificación</h1>
             <p class="page-subtitle">Confirma antes de borrar definitivamente</p>
         </div>
         <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
-    </div>
+    </header>
 
     <section class="card-panel">
         <div class="highlight-box">
@@ -307,10 +307,10 @@
 
         <form asp-action="Delete" method="post">
             <input type="hidden" asp-for="Id" />
-            <div class="actions">
+            <nav class="actions">
                 <button type="submit" class="btn-danger-solid"><i class="bi bi-trash"></i> Eliminar definitivamente</button>
                 <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-x-circle"></i> Cancelar</a>
-            </div>
+            </nav>
         </form>
     </section>
-</div>
+</main>

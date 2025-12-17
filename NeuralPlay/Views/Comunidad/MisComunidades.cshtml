@@ -400,9 +400,9 @@ else
                     <img src="@(string.IsNullOrEmpty(comunidad.ImagenUrl) ? "/Recursos/Comunidades/default.webp" : comunidad.ImagenUrl)" 
                          alt="@comunidad.Nombre" 
                          class="comunidad-img" />
-                    <aside class="comunidad-overlay">
+                    <div class="comunidad-overlay">
                         <span class="comunidad-ver">Ver</span>
-                    </aside>
+                    </div>
                     <h3 class="comunidad-title">@comunidad.Nombre</h3>
                 </article>
             }
@@ -410,16 +410,16 @@ else
     }
     else
     {
-        <aside class="no-comunidades-message">
-            <figure class="no-comunidades-icon">
+        <section class="no-comunidades-message">
+            <div class="no-comunidades-icon">
                 <i class="bi bi-people"></i>
-            </figure>
+            </div>
             <h3 class="no-comunidades-title">No perteneces a ninguna comunidad</h3>
             <p class="no-comunidades-text">Explora y únete a comunidades para conectar con otros jugadores</p>
             <a href="@Url.Action("Index", "Home")" class="btn-explore-comunidades">
                 <i class="bi bi-search"></i> Explorar Comunidades
             </a>
-        </aside>
+        </section>
     }
 </main>
 

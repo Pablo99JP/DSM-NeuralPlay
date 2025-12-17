@@ -8,36 +8,40 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h1>@ViewData["Title"]</h1>
+<main>
+    <header>
+        <h1>@ViewData["Title"]</h1>
+        <h2>�Est�s seguro de que quieres eliminar este juego?</h2>
+    </header>
 
-<h3>�Est�s seguro de que quieres eliminar este juego?</h3>
-<div>
-    <h4>Juego</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdJuego)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdJuego)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NombreJuego)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NombreJuego)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genero)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genero)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete" asp-route-id="@Model.IdJuego">
-        <input type="hidden" asp-for="IdJuego" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </form>
-</div>
+    <section>
+        <h3>Juego</h3>
+        <hr />
+        <dl class="row">
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.IdJuego)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.IdJuego)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.NombreJuego)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.NombreJuego)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Genero)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Genero)
+            </dd>
+        </dl>
+        
+        <form asp-action="Delete" asp-route-id="@Model.IdJuego">
+            <input type="hidden" asp-for="IdJuego" />
+            <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </section>
+</main>

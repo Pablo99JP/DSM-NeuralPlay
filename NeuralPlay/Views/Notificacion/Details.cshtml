@@ -341,13 +341,13 @@
     }
 </style>
 
-<div class="content-container">
-    <div class="page-header">
+<main class="content-container">
+    <header class="page-header">
         <div>
             <h1 class="page-title">Notificación</h1>
             <p class="page-subtitle">Detalle del aviso seleccionado</p>
         </div>
-    </div>
+    </header>
 
     <section class="card-panel">
         <div class="meta-grid">
@@ -378,10 +378,10 @@
             var uid = Context.Session.GetInt32("UsuarioId");
             bool isDest = uid.HasValue && invitacion.DestinatarioId.HasValue && uid.Value == invitacion.DestinatarioId.Value;
 
-            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                <h3 style="font-family: 'Neue', sans-serif; font-size: 1.8rem; margin-bottom: 16px; color: var(--np-red);">
+            <article style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <h2 style="font-family: 'Neue', sans-serif; font-size: 1.8rem; margin-bottom: 16px; color: var(--np-red);">
                     <i class="bi bi-envelope-open"></i> Detalles de la Invitación
-                </h3>
+                </h2>
                 
                 <div class="meta-grid">
                     <div>
@@ -425,9 +425,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </article>
 
-            <div class="actions">
+            <nav class="actions">
                 @if (invitacion.Estado.ToString() == "PENDIENTE" && isDest)
                 {
                     <form asp-action="AcceptInvitation" method="post" style="display: inline;">
@@ -452,13 +452,13 @@
                 }
                 
                 <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver notificaciones</a>
-            </div>
+            </nav>
         }
         else
         {
-            <div class="actions">
+            <nav class="actions">
                 <a asp-action="Index" class="btn-secondary-ghost"><i class="bi bi-list"></i> Ver listado</a>
-            </div>
+            </nav>
         }
     </section>
-</div>
+</main>
