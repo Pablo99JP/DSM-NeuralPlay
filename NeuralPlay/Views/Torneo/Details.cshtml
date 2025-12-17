@@ -285,6 +285,9 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
     .classification-item {
@@ -371,6 +374,9 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
     .team-item {
@@ -432,6 +438,21 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(229, 10, 70, 0.3);
         text-decoration: none;
+        color: white;
+    }
+
+    /* Iconos de flechas */
+    .btn-custom i.bi-arrow-left,
+    .btn-custom i.bi-arrow-right,
+    .btn-outline i.bi-arrow-left,
+    .btn-outline i.bi-arrow-right {
+        color: var(--np-red);
+        font-weight: 900;
+        font-size: 1.3rem;
+    }
+
+    .btn-custom:hover i.bi-arrow-left,
+    .btn-custom:hover i.bi-arrow-right {
         color: white;
     }
 
@@ -535,16 +556,24 @@
         .btn-custom { font-size: 0.9rem; padding: 10px 18px; width: 100%; }
         .btn-outline { width: 100%; }
         .actions-section { padding: 0 8px; max-width: calc(100% - 16px); margin: 0 auto; flex-direction: column; gap: 12px; }
+        
+        /* Ajuste gestionar posiciones en móvil */
+        .tab-pane form > div[style*="grid"] { 
+            grid-template-columns: 1fr !important; 
+            padding: 0 !important; 
+            margin: 0 auto 20px auto !important;
+            max-width: 100% !important;
+        }
     }
 </style>
 
 <!-- Contenedor principal -->
-<div class="main-container">
+<main class="main-container">
     <!-- Contenedor de contenido -->
     <div class="content-wrapper">
         <div class="content-inner">
             <!-- Encabezado del torneo -->
-            <div class="torneo-header">
+            <header class="torneo-header">
                 <h1>
                     <span>Torneo:</span> <span class="highlight">@Model.Torneo.Nombre</span>
                 </h1>
@@ -558,22 +587,22 @@
                         <span>Sin comunidad organizadora</span>
                     }
                 </p>
-            </div>
+            </header>
 
             <div class="torneo-divider"></div>
 
             <!-- Tarjetas de información -->
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-calendar-event"></i> Fecha de Inicio</div>
-                    <div class="info-card-value">
+            <section class="info-grid">
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-calendar-event"></i> Fecha de Inicio</h3>
+                    <p class="info-card-value">
                         @(Model.Torneo.FechaInicio == default ? "-" : Model.Torneo.FechaInicio.ToString("dd/MM/yyyy"))
-                    </div>
-                </div>
+                    </p>
+                </article>
 
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-info-circle"></i> Estado</div>
-                    <div class="info-card-value">
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-info-circle"></i> Estado</h3>
+                    <p class="info-card-value">
                         @if (Model.Torneo.Estado == "PENDIENTE")
                         {
                             <span class="badge-custom badge-pending">@Model.Torneo.Estado</span>
@@ -590,14 +619,14 @@
                         {
                             <span class="badge-custom" style="background: #2196f3; color: white;">@Model.Torneo.Estado</span>
                         }
-                    </div>
-                </div>
+                    </p>
+                </article>
 
-                <div class="info-card">
-                    <div class="info-card-title"><i class="bi bi-people-fill"></i> Equipos</div>
-                    <div class="info-card-value">@(Model.Participaciones.Count())</div>
-                </div>
-            </div>
+                <article class="info-card">
+                    <h3 class="info-card-title"><i class="bi bi-people-fill"></i> Equipos</h3>
+                    <p class="info-card-value">@(Model.Participaciones.Count())</p>
+                </article>
+            </section>
 
             <!-- Mensajes de éxito/error -->
             @if (TempData["SuccessMessage"] != null)
@@ -618,9 +647,9 @@
             }
 
             <!-- Sección de pestañas -->
-            <div class="tabs-section">
+            <section class="tabs-section">
                 <!-- Navegación de pestañas -->
-                <div class="tabs-nav" role="tablist">
+                <nav class="tabs-nav" role="tablist">
                     <button class="active" data-tab="descripcion" role="tab">
                         <i class="bi bi-file-text"></i> Descripción
                     </button>
@@ -633,12 +662,12 @@
                     <button data-tab="unirse" role="tab">
                         <i class="bi bi-plus-circle"></i> Unirse
                     </button>
-                </div>
+                </nav>
 
                 <!-- Contenido de pestañas -->
                 <div class="tabs-content">
                     <!-- Pestaña Descripción -->
-                    <div id="tab-descripcion" class="tab-pane active">
+                    <article id="tab-descripcion" class="tab-pane active">
                         <h2 class="tab-pane-title">Reglas del Torneo</h2>
                         @if (!string.IsNullOrWhiteSpace(Model.Torneo.Reglas))
                         {
@@ -648,10 +677,10 @@
                         {
                             <p class="tab-pane-text tab-pane-text-empty">No se han especificado reglas para este torneo.</p>
                         }
-                    </div>
+                    </article>
 
                     <!-- Pestaña Clasificación -->
-                    <div id="tab-clasificacion" class="tab-pane" style="display: none;">
+                    <article id="tab-clasificacion" class="tab-pane" style="display: none;">
                         <h2 class="tab-pane-title">Clasificación para este torneo:</h2>
                         @if (Model.Participaciones.Any())
                         {
@@ -660,12 +689,12 @@
                                 .ThenBy(x => x.IdParticipacion)
                                 .ToList();
 
-                            <div class="classification-list">
+                            <ol class="classification-list">
                                 @{ var fallback = 1; }
                                 @foreach (var p in ordered)
                                 {
                                     var mostrarPos = p.Posicion ?? fallback;
-                                    <div class="classification-item">
+                                    <li class="classification-item">
                                         <div class="classification-image">
                                             @if (!string.IsNullOrWhiteSpace(p.Equipo?.ImagenUrl))
                                             {
@@ -684,10 +713,10 @@
                                         <div class="classification-ranking">
                                             @mostrarPos
                                         </div>
-                                    </div>
+                                    </li>
                                     fallback++;
                                 }
-                            </div>
+                            </ol>
 
                             @if (esCreador)
                             {
@@ -714,10 +743,10 @@
                         {
                             <p class="tab-pane-text tab-pane-text-empty">No hay equipos participantes aún.</p>
                         }
-                    </div>
+                    </article>
 
                     <!-- Pestaña Premios -->
-                    <div id="tab-premios" class="tab-pane" style="display: none;">
+                    <article id="tab-premios" class="tab-pane" style="display: none;">
                         <h2 class="tab-pane-title">Premios del Torneo</h2>
                         @if (!string.IsNullOrWhiteSpace(Model.Torneo.Premios))
                         {
@@ -727,10 +756,10 @@
                         {
                             <p class="tab-pane-text tab-pane-text-empty">No se han especificado premios para este torneo.</p>
                         }
-                    </div>
+                    </article>
 
                     <!-- Pestaña Unirse -->
-                    <div id="tab-unirse" class="tab-pane" style="display: none;">
+                    <article id="tab-unirse" class="tab-pane" style="display: none;">
                         <h2 class="tab-pane-title">Proponer Participación</h2>
                         @if (currentUser == null)
                         {
@@ -747,13 +776,13 @@
                         else
                         {
                             <p class="tab-pane-text" style="margin-bottom: 25px;">Selecciona uno de tus equipos para proponer su participación en este torneo:</p>
-                            <div class="team-list">
+                            <ul class="team-list">
                                 @foreach (var equipo in Model.EquiposUsuario)
                                 {
                                     var yaPropuesto = Model.Propuestas.Any(pr => pr.EquipoProponente?.IdEquipo == equipo.IdEquipo);
                                     var yaParticipando = Model.Participaciones.Any(pa => pa.Equipo?.IdEquipo == equipo.IdEquipo);
                                     
-                                    <div class="team-item">
+                                    <li class="team-item">
                                         <div class="team-info">
                                             <h6>@equipo.Nombre</h6>
                                             <small>@(equipo.Descripcion ?? "Sin descripción")</small>
@@ -775,13 +804,13 @@
                                                 </form>
                                             }
                                         </div>
-                                    </div>
+                                    </li>
                                 }
-                            </div>
+                            </ul>
                         }
-                    </div>
+                    </article>
                 </div>
-            </div>
+            </section>
 
             <!-- Sección de acciones -->
             <div class="actions-section">
@@ -797,10 +826,10 @@
                         <i class="bi bi-trash"></i> Eliminar
                     </a>
                 }
-            </div>
+            </section>
         </div>
     </div>
-</div>
+</main>
 
 <script>
     // Sistema de pestañas interactivo

@@ -8,34 +8,41 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h2>Propuestas de Torneo</h2>
-<p class="text-muted">Incluye pendientes, aceptadas y rechazadas. Un estado ACEPTADA implica creación automática de participación.</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Equipo</th>
-            <th>Torneo</th>
-            <th>Fecha Propuesta</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var p in Model)
-    {
-        var badge = p.Estado switch {
-            ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA => "badge bg-success",
-            ApplicationCore.Domain.Enums.EstadoSolicitud.RECHAZADA => "badge bg-danger",
-            ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE => "badge bg-warning text-dark",
-            _ => "badge bg-secondary"
-        };
-        <tr>
-            <td>@p.EquipoProponente?.Nombre</td>
-            <td>@p.Torneo?.Nombre</td>
-            <td>@p.FechaPropuesta.ToString("yyyy-MM-dd")</td>
-            <td><span class="@badge">@p.Estado</span></td>
-            <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@p.IdPropuesta">Ver</a></td>
-        </tr>
-    }
-    </tbody>
-</table>
+<main>
+    <header>
+        <h2>Propuestas de Torneo</h2>
+        <p class="text-muted">Incluye pendientes, aceptadas y rechazadas. Un estado ACEPTADA implica creación automática de participación.</p>
+    </header>
+    
+    <section>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Torneo</th>
+                    <th>Fecha Propuesta</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                var badge = p.Estado switch {
+                    ApplicationCore.Domain.Enums.EstadoSolicitud.ACEPTADA => "badge bg-success",
+                    ApplicationCore.Domain.Enums.EstadoSolicitud.RECHAZADA => "badge bg-danger",
+                    ApplicationCore.Domain.Enums.EstadoSolicitud.PENDIENTE => "badge bg-warning text-dark",
+                    _ => "badge bg-secondary"
+                };
+                <tr>
+                    <td>@p.EquipoProponente?.Nombre</td>
+                    <td>@p.Torneo?.Nombre</td>
+                    <td>@p.FechaPropuesta.ToString("yyyy-MM-dd")</td>
+                    <td><span class="@badge">@p.Estado</span></td>
+                    <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@p.IdPropuesta">Ver</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+</main>

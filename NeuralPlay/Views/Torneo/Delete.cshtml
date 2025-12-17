@@ -4,42 +4,46 @@
 @Html.Partial("~/Views/Shared/_SidebarRight.cshtml")
 @Html.Partial("~/Views/Shared/_SidebarDown.cshtml")
 
-<h2>Eliminar Torneo</h2>
+<main>
+    <header>
+        <h2>Eliminar Torneo</h2>
+    </header>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
 
-<div class="alert alert-warning">
-    <h4>¿Está seguro de que desea eliminar este torneo?</h4>
-    <p>Esta acción no se puede deshacer.</p>
-</div>
+    <aside class="alert alert-warning">
+        <h4>¿Está seguro de que desea eliminar este torneo?</h4>
+        <p>Esta acción no se puede deshacer.</p>
+    </aside>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <h3 class="card-title">@Model.Nombre</h3>
-        <p class="card-text"><strong>Fecha inicio:</strong> @(Model.FechaInicio == default ? "-" : Model.FechaInicio.ToString("yyyy-MM-dd"))</p>
-        <p class="card-text"><strong>Estado:</strong> @Model.Estado</p>
-        @if (!string.IsNullOrWhiteSpace(Model.Reglas))
-        {
-            <p class="card-text"><strong>Reglas:</strong> @Model.Reglas</p>
-        }
-        @if (Model.ComunidadOrganizadora != null)
-        {
-            <p class="card-text"><strong>Comunidad organizadora:</strong> @Model.ComunidadOrganizadora.Nombre</p>
-        }
-    </div>
-</div>
+    <article class="card mb-3">
+        <div class="card-body">
+            <h3 class="card-title">@Model.Nombre</h3>
+            <p class="card-text"><strong>Fecha inicio:</strong> @(Model.FechaInicio == default ? "-" : Model.FechaInicio.ToString("yyyy-MM-dd"))</p>
+            <p class="card-text"><strong>Estado:</strong> @Model.Estado</p>
+            @if (!string.IsNullOrWhiteSpace(Model.Reglas))
+            {
+                <p class="card-text"><strong>Reglas:</strong> @Model.Reglas</p>
+            }
+            @if (Model.ComunidadOrganizadora != null)
+            {
+                <p class="card-text"><strong>Comunidad organizadora:</strong> @Model.ComunidadOrganizadora.Nombre</p>
+            }
+        </div>
+    </article>
 
-@{
-    var comunidadId = Model.ComunidadOrganizadora?.IdComunidad;
-    var cancelUrl = comunidadId.HasValue
-        ? Url.Action("Details", "Comunidad", new { id = comunidadId.Value })
-        : Url.Action("Index", "Comunidad");
-}
+    @{
+        var comunidadId = Model.ComunidadOrganizadora?.IdComunidad;
+        var cancelUrl = comunidadId.HasValue
+            ? Url.Action("Details", "Comunidad", new { id = comunidadId.Value })
+            : Url.Action("Index", "Comunidad");
+    }
 
-<form method="post" asp-action="Delete" asp-route-id="@Model.IdTorneo">
-    <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
-    <a class="btn btn-secondary" href="@cancelUrl">Cancelar</a>
-</form>
+    <form method="post" asp-action="Delete" asp-route-id="@Model.IdTorneo">
+        <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
+        <a class="btn btn-secondary" href="@cancelUrl">Cancelar</a>
+    </form>
+</main>
