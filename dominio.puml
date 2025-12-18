@@ -1,7 +1,7 @@
-@startuml
+@startuml NeuralPlay - Modelo de Dominio
 left to right direction
 skinparam linetype ortho
-skinparam classFontSize 12
+skinparam classFontSize 11
 hide circle
 skinparam classAttributeIconSize 0
 
@@ -9,6 +9,7 @@ skinparam classAttributeIconSize 0
 enum RolComunidad {
   LIDER
   COLABORADOR
+  MODERADOR
   MIEMBRO
 }
 enum RolEquipo {
@@ -80,7 +81,7 @@ package "Social" {
     -nick: String
     -correoElectronico: String
     -contrasenaHash: String
-    -telefono: String
+    -telefono: String?
     -fechaRegistro: DateTime
     -estadoCuenta: EstadoCuenta
     --
@@ -95,8 +96,9 @@ package "Social" {
   class Comunidad <<Entity>> {
     -idComunidad: Long {id}
     -nombre: String
-    -descripcion: String
+    -descripcion: String?
     -fechaCreacion: DateTime
+    -imagenUrl: String?
     --
     +newComunidad(nombre: String, descripcion: String): Comunidad <<New>>
     +modifyComunidad(...): Void <<Modify>>
@@ -109,11 +111,12 @@ package "Social" {
   class Equipo <<Entity>> {
     -idEquipo: Long {id}
     -nombre: String
-    -descripcion: String
+    -descripcion: String?
     -fechaCreacion: DateTime
     -actividad: Actividad
-    -pais: String
-    -idioma: String
+    -pais: String?
+    -idioma: String?
+    -imagenUrl: String?
     --
     +newEquipo(nombre: String, descripcion: String): Equipo <<New>>
     +modifyEquipo(...): Void <<Modify>>
@@ -128,7 +131,8 @@ package "Social" {
     -rol: RolComunidad
     -estado: EstadoMembresia
     -fechaAlta: DateTime
-    -fechaBaja: DateTime
+    -fechaAccion: DateTime?
+    -fechaBaja: DateTime?
     --
     +newMiembroComunidad(usuarioId: Long, comunidadId: Long, rol: RolComunidad): MiembroComunidad <<New>>
     +modifyMiembroComunidad(...): Void <<Modify>>
@@ -145,7 +149,8 @@ package "Social" {
     -rol: RolEquipo
     -estado: EstadoMembresia
     -fechaAlta: DateTime
-    -fechaBaja: DateTime
+    -fechaAccion: DateTime?
+    -fechaBaja: DateTime?
     --
     +newMiembroEquipo(usuarioId: Long, equipoId: Long, rol: RolEquipo): MiembroEquipo <<New>>
     +modifyMiembroEquipo(...): Void <<Modify>>
@@ -162,7 +167,7 @@ package "Social" {
     -tipo: TipoInvitacion
     -estado: EstadoSolicitud
     -fechaEnvio: DateTime
-    -fechaRespuesta: DateTime
+    -fechaRespuesta: DateTime?
     --
     +newInvitacion(...): Invitacion <<New>>
     +modifyInvitacion(...): Void <<Modify>>
@@ -176,7 +181,7 @@ package "Social" {
     -tipo: TipoInvitacion
     -estado: EstadoSolicitud
     -fechaSolicitud: DateTime
-    -fechaResolucion: DateTime
+    -fechaResolucion: DateTime?
     --
     +newSolicitudIngreso(...): SolicitudIngreso <<New>>
     +modifySolicitudIngreso(...): Void <<Modify>>
@@ -213,7 +218,7 @@ package "Social" {
     -idPublicacion: Long {id}
     -contenido: String
     -fechaCreacion: DateTime
-    -fechaEdicion: DateTime
+    -fechaEdicion: DateTime?
     --
     +newPublicacion(...): Publicacion <<New>>
     +modifyPublicacion(...): Void <<Modify>>
@@ -227,7 +232,7 @@ package "Social" {
     -idComentario: Long {id}
     -contenido: String
     -fechaCreacion: DateTime
-    -fechaEdicion: DateTime
+    -fechaEdicion: DateTime?
     --
     +newComentario(...): Comentario <<New>>
     +modifyComentario(...): Void <<Modify>>
@@ -271,7 +276,8 @@ package "Torneos" {
     -idTorneo: Long {id}
     -nombre: String
     -fechaInicio: DateTime
-    -reglas: String
+    -reglas: String?
+    -premios: String?
     -estado: String
     --
     +newTorneo(nombre: String, fechaInicio: DateTime): Torneo <<New>>
@@ -309,8 +315,9 @@ package "Torneos" {
 
   class ParticipacionTorneo <<Entity>> {
     -idParticipacion: Long {id}
-    -estado: EstadoParticipacion
+    -estado: String
     -fechaAlta: DateTime
+    -posicion: Int?
     --
     +newParticipacionTorneo(...): ParticipacionTorneo <<New>>
     +modifyParticipacionTorneo(...): Void <<Modify>>
@@ -324,11 +331,10 @@ package "Torneos" {
 package "Perfil & Juegos" {
   class Perfil <<Entity>> {
     -idPerfil: Long {id}
-    -fotoPerfilUrl: String
-    -descripcion: String
+    -fotoPerfilUrl: String?
+    -descripcion: String?
     -visibilidadPerfil: Visibilidad
     -visibilidadActividad: Visibilidad
-    -juegoFavoritoId: Long
     --
     +newPerfil(usuarioId: Long): Perfil <<New>>
     +modifyPerfil(...): Void <<Modify>>
@@ -349,6 +355,8 @@ package "Perfil & Juegos" {
     -idJuego: Long {id}
     -nombreJuego: String
     -genero: GeneroJuego
+    -imagenUrl: String?
+    -descripcion: String?
     --
     +newJuego(nombre: String, genero: GeneroJuego): Juego <<New>>
     +modifyJuego(...): Void <<Modify>>
@@ -375,7 +383,7 @@ package "Autenticación" {
   class Sesion <<Entity>> {
     -idSesion: Long {id}
     -fechaInicio: DateTime
-    -fechaFin: DateTime
+    -fechaFin: DateTime?
     -token: String
     --
     +newSesion(usuarioId: Long): Sesion <<New>>
@@ -395,52 +403,53 @@ Usuario "1" -- "0..*" MiembroComunidad : usuario
 Comunidad "1" -- "0..*" MiembroComunidad : comunidad
 Usuario "1" -- "0..*" MiembroEquipo : usuario
 Equipo "1" -- "0..*" MiembroEquipo : equipo
-Comunidad "1" -- "0..*" Equipo : contiene
-Comunidad "1" -- "0..*" Torneo : organiza
+Comunidad "0..1" -- "0..*" Equipo : contiene
+Comunidad "0..1" -- "0..*" Torneo : organiza
+Comunidad "0..1" -- "0..*" Publicacion : publicaciones
+
+Torneo "0..*" -- "0..1" Usuario : creador
+Torneo "1" -- "0..*" PropuestaTorneo : pertenece
+Torneo "1" -- "0..*" ParticipacionTorneo : participaciones
 
 Equipo "1" *-- "0..1" ChatEquipo : chat
+Equipo "0..1" -- "0..*" PropuestaTorneo : propone
+
+Invitacion "0..*" -- "0..1" Usuario : emisor
+Invitacion "0..*" -- "0..1" Usuario : destinatario
+Invitacion "0..*" -- "0..1" Comunidad : comunidad
+Invitacion "0..*" -- "0..1" Equipo : equipo
+
+SolicitudIngreso "0..*" -- "0..1" Usuario : solicitante
+SolicitudIngreso "0..*" -- "0..1" Comunidad : comunidad
+SolicitudIngreso "0..*" -- "0..1" Equipo : equipo
+
 ChatEquipo "1" -- "0..*" MensajeChat : mensajes
-Usuario "1" -- "0..*" MensajeChat : autor
+MensajeChat "0..*" -- "0..1" Usuario : autor
 
-Usuario "1" -- "0..*" Invitacion : emisor
-Usuario "1" -- "0..*" Invitacion : destinatario
-Comunidad "1" -- "0..1" Invitacion : comunidad
-Equipo "0..1" -- "0..*" Invitacion : equipo
-
-Usuario "1" -- "0..*" SolicitudIngreso : solicitante
-Comunidad "1" -- "0..1" SolicitudIngreso : comunidad
-Equipo "0..1" -- "0..*" SolicitudIngreso : equipo
-
-Comunidad "1" -- "0..*" Publicacion : publicaciones
-Usuario "1" -- "0..*" Publicacion : autor
+Publicacion "0..*" -- "0..1" Usuario : autor
 Publicacion "1" -- "0..*" Comentario : comentarios
-Usuario "1" -- "0..*" Comentario : autor
+Comentario "0..*" -- "0..1" Usuario : autor
+Comentario "0..*" -- "0..1" Publicacion : publicacion
 
 Publicacion "0..1" -- "0..*" Reaccion : reacciones
 Comentario "0..1" -- "0..*" Reaccion : reacciones
-Usuario "1" -- "0..*" Reaccion : autor
+Reaccion "0..*" -- "0..1" Usuario : autor
 
-Usuario "1" -- "0..*" Notificacion : destinatario
-Publicacion "0..1" -- "0..*" Notificacion : origenPublicacion
-Comentario "0..1" -- "0..*" Notificacion : origenComentario
-PropuestaTorneo "0..1" -- "0..*" Notificacion : origenPropuesta
-Reaccion "0..1" -- "0..*" Notificacion : origenReaccion
+Notificacion "0..*" -- "0..1" Usuario : destinatario
 
-Equipo "1" -- "0..*" PropuestaTorneo : propone
-Torneo "1" -- "0..*" PropuestaTorneo : pertenece
-Usuario "1" -- "0..*" PropuestaTorneo : propuestoPor
 PropuestaTorneo "1" -- "0..*" VotoTorneo : votos
-Usuario "1" -- "0..*" VotoTorneo : votante
+VotoTorneo "0..*" -- "0..1" Usuario : votante
+PropuestaTorneo "0..*" -- "0..1" Usuario : propuestoPor
 
 ParticipacionTorneo "0..*" -- "1" Equipo
 ParticipacionTorneo "0..*" -- "1" Torneo
 
-Usuario "0..1" -- "1" Perfil : tiene
+Usuario "1" -- "0..1" Perfil : tiene
 Usuario "1" -- "0..*" Sesion : tiene
 
 Perfil "1" -- "0..*" PerfilJuego
-Juego  "1" -- "0..*" PerfilJuego
-Perfil "0..1" --> "0..*" Juego : JuegoFavorito
+Juego "1" -- "0..*" PerfilJuego
+Perfil "0..*" --> "0..1" Juego : JuegoFavorito
 
 note right of Reaccion
   Restriccion (d1): una reaccion por usuario y tipo
