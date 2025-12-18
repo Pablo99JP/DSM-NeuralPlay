@@ -884,8 +884,8 @@ END
                         Console.WriteLine($"✓ Created {2} PropuestaTorneo");
 
                         // === Escenario solicitado: Copa Invierno LoL y Tigres Arkham ===
-                        // Crear juego específico si no existe
-                        var lol = juegoCEN.NewJuego("League of Legends", ApplicationCore.Domain.Enums.GeneroJuego.ESTRATEGIA);
+                        // Reutilizar el juego League of Legends ya creado
+                        var lol = juego1; // Ya creado en línea 851
                         // Crear torneo "Copa Invierno LoL" si no existe
                         var copaInvierno = torneoRepo.ReadFilter("Copa Invierno LoL").FirstOrDefault();
                         if (copaInvierno == null)
