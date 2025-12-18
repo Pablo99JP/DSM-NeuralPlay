@@ -761,7 +761,13 @@
                     <!-- Pestaña Unirse -->
                     <article id="tab-unirse" class="tab-pane" style="display: none;">
                         <h2 class="tab-pane-title">Proponer Participación</h2>
-                        @if (currentUser == null)
+                        @if (Model.Torneo.Estado == "FINALIZADO")
+                        {
+                            <div class="alert-custom alert-custom-warning">
+                                <i class="bi bi-exclamation-circle"></i> Este torneo ya ha finalizado. No se pueden proponer nuevas participaciones.
+                            </div>
+                        }
+                        else if (currentUser == null)
                         {
                             <div class="alert-custom alert-custom-info">
                                 <i class="bi bi-info-circle"></i> Debes <a asp-controller="Usuario" asp-action="Login">iniciar sesión</a> para proponer la participación de tus equipos.
